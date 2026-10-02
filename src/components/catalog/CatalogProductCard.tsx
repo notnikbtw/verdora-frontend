@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@components/ui/card';
 import { Skeleton } from '@components/ui/skeleton';
 import { Heart, Flower2, Check } from 'lucide-react';
 import { useAppSelector } from '@api/hooks';
+import { cn } from '@/lib/utils';
 import type { ViewMode } from './CatalogToolbar';
 import type { Product } from '@/types/product';
 
@@ -19,6 +20,7 @@ type Props = {
   onAuthRequired?: () => void;
   isAuthenticated?: boolean;
   onProductClick?: (productId: number) => void;
+  className?: string;
 };
 
 export const CatalogProductCard = ({
@@ -31,6 +33,7 @@ export const CatalogProductCard = ({
   onAuthRequired,
   isAuthenticated,
   onProductClick,
+  className,
 }: Props) => {
   const navigate = useNavigate();
   const { user } = useAppSelector(state => state.auth);
@@ -42,6 +45,20 @@ export const CatalogProductCard = ({
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [added, setAdded] = useState(false);
   const isGrid = viewMode === 'grid';
+
+  const addTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setInternalFav(isFavorite);
+  }, [isFavorite]);
+
+  useEffect(() => {
+    return () => {
+      if (addTimerRef.current) {
+        clearTimeout(addTimerRef.current);
+      }
+    };
+  }, []);
 
   const hasDiscount = Boolean(
     product.discountPrice && product.discountPrice < product.price
@@ -93,7 +110,13 @@ export const CatalogProductCard = ({
     e.stopPropagation();
     onAddToCart?.(productId);
     setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
+    if (addTimerRef.current) {
+      clearTimeout(addTimerRef.current);
+    }
+    addTimerRef.current = setTimeout(() => {
+      setAdded(false);
+      addTimerRef.current = null;
+    }, 1500);
   };
 
   return (
@@ -104,11 +127,13 @@ export const CatalogProductCard = ({
       onAuxClick={handleAuxClick}
       onKeyDown={handleKeyDown}
       aria-label={`View details for ${product.name}`}
-      className={`border border-border bg-[#fcfdfb] rounded-[22px] overflow-hidden p-4 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+      className={cn(
+        'border border-border bg-[#fcfdfb] rounded-[22px] overflow-hidden p-4 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
         isGrid
           ? 'flex flex-col gap-3.5'
-          : 'flex flex-col sm:flex-row items-center gap-5'
-      }`}
+          : 'flex flex-col sm:flex-row items-center gap-5',
+        className
+      )}
     >
       <div
         className={`flex items-start justify-between gap-3 w-full ${
@@ -140,7 +165,9 @@ export const CatalogProductCard = ({
                 ? 'border-[#FA1105]/40 text-[#FA1105]'
                 : 'border-[#D9DEDB] text-[#0C0C0C] hover:border-zinc-400'
             }`}
-            aria-label="Add to favourites"
+            aria-label={
+              internalFav ? 'Remove from favourites' : 'Add to favourites'
+            }
           >
             <Heart
               className={`size-4 stroke-[1.6] ${

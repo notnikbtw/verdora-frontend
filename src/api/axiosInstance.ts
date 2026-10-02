@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { store } from '@api/store';
 import { clearAuth } from '@api/auth/auth.slice';
+import { queryClient } from '@api/queryClient';
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -63,6 +64,7 @@ instance.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError);
         store.dispatch(clearAuth());
+        queryClient.clear();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

@@ -5,7 +5,7 @@ export type Product = {
   price: number;
   categoryId: number;
   imageUrl: string;
-  discountPrice?: number;
+  discountPrice?: number | null;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -16,7 +16,7 @@ export type CreateProductPayload = {
   price: number;
   categoryId: number;
   imageUrl: string;
-  discountPrice?: number;
+  discountPrice?: number | null;
 };
 
 export type UpdateProductPayload = Partial<CreateProductPayload>;

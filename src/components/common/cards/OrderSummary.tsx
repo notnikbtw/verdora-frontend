@@ -70,7 +70,7 @@ const OrderSummary = ({
           <Skeleton className="h-4 w-2/3" />
         </div>
 
-        <Skeleton className="h-[1px] w-full" />
+        <Skeleton className="h-px w-full" />
         <Skeleton className="h-6 w-full text-lg font-bold" />
         <Skeleton className="h-12 w-full" />
         <Skeleton className="h-10 w-full" />

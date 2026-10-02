@@ -7,8 +7,8 @@ const CategoryListSkeleton = () => (
         key={i}
         className="flex items-center justify-between gap-3 px-4 py-3.5"
       >
-        <Skeleton className="h-[16px] w-[160px] rounded" />
-        <Skeleton className="h-[28px] w-[64px]" />
+        <Skeleton className="h-4 w-40 rounded" />
+        <Skeleton className="h-7 w-16" />
       </li>
     ))}
   </div>

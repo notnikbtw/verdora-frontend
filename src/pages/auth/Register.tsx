@@ -1,7 +1,7 @@
 import { Button } from '@components/ui/button';
 import PasswordField from '@components/common/forms/PasswordField';
 import TextField from '@components/common/forms/TextField';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { useRegisterForm, type RegisterFormData } from '@hooks/useRegisterForm';
 import PasswordStrength from '@components/common/forms/PasswordStrength';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
@@ -19,7 +19,10 @@ import LockIcon from '@assets/icons/lock.svg?react';
 const Register = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { loading, errors } = useAppSelector(state => state.auth);
+
+  const from = (location.state as { from?: Location })?.from?.pathname || '/';
 
   const {
     handleSubmit,
@@ -41,13 +44,14 @@ const Register = () => {
         password: data.password,
       })
     ).unwrap();
-    navigate('/');
+    navigate(from, { replace: true });
   };
 
   return (
     <AuthForm
       footerText="Have an account?"
       footerLink="/login"
+      footerLinkState={location.state}
       footerLinkText="Log in"
     >
       <form

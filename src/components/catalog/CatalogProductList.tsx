@@ -12,6 +12,7 @@ type Props = {
   onRetry?: () => void;
   categoryMap?: Map<number, string>;
   viewMode: ViewMode;
+  isFavorite?: (id: number) => boolean;
   onToggleFavorite?: (id: number) => void;
   onAddToCart?: (id: number) => void;
   onAuthRequired?: () => void;
@@ -28,6 +29,7 @@ const CatalogProductList = ({
   onRetry,
   categoryMap,
   viewMode,
+  isFavorite,
   onToggleFavorite,
   onAddToCart,
   onAuthRequired,
@@ -167,6 +169,7 @@ const CatalogProductList = ({
           product={product}
           categoryName={categoryMap?.get(product.categoryId)}
           viewMode={viewMode}
+          isFavorite={isFavorite ? isFavorite(product.productId) : false}
           onToggleFavorite={onToggleFavorite}
           onAddToCart={onAddToCart}
           onAuthRequired={onAuthRequired}

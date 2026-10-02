@@ -345,7 +345,9 @@ const Checkout = () => {
                   </div>
                   <span className="font-semibold text-gray-900 text-xs">
                     {formatCurrency(
-                      (item.discountPrice ?? item.price) * item.quantity
+                      (item.discountPrice && item.discountPrice < item.price
+                        ? item.discountPrice
+                        : item.price) * item.quantity
                     )}
                   </span>
                 </div>

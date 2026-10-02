@@ -1,7 +1,7 @@
 import type { Roles } from '@/types/user';
 import { Spinner } from '@components/ui/spinner';
 import { useGetCurrentUser } from '@api/user/user.hooks';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import React from 'react';
 
 type Props = {
@@ -17,6 +17,7 @@ const ProtectedRoute: React.FC<Props> = ({
   requireAuth = true,
   children,
 }) => {
+  const location = useLocation();
   const { data: user, isFetched, isError } = useGetCurrentUser();
 
   if (!isFetched) {
@@ -35,7 +36,7 @@ const ProtectedRoute: React.FC<Props> = ({
   }
 
   if (isError || !user) {
-    return <Navigate to={redirectTo} replace />;
+    return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
   if (allowedRoles.length > 0) {

@@ -18,7 +18,7 @@ export type CartItemType = {
   productName: string;
   imageUrl: string;
   price: number;
-  discountPrice?: number;
+  discountPrice?: number | null;
   quantity: number;
   subtotal: number;
 };

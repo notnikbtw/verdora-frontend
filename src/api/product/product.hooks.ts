@@ -12,10 +12,14 @@ import type {
 
 type ProductAxiosError = AxiosError<ApiErrorResponse>;
 
-export const useGetProducts = (params?: GetProductsPayload) => {
+export const useGetProducts = (
+  params?: GetProductsPayload,
+  enabled: boolean = true
+) => {
   return useQuery<PaginatedData<Product>, ProductAxiosError>({
     queryKey: ['products', params],
     queryFn: () => productService.getProducts(params),
+    enabled,
   });
 };
 
@@ -24,6 +28,10 @@ export const useGetProductById = (id: number, enabled: boolean = true) => {
     queryKey: ['products', id],
     queryFn: () => productService.getProductById(id),
     enabled: !!id && enabled,
+    retry: (failureCount, error) => {
+      if (error?.response?.status === 404) return false;
+      return failureCount < 2;
+    },
   });
 };
 

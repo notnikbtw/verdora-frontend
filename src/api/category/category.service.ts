@@ -40,7 +40,15 @@ export const categoryService = {
   },
 
   getAllCategories: async () => {
-    const response = await instance.get<ApiResponse<Category[]>>(`/categories`);
-    return response.data.data;
+    const response =
+      await instance.get<ApiResponse<Category[] | { content: Category[] }>>(
+        `/categories`
+      );
+    const data = response.data.data;
+    if (Array.isArray(data)) return data;
+    if (data && 'content' in data && Array.isArray(data.content)) {
+      return data.content;
+    }
+    return [];
   },
 };

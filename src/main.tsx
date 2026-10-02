@@ -11,7 +11,8 @@ import ResetPassword from '@pages/auth/ResetPassword';
 import Cart from '@pages/Cart';
 import Orders from '@pages/Orders';
 import OrderDetails from '@pages/OrderDetails';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@api/queryClient';
 import AdminCategoriesPage from '@pages/admin/CategoryPage';
 import { TooltipProvider } from '@components/ui/tooltip';
 import AdminDashboard from '@pages/admin/Dashboard';
@@ -22,13 +23,17 @@ import Checkout from '@pages/Checkout';
 import OrderResult from '@pages/OrderResult';
 import Catalog from '@pages/Catalog';
 import ProductDetails from '@pages/ProductDetails';
+import ScrollToTop from '@components/common/ScrollToTop';
+import { fetchMe } from '@api/auth/auth.actions';
 
-const queryClient = new QueryClient();
+store.dispatch(fetchMe());
+
 createRoot(document.getElementById('root')!).render(
   <Provider store={store}>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <BrowserRouter basename={import.meta.env.BASE_URL}>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/catalog" element={<Catalog />} />
@@ -66,7 +71,14 @@ createRoot(document.getElementById('root')!).render(
               }
             />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Checkout />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/order-result" element={<OrderResult />} />
             <Route
               path="/orders"

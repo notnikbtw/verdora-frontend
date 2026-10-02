@@ -17,6 +17,7 @@ type AuthFormProps = {
   children: React.ReactNode;
   footerText: string;
   footerLink: string;
+  footerLinkState?: unknown;
   footerLinkText: string;
   onGoogleAuth?: () => void;
   continueWithGoogle?: boolean;
@@ -35,6 +36,7 @@ const AuthForm = ({
   children,
   footerText,
   footerLink,
+  footerLinkState,
   footerLinkText,
   onGoogleAuth = defaultGoogleAuth,
   continueWithGoogle = true,
@@ -93,6 +95,7 @@ const AuthForm = ({
                 <p className="text-zinc-500">{footerText}</p>
                 <LinkComponent
                   to={footerLink}
+                  state={footerLinkState}
                   text={footerLinkText}
                   className="font-bold text-black dark:text-white hover:underline"
                 />

@@ -6,6 +6,8 @@ import type { Order, UpdateOrderPayload } from '@/types/order';
 
 import { isFinalOrderStatus } from '@/utils/order.utils';
 
+import { clearGuestCart } from '@/utils/guestCart';
+
 type OrderAxiosError = AxiosError<ApiErrorResponse>;
 
 export const useCreateOrder = () => {
@@ -14,6 +16,7 @@ export const useCreateOrder = () => {
   return useMutation<Order, OrderAxiosError>({
     mutationFn: () => orderService.createOrder(),
     onSuccess: () => {
+      clearGuestCart();
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
