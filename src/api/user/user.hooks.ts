@@ -44,10 +44,20 @@ export const useGetCurrentUser = () => {
 
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
-  return useMutation<null, CartAxiosError, number>({
-    mutationFn: id => userService.deleteUser(id),
+  return useMutation<
+    null,
+    CartAxiosError,
+    number | { id: number; data?: { password?: string } }
+  >({
+    mutationFn: param => {
+      if (typeof param === 'number') {
+        return userService.deleteUser(param);
+      }
+      return userService.deleteUser(param.id, param.data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
   });
 };

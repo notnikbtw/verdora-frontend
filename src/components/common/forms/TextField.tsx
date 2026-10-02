@@ -21,7 +21,8 @@ type Props = {
   inputClassName?: string;
   labelClassName?: string;
   containerClassName?: string;
-  onChange: (value: string) => void;
+  disabled?: boolean;
+  onChange?: (value: string) => void;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   onRightIconClick?: () => void;
@@ -40,6 +41,7 @@ const TextField = ({
   inputClassName,
   labelClassName,
   containerClassName,
+  disabled,
   onChange,
   leftIcon,
   rightIcon,
@@ -78,6 +80,8 @@ const TextField = ({
           error &&
             `border-red-500 focus-within:border-red-500!
             [&_svg]:text-red-500 focus-within:[&_svg]:text-red-500!`,
+          disabled &&
+            'opacity-60 cursor-not-allowed bg-zinc-100/80 hover:border-zinc-300',
           containerClassName
         )}
       >
@@ -86,13 +90,15 @@ const TextField = ({
           id={id}
           placeholder={placeholder}
           value={value}
-          onChange={e => onChange(e.target.value)}
+          disabled={disabled}
+          onChange={e => onChange?.(e.target.value)}
           className={cn(
             `text-sm text-text-h
             focus:outline-none focus-visible:outline-none focus-visible:ring-0
             placeholder:text-sm
             placeholder:[font-family:var(--font-sans)]
             placeholder:text-text-muted`,
+            disabled && 'cursor-not-allowed text-zinc-500',
             error && 'placeholder:text-red-400',
             inputClassName
           )}

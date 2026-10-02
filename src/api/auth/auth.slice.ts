@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { UserType } from '@/types/user';
 import {
   register,
@@ -58,6 +58,21 @@ const authSlice = createSlice({
     clearAuth: state => {
       state.user = null;
     },
+    updateUser: (state, action: PayloadAction<UserType>) => {
+      state.user = action.payload;
+    },
+    clearAuthErrors: state => {
+      state.errors = {
+        login: null,
+        register: null,
+        forgot: null,
+        reset: null,
+        logout: null,
+      };
+    },
+    setLoginError: (state, action: PayloadAction<string>) => {
+      state.errors.login = action.payload;
+    },
   },
   extraReducers: builder => {
     builder
@@ -98,7 +113,9 @@ const authSlice = createSlice({
         state.errors.logout = null;
       })
       .addCase(logout.rejected, (state, action) => {
-        state.user = null;
+        if (action.payload?.status !== 0) {
+          state.user = null;
+        }
         state.errors.logout = action.payload?.message ?? 'Logout failed';
       })
 
@@ -149,6 +166,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearAuth } = authSlice.actions;
+export const { clearAuth, updateUser, clearAuthErrors, setLoginError } =
+  authSlice.actions;
 
 export default authSlice.reducer;
