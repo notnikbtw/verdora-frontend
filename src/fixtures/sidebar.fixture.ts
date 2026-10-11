@@ -6,7 +6,7 @@ import {
   ShoppingBag,
   Percent,
   FileText,
-  Settings,
+  User,
   Home,
 } from 'lucide-react';
 
@@ -41,5 +41,5 @@ export const MAIN_MENU: SidebarSection[] = [
 
 export const USER_MENU: MenuSection = [
   { icon: ShoppingBag, label: 'My Orders', path: '/orders' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: User, label: 'Profile', path: '/profile' },
 ];
