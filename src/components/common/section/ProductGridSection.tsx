@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import type { Product } from '@/types/product';
 import SectionLayout from '@components/common/section/SectionLayout';
 import CatalogProductCard from '@components/catalog/CatalogProductCard';
-import CatalogProductCardSkeleton from '@components/catalog/CatalotProductCardSkeleton';
+import CatalogProductCardSkeleton from '@components/catalog/CatalogProductCardSkeleton';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
 import { useToggleFavorite } from '@hooks/useToggleFavorite';
 import { useAddProductToCart } from '@hooks/useAddProductToCart';
@@ -47,7 +47,7 @@ const ProductGridSection = ({
   const { isFavorite, toggleFavorite } = useToggleFavorite({
     onAuthRequired: openLoginPrompt,
   });
-  const { addToCart } = useAddProductToCart(displayProducts);
+  const { addToCart } = useAddProductToCart();
 
   return (
     <SectionLayout

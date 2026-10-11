@@ -87,14 +87,25 @@ createRoot(document.getElementById('root')!).render(
             />
             <Route path="/cart" element={<Cart />} />
             <Route
-              path="/Favorites"
+              path="/favourites"
+              element={<Navigate to="/favorites" replace />}
+            />
+            <Route
+              path="/favorites"
               element={
                 <ProtectedRoute requireAuth={true}>
                   <Favorites />
                 </ProtectedRoute>
               }
             />
-            <Route path="/checkout" element={<Checkout />} />
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Checkout />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/order-result" element={<OrderResult />} />
             <Route
               path="/profile"

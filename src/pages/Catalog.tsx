@@ -81,11 +81,9 @@ const Catalog = () => {
 
   const categoryMap = useMemo(() => {
     const map = new Map<number, string>();
-    if (Array.isArray(categories)) {
-      categories.forEach(cat => {
-        map.set(Number(cat.categoryId), cat.name);
-      });
-    }
+    categories.forEach(cat => {
+      map.set(Number(cat.categoryId), cat.name);
+    });
     return map;
   }, [categories]);
 
@@ -124,7 +122,7 @@ const Catalog = () => {
     refetch: refetchProducts,
   } = useGetProducts(queryParams);
 
-  const { addToCart } = useAddProductToCart(productsData?.content);
+  const { addToCart } = useAddProductToCart();
 
   const updateParam = (key: string, value: string | null) => {
     setSearchParams(prev => {

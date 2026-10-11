@@ -36,7 +36,7 @@ export const useToggleFavorite = ({
         onAuthRequired?.();
         return;
       }
-      if (pendingRef.current.has(productId)) return;
+      if (isFavoritesLoading || pendingRef.current.has(productId)) return;
 
       setPending(productId, true);
       const mutate = favoriteIdsSet.has(productId)
@@ -47,6 +47,7 @@ export const useToggleFavorite = ({
     [
       user,
       onAuthRequired,
+      isFavoritesLoading,
       favoriteIdsSet,
       addToFavorites,
       removeFromFavorites,

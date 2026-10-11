@@ -8,6 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@components/ui/breadcrumb';
+import { cn } from '@/lib/utils';
 
 export type BreadcrumbItemConfig = {
   label: React.ReactNode;
@@ -84,7 +85,7 @@ export const Breadcrumbs = ({ items, root, className }: BreadcrumbsProps) => {
   }
 
   return (
-    <Breadcrumb className={`${className}, mt-3`}>
+    <Breadcrumb className={cn(className, 'mt-3')}>
       <BreadcrumbList>
         {resolvedItems.map((item, index) => {
           const isLast = index === resolvedItems.length - 1;

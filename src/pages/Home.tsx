@@ -13,7 +13,6 @@ import { Star, Sparkles, PackageX, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import { useAppSelector } from '@api/hooks';
-import { useAddItemToCart } from '@api/cart/cart.hooks';
 import { useAllCategories } from '@api/category/category.hooks';
 import {
   useGetProducts,
@@ -26,7 +25,7 @@ import ProductGridSection from '@components/common/section/ProductGridSection';
 import CategoryGridSection from '@components/common/section/CategoryGridSection';
 import SectionLayout from '@components/common/section/SectionLayout';
 import CatalogProductCard from '@components/catalog/CatalogProductCard';
-import CatalogProductCardSkeleton from '@components/catalog/CatalotProductCardSkeleton';
+import CatalogProductCardSkeleton from '@/components/catalog/CatalogProductCardSkeleton';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
 import { useToggleFavorite } from '@hooks/useToggleFavorite';
 import { useAddProductToCart } from '@hooks/useAddProductToCart';
@@ -50,15 +49,12 @@ const HOTSPOTS = [
 export const Home = () => {
   const navigate = useNavigate();
   const { user } = useAppSelector(state => state.auth);
-  const { mutate: addToCart, isPending: isAddingToCart } = useAddItemToCart();
 
+  const { addToCart, isAddingToCart } = useAddProductToCart();
   const { data: categories, isLoading: isCategoriesLoading } =
     useAllCategories();
   const categoryMap = useMemo(
-    () =>
-      new Map(
-        (categories ?? []).map(cat => [Number(cat.categoryId), cat.name])
-      ),
+    () => new Map(categories.map(cat => [Number(cat.categoryId), cat.name])),
     [categories]
   );
   const { data: products, isLoading: isProductsLoading } = useGetProducts();
@@ -107,23 +103,18 @@ export const Home = () => {
   const { isFavorite, toggleFavorite } = useToggleFavorite({
     onAuthRequired: () => setIsLoginPromptOpen(true),
   });
-  const { addToCart: addSelectedProductToCart } = useAddProductToCart(
-    selectedProduct ? [selectedProduct] : undefined
-  );
+  const { addToCart: addSelectedProductToCart } = useAddProductToCart();
 
   const handleBuyNow = (productId: number) => {
     if (!user) {
       navigate('/login');
       return;
     }
-    addToCart(
-      { productId, quantity: 1 },
-      {
-        onSuccess: () => {
-          navigate('/cart');
-        },
-      }
-    );
+    addToCart(productId, 1, {
+      onSuccess: () => {
+        navigate('/cart');
+      },
+    });
   };
 
   const reviews = [

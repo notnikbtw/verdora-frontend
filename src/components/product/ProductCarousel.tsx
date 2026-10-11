@@ -58,7 +58,7 @@ export const ProductCarousel = ({
     return map;
   }, [externalCategoryMap, categories]);
 
-  const { addToCart } = useAddProductToCart(products);
+  const { addToCart } = useAddProductToCart();
   const handleAddToCart = useCallback(
     (productId: number) => {
       if (onAddToCart) {

@@ -55,7 +55,7 @@ const AdminCategoriesPage = () => {
     <AdminLayout>
       <AdminSectionHeader
         title="Categories"
-        count={Array.isArray(items) ? items.length : 0}
+        count={items ? items.length : 0}
         description="Manage how products are organized in your catalog."
       >
         <Button

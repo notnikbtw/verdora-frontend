@@ -2,7 +2,7 @@ import { Flower2, RotateCcw, AlertCircle, SearchX } from 'lucide-react';
 import type { ViewMode } from '@components/catalog/CatalogToolbar';
 import CatalogProductCard from '@components/catalog/CatalogProductCard';
 import type { Product } from '@/types/product';
-import CatalogProductCardSkeleton from '@components/catalog/CatalotProductCardSkeleton';
+import CatalogProductCardSkeleton from '@components/catalog/CatalogProductCardSkeleton';
 
 type Props = {
   products?: Product[];

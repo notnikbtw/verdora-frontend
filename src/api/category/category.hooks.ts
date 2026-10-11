@@ -47,10 +47,15 @@ export const useDeleteCategory = () => {
 };
 
 export const useAllCategories = () => {
-  return useQuery<Category[], CategoryAxiosError>({
+  const query = useQuery<Category[], CategoryAxiosError>({
     queryKey: ['categories'],
     queryFn: () => categoryService.getAllCategories(),
   });
+
+  return {
+    ...query,
+    data: query.data ?? [],
+  };
 };
 
 export const useCategoryById = (categoryId: number) => {

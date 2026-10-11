@@ -16,7 +16,7 @@ import { SectionHeader } from '@/components/common/section/AdminSectionHeader';
 import { EmptySection } from '@components/common/section/EmptySection';
 import ErrorSection from '@components/common/section/ErrorSection';
 import CatalogProductCard from '@components/catalog/CatalogProductCard';
-import CatalogProductCardSkeleton from '@components/catalog/CatalotProductCardSkeleton';
+import CatalogProductCardSkeleton from '@components/catalog/CatalogProductCardSkeleton';
 import type { Product } from '@/types/product';
 
 const SUGGESTIONS_LIMIT = 4;
@@ -47,6 +47,7 @@ const Favorites = () => {
   const { user } = useAppSelector(state => state.auth);
   const isAuthenticated = Boolean(user);
 
+  const { addToCart } = useAddProductToCart();
   const {
     data: favorites,
     isLoading: isFavoritesLoading,
@@ -62,7 +63,6 @@ const Favorites = () => {
   const { favoriteIdsSet, toggleFavorite } = useToggleFavorite({
     onAuthRequired: () => setIsLoginPromptOpen(true),
   });
-  const { addToCart } = useAddProductToCart(productsData?.content);
 
   const productsById = useMemo(
     () => new Map((productsData?.content ?? []).map(p => [p.productId, p])),
@@ -163,7 +163,7 @@ const Favorites = () => {
           </div>
         )}
 
-        {suggestionProducts.length > 0 && (
+        {isReady && suggestionProducts.length > 0 && (
           <section className="mt-8 pt-8 border-t border-[#E4E8E3]/70">
             <div className="flex items-baseline justify-between gap-4 flex-wrap mb-5">
               <div className="flex items-center gap-2">
