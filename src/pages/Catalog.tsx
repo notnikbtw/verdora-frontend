@@ -81,9 +81,11 @@ const Catalog = () => {
 
   const categoryMap = useMemo(() => {
     const map = new Map<number, string>();
-    categories.forEach(cat => {
-      map.set(Number(cat.categoryId), cat.name);
-    });
+    if (Array.isArray(categories)) {
+      categories.forEach(cat => {
+        map.set(Number(cat.categoryId), cat.name);
+      });
+    }
     return map;
   }, [categories]);
 
