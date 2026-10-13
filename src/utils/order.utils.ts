@@ -134,7 +134,7 @@ export const printOrderInvoice = (order: Order): void => {
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
           <div style="font-weight: 600; color: #111827;">${item.productName}</div>
-          <div style="font-size: 12px; color: #6b7280;">Category: ${item.category || 'General Catalog'}</div>
+          <div style="font-size: 12px; color: #6b7280;">Category: ${item.categoryName || 'General Catalog'}</div>
         </td>
         <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">${item.quantity}</td>
         <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right;">${formatOrderPrice(item.priceAtPurchase)}</td>

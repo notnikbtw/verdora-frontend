@@ -16,7 +16,7 @@ export type OrderItems = {
   priceAtPurchase: number;
   subtotal: number;
   imageUrl?: string | null;
-  category?: string | null;
+  categoryName?: string | null;
 };
 
 export type Order = {
