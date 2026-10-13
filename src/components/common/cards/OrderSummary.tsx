@@ -61,7 +61,7 @@ const OrderSummary = ({
   if (loading) {
     return (
       <div
-        className={`bg-white p-4 sm:p-6 md:p-8 flex flex-col rounded-2xl border w-full lg:w-80 shrink-0 gap-6 ${className}`}
+        className={`bg-white p-4 sm:p-6 md:p-8 flex flex-col rounded-2xl border w-full lg:w-80 shrink-0 gap-6 lg:sticky lg:top-240 ${className}`}
       >
         <Skeleton className="h-6 w-40" />
 
@@ -80,7 +80,7 @@ const OrderSummary = ({
 
   return (
     <div
-      className={`bg-white p-4 sm:p-6 flex flex-col rounded-2xl border shadow-sm w-full lg:w-80 shrink-0 gap-4 ${className}`}
+      className={`bg-white p-4 sm:p-6 flex flex-col rounded-2xl border shadow-sm w-full lg:w-80 shrink-0 gap-4 lg:sticky lg:top-24 ${className}`}
     >
       <h2 className="text-lg font-bold text-gray-900 border-b pb-3">
         Order Summary
