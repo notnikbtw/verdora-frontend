@@ -3,6 +3,9 @@ import { Skeleton } from '@components/ui/skeleton';
 import type { Category } from '@/types/category';
 import SectionLayout from '@components/common/section/SectionLayout';
 
+const getPlaceholder = (name: string) =>
+  `https://placehold.co/600x400?text=${encodeURIComponent(name)}`;
+
 type CategoryGridSectionProps = {
   title?: string;
   viewAllLink?: string;
@@ -49,8 +52,15 @@ const CategoryGridSection = ({
               </p>
               <div className="h-28 w-full flex items-center justify-center overflow-hidden">
                 <img
-                  src={`https://placehold.co/600x400?text=${encodeURIComponent(category.name)}`}
+                  src={category.imageUrl || getPlaceholder(category.name)}
                   alt={category.name}
+                  loading="lazy"
+                  onError={e => {
+                    const fallback = getPlaceholder(category.name);
+                    if (e.currentTarget.src !== fallback) {
+                      e.currentTarget.src = fallback;
+                    }
+                  }}
                   className="max-h-full w-auto object-contain transition-transform duration-300 group-hover:scale-110"
                 />
               </div>
