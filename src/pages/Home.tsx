@@ -11,9 +11,8 @@ import { Button } from '@/components/ui/button';
 import FrameIcon from '@assets/icons/frame.svg?react';
 import { Star, Sparkles, PackageX, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAppSelector } from '@api/hooks';
-import { useAddItemToCart } from '@api/cart/cart.hooks';
 import { useAllCategories } from '@api/category/category.hooks';
 import {
   useGetProducts,
@@ -25,6 +24,11 @@ import { cn } from '@/lib/utils';
 import ProductGridSection from '@components/common/section/ProductGridSection';
 import CategoryGridSection from '@components/common/section/CategoryGridSection';
 import SectionLayout from '@components/common/section/SectionLayout';
+import CatalogProductCard from '@components/catalog/CatalogProductCard';
+import CatalogProductCardSkeleton from '@/components/catalog/CatalogProductCardSkeleton';
+import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
+import { useToggleFavorite } from '@hooks/useToggleFavorite';
+import { useAddProductToCart } from '@hooks/useAddProductToCart';
 
 // Interior plant hotspots matching plants in section-background.png:
 // - Hotspot 19: Rubber Plant (ficus on the left)
@@ -45,10 +49,14 @@ const HOTSPOTS = [
 export const Home = () => {
   const navigate = useNavigate();
   const { user } = useAppSelector(state => state.auth);
-  const { mutate: addToCart, isPending: isAddingToCart } = useAddItemToCart();
 
+  const { addToCart, isAddingToCart } = useAddProductToCart();
   const { data: categories, isLoading: isCategoriesLoading } =
     useAllCategories();
+  const categoryMap = useMemo(
+    () => new Map(categories.map(cat => [Number(cat.categoryId), cat.name])),
+    [categories]
+  );
   const { data: products, isLoading: isProductsLoading } = useGetProducts();
   const { data: salesProducts, isLoading: isSalesLoading } = useGetProducts({
     discount: true,
@@ -85,20 +93,28 @@ export const Home = () => {
   const isSelectedProductError = currentProductQuery.isError;
   const selectedProductError = currentProductQuery.error;
   const refetchSelectedProduct = currentProductQuery.refetch;
+  const isSelectedProductPanelLoading =
+    isProductsLoading || isSelectedProductLoading;
+  const showSelectedProductCard =
+    isSelectedProductPanelLoading ||
+    Boolean(selectedProduct && !isSelectedProductError);
+
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+  const { isFavorite, toggleFavorite } = useToggleFavorite({
+    onAuthRequired: () => setIsLoginPromptOpen(true),
+  });
+  const { addToCart: addSelectedProductToCart } = useAddProductToCart();
 
   const handleBuyNow = (productId: number) => {
     if (!user) {
       navigate('/login');
       return;
     }
-    addToCart(
-      { productId, quantity: 1 },
-      {
-        onSuccess: () => {
-          navigate('/cart');
-        },
-      }
-    );
+    addToCart(productId, 1, {
+      onSuccess: () => {
+        navigate('/cart');
+      },
+    });
   };
 
   const reviews = [
@@ -284,6 +300,7 @@ export const Home = () => {
           products={salesProducts?.content}
           isLoading={isSalesLoading}
           limit={8}
+          categoryMap={categoryMap}
           emptyTitle="No sales products found"
           emptyDescription="There are no discounted products available at the moment."
         />
@@ -319,51 +336,35 @@ export const Home = () => {
               })}
             </div>
 
-            <div className="lg:col-span-4 flex flex-col justify-between items-center gap-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-white/80 p-6 text-center shadow-xs min-h-[380px]">
-              {isProductsLoading || isSelectedProductLoading ? (
-                <>
-                  <div className="h-7 w-36 bg-zinc-200/80 dark:bg-zinc-800 rounded-lg animate-pulse" />
-                  <div className="relative z-10 w-full h-56 flex items-center justify-center">
-                    <Spinner className="size-8 text-[#1E331B]" />
-                  </div>
-                  <div className="h-10 w-32 bg-zinc-200/80 dark:bg-zinc-800 rounded-xl animate-pulse" />
-                </>
+            <div
+              className={cn(
+                'lg:col-span-4 flex flex-col items-center gap-4',
+                showSelectedProductCard
+                  ? 'justify-center'
+                  : 'justify-between gap-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-white/80 p-6 text-center shadow-xs min-h-95'
+              )}
+            >
+              {isSelectedProductPanelLoading ? (
+                <CatalogProductCardSkeleton
+                  viewMode="grid"
+                  count={1}
+                  className="w-full"
+                />
               ) : selectedProduct && !isSelectedProductError ? (
                 <>
-                  <h3 className="text-xl sm:text-2xl font-bold text-link-text line-clamp-1">
-                    {selectedProduct.name}
-                  </h3>
-                  <div className="relative z-10 w-full h-56 flex items-center justify-center">
-                    <img
-                      src={selectedProduct.imageUrl || PlantImage}
-                      alt={selectedProduct.name}
-                      onError={e => {
-                        (e.currentTarget as HTMLImageElement).src = PlantImage;
-                      }}
-                      className="h-full w-auto max-w-full object-contain transition-transform duration-500 hover:scale-105"
-                    />
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 whitespace-nowrap shadow-md">
-                      {selectedProduct.discountPrice &&
-                      selectedProduct.discountPrice > 0 &&
-                      selectedProduct.discountPrice < selectedProduct.price ? (
-                        <>
-                          <span className="rounded-xl bg-red-600 px-3.5 py-1.5 text-lg font-bold text-white">
-                            {selectedProduct.discountPrice}₴
-                          </span>
-                          <span className="rounded-lg bg-link-text/70 backdrop-blur-xs px-2.5 py-1 text-sm text-white line-through">
-                            {selectedProduct.price}₴
-                          </span>
-                        </>
-                      ) : (
-                        <span className="rounded-xl bg-link-text px-5 py-2 text-xl font-bold text-white">
-                          {selectedProduct.price}₴
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                  <CatalogProductCard
+                    product={selectedProduct}
+                    categoryName={categoryMap.get(selectedProduct.categoryId)}
+                    viewMode="grid"
+                    isFavorite={isFavorite(selectedProduct.productId)}
+                    onToggleFavorite={toggleFavorite}
+                    onAddToCart={addSelectedProductToCart}
+                    onAuthRequired={() => setIsLoginPromptOpen(true)}
+                    className="w-full"
+                  />
                   <Button
                     type="button"
-                    className="w-full sm:w-auto px-8 cursor-pointer"
+                    className="w-full cursor-pointer"
                     onClick={() => handleBuyNow(selectedProduct.productId)}
                     disabled={isAddingToCart}
                   >
@@ -448,6 +449,7 @@ export const Home = () => {
           products={products?.content}
           isLoading={isProductsLoading}
           limit={8}
+          categoryMap={categoryMap}
         />
 
         <SectionLayout title="Our reviews">
@@ -480,6 +482,12 @@ export const Home = () => {
           </div>
         </SectionLayout>
       </div>
+
+      <LoginPromptDialog
+        open={isLoginPromptOpen}
+        onOpenChange={setIsLoginPromptOpen}
+        action="favorite"
+      />
     </LayoutPage>
   );
 };

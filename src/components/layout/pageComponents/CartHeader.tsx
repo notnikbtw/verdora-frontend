@@ -26,7 +26,7 @@ const CartHeader = ({
   };
 
   return (
-    <div className="flex items-center gap-3 mb-6">
+    <div className="flex items-center gap-3 m-7">
       <Button variant="default" onClick={handleBack} aria-label="Go back">
         <ArrowIcon className="size-4" />
       </Button>

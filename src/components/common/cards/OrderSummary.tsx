@@ -61,7 +61,7 @@ const OrderSummary = ({
   if (loading) {
     return (
       <div
-        className={`bg-white p-6 md:p-8 flex flex-col rounded-2xl border w-full gap-6 ${className}`}
+        className={`bg-white p-4 sm:p-6 md:p-8 flex flex-col rounded-2xl border w-full lg:w-80 shrink-0 gap-6 ${className}`}
       >
         <Skeleton className="h-6 w-40" />
 
@@ -80,7 +80,7 @@ const OrderSummary = ({
 
   return (
     <div
-      className={`bg-white p-6 flex flex-col rounded-2xl border shadow-sm w-full gap-4 ${className}`}
+      className={`bg-white p-4 sm:p-6 flex flex-col rounded-2xl border shadow-sm w-full lg:w-80 shrink-0 gap-4 ${className}`}
     >
       <h2 className="text-lg font-bold text-gray-900 border-b pb-3">
         Order Summary
@@ -90,22 +90,22 @@ const OrderSummary = ({
 
       <div className="space-y-3 pt-1">
         {displaySubtotal !== undefined && (
-          <div className="flex justify-between text-sm text-gray-600">
+          <div className="flex justify-between text-sm text-gray-600 gap-2">
             <span>
               Subtotal {totalItems !== undefined ? `(${totalItems} items)` : ''}
             </span>
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-gray-900 shrink-0">
               {formatOrderPrice(displaySubtotal)}
             </span>
           </div>
         )}
 
-        <div className="flex justify-between items-center text-sm text-gray-600">
+        <div className="flex justify-between items-center text-sm text-gray-600 gap-2">
           <span>Shipping</span>
           {shippingText !== undefined ? (
             shippingText
           ) : (
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-gray-900 shrink-0">
               {formatOrderPrice(shippingCost ?? 0)}
             </span>
           )}
@@ -114,26 +114,27 @@ const OrderSummary = ({
 
       <Separator />
 
-      <div className="flex items-center justify-between font-bold text-gray-900">
+      <div className="flex items-center justify-between font-bold text-gray-900 gap-2">
         <span className="text-base">Total</span>
-        <span className="text-xl text-emerald-700">
+        <span className="text-xl text-emerald-700 shrink-0">
           {formatOrderPrice(totalCost ?? 0)}
         </span>
       </div>
 
       {hasTerms && (
         <div className="flex gap-2 flex-col w-full pt-1">
-          <div className="flex items-center gap-2.5 w-full text-xs">
+          <div className="flex items-start gap-2.5 w-full text-xs">
             <Checkbox
               id="orderSummaryTerms"
               checked={agreeToTerms}
               onCheckedChange={checked =>
                 onAgreeToTermsChange!(Boolean(checked))
               }
+              className="mt-0.5"
             />
             <Label
               htmlFor="orderSummaryTerms"
-              className="text-xs text-gray-600 cursor-pointer"
+              className="text-xs text-gray-600 cursor-pointer leading-tight"
             >
               I agree to the{' '}
               <Link

@@ -78,8 +78,8 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
 
           <div className="flex items-center gap-3">
             <Link
-              to="/favourites"
-              className="relative flex items-center justify-center p-2 rounded-full hover:bg-black/5 transition-colors"
+              to="/favorites"
+              className="relative flex size-8 items-center justify-center rounded-full hover:bg-zinc-100 transition-colors"
               aria-label="Favourite items"
               onClick={handleFavouriteClick}
             >

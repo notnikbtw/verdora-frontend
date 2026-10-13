@@ -12,12 +12,8 @@ import CatalogToolbar, {
 import CatalogProductList from '@components/catalog/CatalogProductList';
 import { useGetProducts } from '@api/product/product.hooks';
 import { useAllCategories } from '@api/category/category.hooks';
-import { useAddItemToCart } from '@api/cart/cart.hooks';
-import {
-  useFavoriteProductIds,
-  useAddToFavorites,
-  useRemoveFromFavorites,
-} from '@api/favorites/favorites.hooks';
+import { useToggleFavorite } from '@hooks/useToggleFavorite';
+import { useAddProductToCart } from '@hooks/useAddProductToCart';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
 import { X } from 'lucide-react';
 import type { GetProductsPayload } from '@/types/product';
@@ -79,17 +75,9 @@ const Catalog = () => {
     refetch: refetchCategories,
   } = useAllCategories();
 
-  const { favoriteIdsSet } = useFavoriteProductIds();
-  const addToFavoritesMutation = useAddToFavorites();
-  const removeFromFavoritesMutation = useRemoveFromFavorites();
-
-  const handleToggleFavorite = (targetProductId: number) => {
-    if (favoriteIdsSet.has(targetProductId)) {
-      removeFromFavoritesMutation.mutate(targetProductId);
-    } else {
-      addToFavoritesMutation.mutate(targetProductId);
-    }
-  };
+  const { isFavorite, toggleFavorite } = useToggleFavorite({
+    onAuthRequired: () => setIsLoginPromptOpen(true),
+  });
 
   const categoryMap = useMemo(() => {
     const map = new Map<number, string>();
@@ -136,11 +124,7 @@ const Catalog = () => {
     refetch: refetchProducts,
   } = useGetProducts(queryParams);
 
-  const addItemMutation = useAddItemToCart();
-  const handleAddToCart = (productId: number) => {
-    const product = productsData?.content.find(p => p.productId === productId);
-    addItemMutation.mutate({ productId, quantity: 1, product });
-  };
+  const { addToCart } = useAddProductToCart();
 
   const updateParam = (key: string, value: string | null) => {
     setSearchParams(prev => {
@@ -303,13 +287,13 @@ const Catalog = () => {
                 onRetry={() => refetchProducts()}
                 categoryMap={categoryMap}
                 viewMode={viewMode}
-                onAddToCart={handleAddToCart}
+                onAddToCart={addToCart}
                 onAuthRequired={() => setIsLoginPromptOpen(true)}
                 onResetAll={handleResetAll}
                 searchQuery={searchQuery}
                 hasActiveFilters={hasActiveFilters}
-                isFavorite={id => favoriteIdsSet.has(id)}
-                onToggleFavorite={handleToggleFavorite}
+                isFavorite={isFavorite}
+                onToggleFavorite={toggleFavorite}
               />
 
               {!isLoadingProducts && totalElements > 0 && (

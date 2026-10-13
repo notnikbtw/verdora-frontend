@@ -312,7 +312,7 @@ const Cart = () => {
             setDismissedGuestWarning(true);
           }}
           action={
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
               <Button
                 size="sm"
                 variant="outline"
