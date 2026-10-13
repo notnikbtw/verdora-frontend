@@ -177,6 +177,7 @@ const ProductDetails = () => {
                 isLoading={isLoadingRelated}
                 viewAllHref={`/catalog?category=${categoryId}`}
                 isFavorite={isFavorite}
+                isFavoritePending={isFavoritePending}
                 onToggleFavorite={toggleFavorite}
               />
             )}

@@ -26,6 +26,7 @@ export type ProductCarouselProps = {
   onAddToCart?: (productId: number) => void;
   onToggleFavorite?: (productId: number) => void;
   isFavorite?: (productId: number) => boolean;
+  isFavoritePending?: (productId: number) => boolean;
   showNavigation?: boolean;
   showViewAll?: boolean;
   onProductClick?: (productId: number) => void;
@@ -41,6 +42,7 @@ export const ProductCarousel = ({
   onAddToCart,
   onToggleFavorite,
   isFavorite,
+  isFavoritePending,
   showNavigation = true,
   showViewAll = true,
   onProductClick,
@@ -159,6 +161,11 @@ export const ProductCarousel = ({
                     categoryName={internalCategoryMap.get(product.categoryId)}
                     isFavorite={
                       isFavorite ? isFavorite(product.productId) : false
+                    }
+                    isFavoritePending={
+                      isFavoritePending
+                        ? isFavoritePending(product.productId)
+                        : false
                     }
                     onAddToCart={handleAddToCart}
                     onToggleFavorite={

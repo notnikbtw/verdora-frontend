@@ -13,6 +13,7 @@ import { ProductAssuranceCards } from './ProductAssuranceCards';
 import type { Product } from '@/types/product';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
+import { Spinner } from '@components/ui/spinner';
 
 export type ProductInfoProps = {
   product: Product;
@@ -318,12 +319,16 @@ export const ProductInfo = ({
               : 'border-[#D9DEDB] text-[#0C0C0C] hover:border-zinc-400 hover:bg-[#fcfdfb]'
           )}
         >
-          <Heart
-            className={cn(
-              'size-5 stroke-[1.8] transition-colors',
-              isFavorite ? 'fill-[#FA1105] text-[#FA1105]' : 'text-[#0C0C0C]'
-            )}
-          />
+          {isFavoritePending ? (
+            <Spinner className="size-5" />
+          ) : (
+            <Heart
+              className={cn(
+                'size-5 stroke-[1.8] transition-colors',
+                isFavorite ? 'fill-[#FA1105] text-[#FA1105]' : 'text-[#0C0C0C]'
+              )}
+            />
+          )}
           <span>{isFavorite ? 'Added to favorites' : 'Add to favorites'}</span>
         </Button>
 

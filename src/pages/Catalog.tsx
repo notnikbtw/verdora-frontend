@@ -75,7 +75,7 @@ const Catalog = () => {
     refetch: refetchCategories,
   } = useAllCategories();
 
-  const { isFavorite, toggleFavorite } = useToggleFavorite({
+  const { isFavorite, isFavoritePending, toggleFavorite } = useToggleFavorite({
     onAuthRequired: () => setIsLoginPromptOpen(true),
   });
 
@@ -293,6 +293,7 @@ const Catalog = () => {
                 searchQuery={searchQuery}
                 hasActiveFilters={hasActiveFilters}
                 isFavorite={isFavorite}
+                isFavoritePending={isFavoritePending}
                 onToggleFavorite={toggleFavorite}
               />
 

@@ -4,7 +4,7 @@ import { favoritesService } from '@api/favorites/favorites.service';
 import { useAppSelector } from '@api/hooks';
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/types/api';
-import type { FavoriteItem } from '@/types/favorites';
+import type { FavoriteItem, FavoriteState } from '@/types/favorites';
 
 type FavoritesAxiosError = AxiosError<ApiErrorResponse>;
 
@@ -17,7 +17,7 @@ export const useAddToFavorites = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
-    FavoriteItem,
+    FavoriteState,
     FavoritesAxiosError,
     number,
     FavoritesMutationContext
@@ -80,7 +80,7 @@ export const useRemoveFromFavorites = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
-    Record<string, never>,
+    FavoriteState,
     FavoritesAxiosError,
     number,
     FavoritesMutationContext

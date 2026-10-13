@@ -44,7 +44,7 @@ const ProductGridSection = ({
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
   const openLoginPrompt = () => setIsLoginPromptOpen(true);
 
-  const { isFavorite, toggleFavorite } = useToggleFavorite({
+  const { isFavorite, isFavoritePending, toggleFavorite } = useToggleFavorite({
     onAuthRequired: openLoginPrompt,
   });
   const { addToCart } = useAddProductToCart();
@@ -71,6 +71,7 @@ const ProductGridSection = ({
             categoryName={categoryMap?.get(item.categoryId)}
             viewMode="grid"
             isFavorite={isFavorite(item.productId)}
+            isFavoritePending={isFavoritePending(item.productId)}
             onToggleFavorite={toggleFavorite}
             onAddToCart={addToCart}
             onAuthRequired={openLoginPrompt}

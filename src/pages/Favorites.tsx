@@ -17,9 +17,11 @@ import { EmptySection } from '@components/common/section/EmptySection';
 import ErrorSection from '@components/common/section/ErrorSection';
 import CatalogProductCard from '@components/catalog/CatalogProductCard';
 import CatalogProductCardSkeleton from '@components/catalog/CatalogProductCardSkeleton';
+import { PaginationComponent } from '@components/common/pagination/Pagination';
 import type { Product } from '@/types/product';
 
 const SUGGESTIONS_LIMIT = 4;
+const FAVORITES_PER_PAGE = 12;
 
 const getErrorMessage = (error: unknown, fallback: string) =>
   (error as AxiosError<ApiErrorResponse> | null)?.response?.data?.message ||
@@ -59,10 +61,12 @@ const Favorites = () => {
   const { data: productsData } = useGetProducts({ size: 8 });
 
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
 
-  const { favoriteIdsSet, toggleFavorite } = useToggleFavorite({
-    onAuthRequired: () => setIsLoginPromptOpen(true),
-  });
+  const { favoriteIdsSet, isFavoritePending, toggleFavorite } =
+    useToggleFavorite({
+      onAuthRequired: () => setIsLoginPromptOpen(true),
+    });
 
   const productsById = useMemo(
     () => new Map((productsData?.content ?? []).map(p => [p.productId, p])),
@@ -85,6 +89,18 @@ const Favorites = () => {
   );
 
   const savedCount = favoriteProducts.length;
+  const totalPages = Math.ceil(savedCount / FAVORITES_PER_PAGE);
+  const safeCurrentPage =
+    totalPages > 0 ? Math.min(currentPage, totalPages - 1) : 0;
+  const pagedProducts = favoriteProducts.slice(
+    safeCurrentPage * FAVORITES_PER_PAGE,
+    (safeCurrentPage + 1) * FAVORITES_PER_PAGE
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   const isGuestView = !isAuthenticated;
   const isErrorView =
     isAuthenticated && !isFavoritesLoading && isFavoritesError && !favorites;
@@ -143,12 +159,13 @@ const Favorites = () => {
         {isListView && (
           <div className="flex flex-col gap-6 mb-14">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4.5">
-              {favoriteProducts.map(product => (
+              {pagedProducts.map(product => (
                 <CatalogProductCard
                   key={product.productId}
                   product={product}
                   viewMode="grid"
                   isFavorite
+                  isFavoritePending={isFavoritePending(product.productId)}
                   onToggleFavorite={toggleFavorite}
                   onAddToCart={addToCart}
                   isAuthenticated={isAuthenticated}
@@ -157,9 +174,19 @@ const Favorites = () => {
               ))}
             </div>
 
-            <div className="flex items-center justify-center min-h-12 text-[14px] text-[#5C665D] font-medium pt-2">
-              <span>That’s everything you’ve saved</span>
-            </div>
+            {totalPages > 1 ? (
+              <div className="pt-2 flex justify-center">
+                <PaginationComponent
+                  currentPage={safeCurrentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            ) : (
+              <div className="flex items-center justify-center min-h-12 text-[14px] text-[#5C665D] font-medium pt-2">
+                <span>That’s everything you’ve saved</span>
+              </div>
+            )}
           </div>
         )}
 
@@ -191,6 +218,7 @@ const Favorites = () => {
                   product={product}
                   viewMode="grid"
                   isFavorite={favoriteIdsSet.has(product.productId)}
+                  isFavoritePending={isFavoritePending(product.productId)}
                   onToggleFavorite={toggleFavorite}
                   onAddToCart={addToCart}
                   isAuthenticated={isAuthenticated}

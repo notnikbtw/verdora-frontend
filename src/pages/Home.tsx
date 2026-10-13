@@ -100,7 +100,7 @@ export const Home = () => {
     Boolean(selectedProduct && !isSelectedProductError);
 
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
-  const { isFavorite, toggleFavorite } = useToggleFavorite({
+  const { isFavorite, isFavoritePending, toggleFavorite } = useToggleFavorite({
     onAuthRequired: () => setIsLoginPromptOpen(true),
   });
   const { addToCart: addSelectedProductToCart } = useAddProductToCart();
@@ -357,6 +357,9 @@ export const Home = () => {
                     categoryName={categoryMap.get(selectedProduct.categoryId)}
                     viewMode="grid"
                     isFavorite={isFavorite(selectedProduct.productId)}
+                    isFavoritePending={isFavoritePending(
+                      selectedProduct.productId
+                    )}
                     onToggleFavorite={toggleFavorite}
                     onAddToCart={addSelectedProductToCart}
                     onAuthRequired={() => setIsLoginPromptOpen(true)}
