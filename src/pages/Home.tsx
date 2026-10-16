@@ -25,22 +25,7 @@ import { cn } from '@/lib/utils';
 import ProductGridSection from '@components/common/section/ProductGridSection';
 import CategoryGridSection from '@components/common/section/CategoryGridSection';
 import SectionLayout from '@components/common/section/SectionLayout';
-
-// Interior plant hotspots matching plants in section-background.png:
-// - Hotspot 19: Rubber Plant (ficus on the left)
-// - Hotspot 20: Rose (on the table)
-const HOTSPOTS = [
-  {
-    productId: 19,
-    className: 'bottom-[22%] left-[23%]',
-    label: 'Rubber Plant',
-  },
-  {
-    productId: 20,
-    className: 'bottom-[31%] left-[49%]',
-    label: 'Rose',
-  },
-];
+import { HOTSPOTS } from '@/config/home.config';
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -207,7 +192,7 @@ export const Home = () => {
               {isProductOfTheDayLoading ? (
                 <>
                   <div className="lg:col-span-6 flex justify-center w-full">
-                    <div className="relative aspect-[1.19] w-full max-w-[480px] p-4 sm:p-6 flex items-center justify-center">
+                    <div className="relative aspect-[1.19] w-full max-w-120 p-4 sm:p-6 flex items-center justify-center">
                       <Spinner className="size-8 text-[#1E331B]" />
                     </div>
                   </div>
@@ -221,7 +206,7 @@ export const Home = () => {
               ) : productOfTheDay ? (
                 <>
                   <div className="lg:col-span-6 flex justify-center w-full">
-                    <div className="relative aspect-[1.19] w-full max-w-[480px] p-4 sm:p-6">
+                    <div className="relative aspect-[1.19] w-full max-w-120 p-4 sm:p-6">
                       <FrameIcon className="pointer-events-none absolute inset-0 z-20 size-full" />
                       <div className="relative z-10 size-full overflow-hidden rounded-[48px] sm:rounded-[70px] bg-[#50614A] flex items-center justify-center p-4">
                         <img
@@ -319,7 +304,7 @@ export const Home = () => {
               })}
             </div>
 
-            <div className="lg:col-span-4 flex flex-col justify-between items-center gap-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-white/80 p-6 text-center shadow-xs min-h-[380px]">
+            <div className="lg:col-span-4 flex flex-col justify-between items-center gap-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-white/80 p-6 text-center shadow-xs min-h-95">
               {isProductsLoading || isSelectedProductLoading ? (
                 <>
                   <div className="h-7 w-36 bg-zinc-200/80 dark:bg-zinc-800 rounded-lg animate-pulse" />

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Provider } from 'react-redux';
 import { store } from '@api/store';
 import { createRoot } from 'react-dom/client';
@@ -27,6 +28,10 @@ import ScrollToTop from '@components/common/ScrollToTop';
 import { fetchMe } from '@api/auth/auth.actions';
 import Profile from '@pages/Profile';
 import Favourites from '@pages/Favourites';
+import { Spinner } from '@components/ui/spinner';
+
+// Admin-only and pulls in recharts, so keep it out of the main bundle.
+const ReportManagement = lazy(() => import('@pages/admin/ReportManagement'));
 
 store.dispatch(fetchMe());
 
@@ -160,6 +165,22 @@ createRoot(document.getElementById('root')!).render(
                 element={
                   <ProtectedRoute allowedRoles={['ADMIN']}>
                     <ProductManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="reports"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <Suspense
+                      fallback={
+                        <div className="flex justify-center p-8">
+                          <Spinner className="size-8 text-primary" />
+                        </div>
+                      }
+                    >
+                      <ReportManagement />
+                    </Suspense>
                   </ProtectedRoute>
                 }
               />

@@ -21,10 +21,11 @@ import {
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
 import { X } from 'lucide-react';
 import type { GetProductsPayload } from '@/types/product';
-
-const PAGE_SIZE = 12;
-const DEFAULT_MIN_PRICE = 0;
-const DEFAULT_MAX_PRICE = 9000;
+import {
+  DEFAULT_MAX_PRICE,
+  DEFAULT_MIN_PRICE,
+  PAGE_SIZE,
+} from '@/config/catalog.config';
 
 const mapSortToParam = (sortId: string): string | undefined => {
   switch (sortId) {

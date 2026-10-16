@@ -1,6 +1,12 @@
 import instance from '@api/axiosInstance';
 import type { ApiResponse } from '@/types/api';
-import type { Order, UpdateOrderPayload } from '@/types/order';
+import type { PaginatedData } from '@/types/pagination';
+import type {
+  AdminOrderSummary,
+  AdminOrdersParams,
+  Order,
+  UpdateOrderPayload,
+} from '@/types/order';
 
 export const orderService = {
   createOrder: async () => {
@@ -11,6 +17,14 @@ export const orderService = {
 
   getAllOrders: async () => {
     const response = await instance.get<ApiResponse<Order[]>>('/orders');
+
+    return response.data.data;
+  },
+
+  getAdminOrders: async (params: AdminOrdersParams) => {
+    const response = await instance.get<
+      ApiResponse<PaginatedData<AdminOrderSummary>>
+    >('/orders/all', { params });
 
     return response.data.data;
   },
