@@ -92,3 +92,43 @@ export const useDeleteProduct = () => {
     },
   });
 };
+
+// The API has no dedicated endpoint: a discount is removed by saving the
+// product again (PUT replaces the product) without a discountPrice.
+export const useRemoveProductDiscount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Product, ProductAxiosError, Product>({
+    mutationFn: product =>
+      productService.updateProduct(product.productId, {
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        categoryId: product.categoryId,
+        imageUrl: product.imageUrl,
+        discountPrice: null,
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
+  });
+};
+
+export const useUpdateProductPricing = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    Product,
+    ProductAxiosError,
+    { product: Product; price: number; discountPrice: number | null }
+  >({
+    mutationFn: ({ product, price, discountPrice }) =>
+      productService.updateProduct(product.productId, {
+        name: product.name,
+        description: product.description,
+        categoryId: product.categoryId,
+        imageUrl: product.imageUrl,
+        price,
+        discountPrice,
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
+  });
+};
