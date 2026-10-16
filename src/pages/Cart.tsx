@@ -207,7 +207,7 @@ const Cart = () => {
     return (
       <LayoutPage>
         <CartHeader itemsCount={0} />
-        <div className="flex flex-col gap-4 mt-8 max-w-4xl mx-auto px-4">
+        <div className="flex flex-col gap-4 mt-8 max-w-4xl mx-auto">
           {Array.from({ length: 3 }).map((_, i) => (
             <CartItemSkeleton key={i} />
           ))}
@@ -298,8 +298,8 @@ const Cart = () => {
 
   return (
     <LayoutPage>
-      <div className="flex justify-center items-center">
-        <div className="py-6 space-y-6 max-w-300">
+      <div className="w-full">
+        <div className="py-6 space-y-6">
           <CartHeader itemsCount={itemsCount} />
           {showGuestCartBanner && (
             <NoticeAlert

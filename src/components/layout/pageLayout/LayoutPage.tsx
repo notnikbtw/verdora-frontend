@@ -12,6 +12,7 @@ import {
 } from '@/utils/guestCart';
 import { SidebarInset, SidebarProvider } from '@components/ui/sidebar';
 import MainSidebar from '@components/layout/pageComponents/sidebar/MainSidebar';
+import { PAGE_CONTENT_WIDTH_CLASS } from '@/lib/layout';
 
 const LayoutPage = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
@@ -62,7 +63,9 @@ const LayoutPage = ({ children }: { children: React.ReactNode }) => {
 
           <div className="relative z-10 flex min-h-screen flex-col flex-1">
             <Header />
-            <main className="flex flex-1 flex-col w-full max-w-427.5 mx-auto px-4">
+            <main
+              className={`flex flex-1 flex-col ${PAGE_CONTENT_WIDTH_CLASS}`}
+            >
               {syncError && !isCartPage && (
                 <div className="pt-4">
                   <NoticeAlert

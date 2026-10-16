@@ -109,7 +109,7 @@ const ProductDetails = () => {
 
   return (
     <LayoutPage>
-      <div className="w-full max-w-300 mx-auto px-4 sm:px-8 py-5 sm:py-7 space-y-6 sm:space-y-8">
+      <div className="w-full py-5 sm:py-7 space-y-6 sm:space-y-8">
         <Breadcrumbs items={breadcrumbItems} className="text-sm" />
 
         {isLoading ? (

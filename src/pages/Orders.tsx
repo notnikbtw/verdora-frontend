@@ -78,8 +78,8 @@ const Orders = () => {
 
   return (
     <LayoutPage>
-      <div className="flex justify-center items-center">
-        <div className="py-6 space-y-6 max-w-300">
+      <div className="w-full">
+        <div className="py-6 space-y-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-border/60">
             <div className="space-y-1">
               <div className="flex items-center gap-3">

@@ -110,7 +110,7 @@ const Favorites = () => {
 
   return (
     <LayoutPage>
-      <div className="max-w-300 w-full mx-auto px-4 sm:px-8 pt-6 pb-28">
+      <div className="w-full pt-6 pb-28">
         <Breadcrumbs className="text-sm" />
 
         <SectionHeader

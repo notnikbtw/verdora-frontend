@@ -156,8 +156,8 @@ const Checkout = () => {
 
   return (
     <LayoutPage>
-      <div className="flex justify-center items-center">
-        <div className="py-6 space-y-6 max-w-300">
+      <div className="w-full">
+        <div className="py-6 space-y-6">
           <CartHeader
             title="Checkout"
             subtitle="Review your order details and confirm purchase"
