@@ -38,7 +38,6 @@ const Footer = () => {
 
   return (
     <footer className="relative w-full font-sans overflow-hidden">
-      {/* Mobile subscription banner */}
       <div className="md:hidden px-4 pt-8 pb-4">
         <div className="bg-[#C3E3BD]/60 backdrop-blur-sm rounded-2xl p-6 text-center border border-[#A8C89A]/40 shadow-xs max-w-md mx-auto">
           {!IS_NEWSLETTER_ENABLED && (

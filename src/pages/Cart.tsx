@@ -298,102 +298,100 @@ const Cart = () => {
 
   return (
     <LayoutPage>
-      <div className="w-full">
-        <div className="py-6 space-y-6">
-          <CartHeader itemsCount={itemsCount} />
-          {showGuestCartBanner && (
-            <NoticeAlert
-              variant="warning"
-              className="mt-6"
-              title="Unsaved guest cart items"
-              message={
-                syncError ||
-                `You have ${guestCartCount} item(s) from your guest session that could not be transferred automatically.`
-              }
-              onDismiss={() => {
-                setDismissedGuestWarning(true);
-              }}
-              action={
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleTransferGuestCart}
-                    disabled={isSyncingGuestCart}
-                    className="h-8 text-xs font-medium cursor-pointer"
-                  >
-                    {isSyncingGuestCart
-                      ? 'Transferring...'
-                      : 'Transfer to Account'}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={handleDiscardGuestCart}
-                    disabled={isSyncingGuestCart}
-                    className="h-8 text-xs font-medium text-destructive hover:text-destructive cursor-pointer"
-                  >
-                    Discard
-                  </Button>
-                </div>
-              }
-            />
-          )}
-          {mutationError && (
-            <NoticeAlert
-              variant="error"
-              message={mutationError}
-              className="mt-4 mb-6"
-            />
-          )}
+      <div className="page-stack">
+        <CartHeader itemsCount={itemsCount} />
+        {showGuestCartBanner && (
+          <NoticeAlert
+            variant="warning"
+            className="mt-6"
+            title="Unsaved guest cart items"
+            message={
+              syncError ||
+              `You have ${guestCartCount} item(s) from your guest session that could not be transferred automatically.`
+            }
+            onDismiss={() => {
+              setDismissedGuestWarning(true);
+            }}
+            action={
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleTransferGuestCart}
+                  disabled={isSyncingGuestCart}
+                  className="h-8 text-xs font-medium cursor-pointer"
+                >
+                  {isSyncingGuestCart
+                    ? 'Transferring...'
+                    : 'Transfer to Account'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleDiscardGuestCart}
+                  disabled={isSyncingGuestCart}
+                  className="h-8 text-xs font-medium text-destructive hover:text-destructive cursor-pointer"
+                >
+                  Discard
+                </Button>
+              </div>
+            }
+          />
+        )}
+        {mutationError && (
+          <NoticeAlert
+            variant="error"
+            message={mutationError}
+            className="mt-4 mb-6"
+          />
+        )}
 
-          <div className="flex flex-col lg:flex-row items-start gap-8 mt-8">
-            <div className="flex flex-col gap-4 flex-1 w-full">
-              {items.map(item => (
-                <CartItem
-                  key={item.cartItemId}
-                  productName={item.productName}
-                  productImage={item.imageUrl}
-                  price={item.price}
-                  discountPrice={item.discountPrice}
-                  quantity={item.quantity}
-                  isUpdating={
-                    updateQuantityMutation.isPending &&
-                    updateQuantityMutation.variables?.cartItemId ===
-                      item.cartItemId
-                  }
-                  isRemoving={
-                    removeItemMutation.isPending &&
-                    removeItemMutation.variables?.cartItemId === item.cartItemId
-                  }
-                  onIncrease={() => handleIncrease(item.cartItemId)}
-                  onDecrease={() => handleDecrease(item.cartItemId)}
-                  onRemove={() => handleRemove(item.cartItemId)}
-                />
-              ))}
-            </div>
-
-            <OrderSummary
-              totalItems={totalItems}
-              totalItemsPrice={totalPrice - shippingCost}
-              shippingCost={shippingCost}
-              totalCost={totalPrice}
-              agreeToTerms={agreeToTerms}
-              agreeToTermsError={formErrors.agreeToTerms?.message}
-              onAgreeToTermsChange={handleAgreeToTerms}
-              handleProceedToCheckout={handleProceedToCheckout}
-              loading={
-                updateQuantityMutation.isPending || removeItemMutation.isPending
-              }
-            />
+        <div className="flex flex-col lg:flex-row items-start gap-8 mt-8">
+          <div className="flex flex-col gap-4 flex-1 w-full">
+            {items.map(item => (
+              <CartItem
+                key={item.cartItemId}
+                productName={item.productName}
+                productImage={item.imageUrl}
+                price={item.price}
+                discountPrice={item.discountPrice}
+                quantity={item.quantity}
+                isUpdating={
+                  updateQuantityMutation.isPending &&
+                  updateQuantityMutation.variables?.cartItemId ===
+                    item.cartItemId
+                }
+                isRemoving={
+                  removeItemMutation.isPending &&
+                  removeItemMutation.variables?.cartItemId === item.cartItemId
+                }
+                onIncrease={() => handleIncrease(item.cartItemId)}
+                onDecrease={() => handleDecrease(item.cartItemId)}
+                onRemove={() => handleRemove(item.cartItemId)}
+              />
+            ))}
           </div>
 
-          <LoginPromptDialog
-            open={isLoginPromptOpen}
-            onOpenChange={setIsLoginPromptOpen}
-            action="checkout"
+          <OrderSummary
+            totalItems={totalItems}
+            totalItemsPrice={totalPrice - shippingCost}
+            shippingCost={shippingCost}
+            totalCost={totalPrice}
+            agreeToTerms={agreeToTerms}
+            agreeToTermsError={formErrors.agreeToTerms?.message}
+            onAgreeToTermsChange={handleAgreeToTerms}
+            handleProceedToCheckout={handleProceedToCheckout}
+            loading={
+              updateQuantityMutation.isPending || removeItemMutation.isPending
+            }
           />
         </div>
+
+        <LoginPromptDialog
+          open={isLoginPromptOpen}
+          onOpenChange={setIsLoginPromptOpen}
+          action="checkout"
+        />
       </div>
     </LayoutPage>
   );

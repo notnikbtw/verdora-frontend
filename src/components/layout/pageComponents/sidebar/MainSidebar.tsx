@@ -29,6 +29,9 @@ type Props = {
   loading?: boolean;
 };
 
+const MENU_BADGE_TEXT =
+  'text-white peer-hover/menu-button:text-white peer-data-active/menu-button:text-white';
+
 const MainSidebar = ({ username, email, loading }: Props) => {
   const menuItems = MAIN_MENU;
   const location = useLocation();
@@ -44,17 +47,9 @@ const MainSidebar = ({ username, email, loading }: Props) => {
     (sum, item) => sum + item.quantity,
     0
   );
-  const badges: Record<string, { count: number; className: string }> = {
-    '/cart': {
-      count: cartItemCount,
-      className:
-        'bg-primary text-primary-foreground peer-hover/menu-button:text-primary-foreground peer-data-active/menu-button:text-primary-foreground',
-    },
-    '/favorites': {
-      count: favoritesCount,
-      className:
-        'bg-red-500 text-white peer-hover/menu-button:text-white peer-data-active/menu-button:text-white',
-    },
+  const badges: Record<string, { count: number; color: string }> = {
+    '/cart': { count: cartItemCount, color: 'bg-primary' },
+    '/favorites': { count: favoritesCount, color: 'bg-favourite' },
   };
 
   const handleLinkClick = () => {
@@ -114,7 +109,9 @@ const MainSidebar = ({ username, email, loading }: Props) => {
                         </Link>
                       </SidebarMenuButton>
                       {badge && badge.count > 0 && (
-                        <SidebarMenuBadge className={badge.className}>
+                        <SidebarMenuBadge
+                          className={`${badge.color} ${MENU_BADGE_TEXT}`}
+                        >
                           {badge.count > 99 ? '99+' : badge.count}
                         </SidebarMenuBadge>
                       )}

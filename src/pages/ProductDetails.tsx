@@ -32,7 +32,6 @@ const ProductDetails = () => {
     refetch,
   } = useGetProductById(productId, isValidId);
 
-  // ProductInfo and ProductCarousel show the login prompt for guests themselves.
   const { isFavorite, isFavoritePending, toggleFavorite } = useToggleFavorite();
 
   const isProductFavorite = Boolean(product && isFavorite(product.productId));
@@ -109,7 +108,7 @@ const ProductDetails = () => {
 
   return (
     <LayoutPage>
-      <div className="w-full py-5 sm:py-7 space-y-6 sm:space-y-8">
+      <div className="flex flex-col gap-6 py-5 sm:gap-8 sm:py-7">
         <Breadcrumbs items={breadcrumbItems} className="text-sm" />
 
         {isLoading ? (

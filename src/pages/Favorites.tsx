@@ -27,8 +27,6 @@ const getErrorMessage = (error: unknown, fallback: string) =>
   (error as AxiosError<ApiErrorResponse> | null)?.response?.data?.message ||
   fallback;
 
-// Optimistic adds insert a placeholder item without product details, so we
-// fill the gaps from the already loaded product list when possible.
 const toProduct = (
   item: FavoriteItem,
   productsById: Map<number, Product>
@@ -110,7 +108,7 @@ const Favorites = () => {
 
   return (
     <LayoutPage>
-      <div className="w-full pt-6 pb-28">
+      <div className="flex flex-col gap-6 pt-6 pb-28">
         <Breadcrumbs className="text-sm" />
 
         <SectionHeader

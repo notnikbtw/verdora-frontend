@@ -12,7 +12,7 @@ import {
 } from '@/utils/guestCart';
 import { SidebarInset, SidebarProvider } from '@components/ui/sidebar';
 import MainSidebar from '@components/layout/pageComponents/sidebar/MainSidebar';
-import { PAGE_CONTENT_WIDTH_CLASS } from '@/lib/layout';
+import NoiseBackground from '@components/layout/pageComponents/NoiseBackground';
 
 const LayoutPage = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
@@ -53,19 +53,12 @@ const LayoutPage = ({ children }: { children: React.ReactNode }) => {
   return (
     <SidebarProvider defaultOpen={false}>
       <SidebarInset className="bg-transparent">
-        <div className="relative flex min-h-screen flex-col bg-[#E6EAE5]">
-          <div
-            className="fixed inset-0 pointer-events-none z-0 opacity-10 mix-blend-multiply bg-repeat"
-            style={{
-              backgroundImage: `url(${import.meta.env.BASE_URL}noise.svg)`,
-            }}
-          />
+        <div className="relative flex min-h-screen flex-col page-background">
+          <NoiseBackground />
 
           <div className="relative z-10 flex min-h-screen flex-col flex-1">
             <Header />
-            <main
-              className={`flex flex-1 flex-col ${PAGE_CONTENT_WIDTH_CLASS}`}
-            >
+            <main className="flex flex-1 flex-col page-container">
               {syncError && !isCartPage && (
                 <div className="pt-4">
                   <NoticeAlert

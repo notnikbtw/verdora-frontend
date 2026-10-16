@@ -15,7 +15,6 @@ import { useLogout } from '@hooks/useLogout';
 import LinkComponent from '@components/common/Link';
 import { SidebarTrigger } from '@components/ui/sidebar';
 import TextField from '@components/common/forms/TextField';
-import { PAGE_HEADER_WIDTH_CLASS } from '@/lib/layout';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Heart } from 'lucide-react';
 
@@ -58,9 +57,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
 
   return (
     <>
-      <header
-        className={`sticky top-0 sm:top-6 flex justify-between items-center h-16 px-6 z-50 ${PAGE_HEADER_WIDTH_CLASS} bg-[#E6EAE5]/80 sm:bg-transparent backdrop-blur border border-white/80 shadow-xs sm:px-8 sm:rounded-full`}
-      >
+      <header className="sticky top-0 sm:top-6 flex justify-between items-center h-16 px-6 z-50 w-full sm:page-container bg-[#E6EAE5]/80 sm:bg-transparent backdrop-blur border border-white/80 shadow-xs sm:px-8 sm:rounded-full">
         <div className="flex items-center">
           <Logo fontSize="text-2xl" className="text-[#25531F]" />
         </div>
@@ -87,7 +84,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
           <div className="flex items-center gap-3">
             <Link
               to="/favorites"
-              className="relative flex items-center justify-center p-2 rounded-full hover:bg-pink-100 transition-colors"
+              className="relative flex items-center justify-center p-2 rounded-full hover:bg-favourite-soft transition-colors"
               aria-label={
                 favoritesCount > 0
                   ? `Favourite items (${favoritesCount})`
@@ -95,9 +92,9 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
               }
               onClick={handleFavouriteClick}
             >
-              <Heart className="size-5 text-red-500 [&_path]:fill-current" />
+              <Heart className="size-5 text-favourite [&_path]:fill-current" />
               {favoritesCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-xs">
+                <span className="count-badge bg-favourite">
                   {favoritesCount > 99 ? '99+' : favoritesCount}
                 </span>
               )}
@@ -110,9 +107,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
             >
               <CartIcon className="size-5 text-[#2C332D]" />
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
-                  {cartItemCount}
-                </span>
+                <span className="count-badge bg-primary">{cartItemCount}</span>
               )}
             </Link>
 

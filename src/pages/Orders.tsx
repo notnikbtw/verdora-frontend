@@ -78,174 +78,171 @@ const Orders = () => {
 
   return (
     <LayoutPage>
-      <div className="w-full">
-        <div className="py-6 space-y-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-border/60">
-            <div className="space-y-1">
-              <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <ShoppingBag className="size-5" />
-                </div>
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                    Order History
-                  </h1>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Track, review, and manage all your past and current
-                    purchases.
-                  </p>
-                </div>
+      <div className="page-stack">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-border/60">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <ShoppingBag className="size-5" />
               </div>
-            </div>
-
-            <div className="flex items-center gap-2 self-start sm:self-auto">
-              {sortedOrders.length > 0 && (
-                <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                  {sortedOrders.length}{' '}
-                  {sortedOrders.length === 1 ? 'order' : 'orders'}
-                </span>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => refetch()}
-                disabled={isRefetching || isLoading}
-                className="cursor-pointer gap-2 text-xs"
-                title="Refresh order history"
-              >
-                <RefreshCw
-                  className={`size-3.5 ${isRefetching ? 'animate-spin' : ''}`}
-                />
-                <span>Refresh</span>
-              </Button>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                  Order History
+                </h1>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Track, review, and manage all your past and current purchases.
+                </p>
+              </div>
             </div>
           </div>
 
-          {successNotice && (
-            <NoticeAlert
-              variant="success"
-              message={successNotice}
-              onDismiss={() => setSuccessNotice(null)}
-            />
-          )}
-
-          {cancelErrorNotice && (
-            <NoticeAlert
-              variant="error"
-              message={cancelErrorNotice}
-              onDismiss={() => setCancelErrorNotice(null)}
-            />
-          )}
-
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <OrderCardSkeleton key={index} />
-              ))}
-            </div>
-          ) : isError && !apiOrders ? (
-            <div className="rounded-xl border border-border bg-card p-6 shadow-xs">
-              <ErrorSection
-                title="Unable to load orders"
-                message={
-                  error?.response?.data?.message ||
-                  error?.message ||
-                  'We were unable to retrieve your order history. Please check your connection and try again.'
-                }
-                onRetry={() => refetch()}
-                retryText="Try Again"
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            {sortedOrders.length > 0 && (
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                {sortedOrders.length}{' '}
+                {sortedOrders.length === 1 ? 'order' : 'orders'}
+              </span>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
+              disabled={isRefetching || isLoading}
+              className="cursor-pointer gap-2 text-xs"
+              title="Refresh order history"
+            >
+              <RefreshCw
+                className={`size-3.5 ${isRefetching ? 'animate-spin' : ''}`}
               />
-            </div>
-          ) : sortedOrders.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border bg-card p-12 shadow-xs">
-              <EmptySection
-                title="No orders yet"
-                description="You have not placed any orders yet. Explore our green catalog and find something you love!"
-                icon={
-                  <div className="flex items-center justify-center rounded-full bg-primary/10 p-4">
-                    <Package
-                      className="size-10 text-primary"
-                      aria-hidden="true"
-                    />
-                  </div>
-                }
-                action={
-                  <Button asChild variant="default">
-                    <Link to="/products">Browse Catalog</Link>
-                  </Button>
-                }
-              />
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
-                <span>
-                  Showing{' '}
-                  <strong className="text-foreground">
-                    {safeCurrentPage * ORDERS_PER_PAGE + 1}
-                  </strong>{' '}
-                  to{' '}
-                  <strong className="text-foreground">
-                    {Math.min(
-                      (safeCurrentPage + 1) * ORDERS_PER_PAGE,
-                      sortedOrders.length
-                    )}
-                  </strong>{' '}
-                  of{' '}
-                  <strong className="text-foreground">
-                    {sortedOrders.length}
-                  </strong>{' '}
-                  orders (Newest first)
-                </span>
-              </div>
+              <span>Refresh</span>
+            </Button>
+          </div>
+        </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {paginatedOrders.map(order => (
-                  <OrderCard
-                    key={order.orderId}
-                    order={order}
-                    isCancelling={
-                      cancelMutation.isPending &&
-                      cancellingOrder?.orderId === order.orderId
-                    }
-                    onCancelClick={order => {
-                      setCancelErrorNotice(null);
-                      cancelMutation.reset();
-                      setCancellingOrder(order);
-                    }}
-                  />
-                ))}
-              </div>
+        {successNotice && (
+          <NoticeAlert
+            variant="success"
+            message={successNotice}
+            onDismiss={() => setSuccessNotice(null)}
+          />
+        )}
 
-              {totalPages > 1 && (
-                <div className="pt-4 flex justify-center">
-                  <PaginationComponent
-                    currentPage={safeCurrentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
+        {cancelErrorNotice && (
+          <NoticeAlert
+            variant="error"
+            message={cancelErrorNotice}
+            onDismiss={() => setCancelErrorNotice(null)}
+          />
+        )}
+
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <OrderCardSkeleton key={index} />
+            ))}
+          </div>
+        ) : isError && !apiOrders ? (
+          <div className="rounded-xl border border-border bg-card p-6 shadow-xs">
+            <ErrorSection
+              title="Unable to load orders"
+              message={
+                error?.response?.data?.message ||
+                error?.message ||
+                'We were unable to retrieve your order history. Please check your connection and try again.'
+              }
+              onRetry={() => refetch()}
+              retryText="Try Again"
+            />
+          </div>
+        ) : sortedOrders.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border bg-card p-12 shadow-xs">
+            <EmptySection
+              title="No orders yet"
+              description="You have not placed any orders yet. Explore our green catalog and find something you love!"
+              icon={
+                <div className="flex items-center justify-center rounded-full bg-primary/10 p-4">
+                  <Package
+                    className="size-10 text-primary"
+                    aria-hidden="true"
                   />
                 </div>
-              )}
-            </div>
-          )}
-
-          <AlertComponent
-            title="Cancel Order"
-            description={`Are you sure you want to cancel order #${cancellingOrder?.orderId}? This will stop your order from being processed.`}
-            isAlertDialogOpen={!!cancellingOrder}
-            onOpenChange={open => {
-              if (!open) {
-                setCancellingOrder(null);
-                cancelMutation.reset();
               }
-            }}
-            actionText="Confirm Cancel Order"
-            loadingText="Cancelling..."
-            isDeleting={cancelMutation.isPending}
-            errorText={cancelMutation.error?.response?.data?.message}
-            onAction={handleConfirmCancel}
-          />
-        </div>
+              action={
+                <Button asChild variant="default">
+                  <Link to="/products">Browse Catalog</Link>
+                </Button>
+              }
+            />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
+              <span>
+                Showing{' '}
+                <strong className="text-foreground">
+                  {safeCurrentPage * ORDERS_PER_PAGE + 1}
+                </strong>{' '}
+                to{' '}
+                <strong className="text-foreground">
+                  {Math.min(
+                    (safeCurrentPage + 1) * ORDERS_PER_PAGE,
+                    sortedOrders.length
+                  )}
+                </strong>{' '}
+                of{' '}
+                <strong className="text-foreground">
+                  {sortedOrders.length}
+                </strong>{' '}
+                orders (Newest first)
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedOrders.map(order => (
+                <OrderCard
+                  key={order.orderId}
+                  order={order}
+                  isCancelling={
+                    cancelMutation.isPending &&
+                    cancellingOrder?.orderId === order.orderId
+                  }
+                  onCancelClick={order => {
+                    setCancelErrorNotice(null);
+                    cancelMutation.reset();
+                    setCancellingOrder(order);
+                  }}
+                />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="pt-4 flex justify-center">
+                <PaginationComponent
+                  currentPage={safeCurrentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        <AlertComponent
+          title="Cancel Order"
+          description={`Are you sure you want to cancel order #${cancellingOrder?.orderId}? This will stop your order from being processed.`}
+          isAlertDialogOpen={!!cancellingOrder}
+          onOpenChange={open => {
+            if (!open) {
+              setCancellingOrder(null);
+              cancelMutation.reset();
+            }
+          }}
+          actionText="Confirm Cancel Order"
+          loadingText="Cancelling..."
+          isDeleting={cancelMutation.isPending}
+          errorText={cancelMutation.error?.response?.data?.message}
+          onAction={handleConfirmCancel}
+        />
       </div>
     </LayoutPage>
   );
