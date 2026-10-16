@@ -9,6 +9,7 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarMenuBadge,
   useSidebar,
 } from '@components/ui/sidebar';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -18,6 +19,9 @@ import { LogIn } from 'lucide-react';
 import TextField from '@components/common/forms/TextField';
 import SearchIcon from '@assets/icons/search.svg?react';
 import React, { useState } from 'react';
+import { useAppSelector } from '@api/hooks';
+import { useGetFavorites } from '@api/favorites/favorites.hooks';
+import { useGetCart } from '@api/cart/cart.hooks';
 
 type Props = {
   username?: string;
@@ -31,6 +35,27 @@ const MainSidebar = ({ username, email, loading }: Props) => {
   const navigate = useNavigate();
   const { setOpenMobile, setOpen } = useSidebar();
   const [search, setSearch] = useState('');
+
+  const { user } = useAppSelector(state => state.auth);
+  const { data: favorites } = useGetFavorites(Boolean(user));
+  const { data: cart } = useGetCart();
+  const favoritesCount = Array.isArray(favorites) ? favorites.length : 0;
+  const cartItemCount = (cart?.items ?? []).reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
+  const badges: Record<string, { count: number; className: string }> = {
+    '/cart': {
+      count: cartItemCount,
+      className:
+        'bg-primary text-primary-foreground peer-hover/menu-button:text-primary-foreground peer-data-active/menu-button:text-primary-foreground',
+    },
+    '/favorites': {
+      count: favoritesCount,
+      className:
+        'bg-red-500 text-white peer-hover/menu-button:text-white peer-data-active/menu-button:text-white',
+    },
+  };
 
   const handleLinkClick = () => {
     setOpenMobile(false);
@@ -71,6 +96,8 @@ const MainSidebar = ({ username, email, loading }: Props) => {
                     (item.path !== '/' &&
                       location.pathname.startsWith(item.path));
 
+                  const badge = badges[item.path];
+
                   return (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
@@ -80,10 +107,17 @@ const MainSidebar = ({ username, email, loading }: Props) => {
                         onClick={handleLinkClick}
                       >
                         <Link to={item.path}>
-                          {item.icon && <item.icon />}
+                          {item.icon && (
+                            <item.icon className={item.iconClassName} />
+                          )}
                           <span>{item.title}</span>
                         </Link>
                       </SidebarMenuButton>
+                      {badge && badge.count > 0 && (
+                        <SidebarMenuBadge className={badge.className}>
+                          {badge.count > 99 ? '99+' : badge.count}
+                        </SidebarMenuBadge>
+                      )}
                     </SidebarMenuItem>
                   );
                 })}

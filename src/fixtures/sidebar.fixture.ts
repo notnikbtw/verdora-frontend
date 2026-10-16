@@ -6,8 +6,9 @@ import {
   ShoppingBag,
   Percent,
   FileText,
-  Settings,
   Home,
+  Heart,
+  User,
 } from 'lucide-react';
 
 export const ADMIN_MENU: SidebarSection[] = [
@@ -35,11 +36,19 @@ export const MAIN_MENU: SidebarSection[] = [
   },
   {
     label: 'Personal',
-    items: [{ title: 'Shopping Cart', path: '/cart', icon: ShoppingBag }],
+    items: [
+      { title: 'Shopping Cart', path: '/cart', icon: ShoppingBag },
+      {
+        title: 'Favorites',
+        path: '/favorites',
+        icon: Heart,
+        iconClassName: 'text-red-500',
+      },
+    ],
   },
 ];
 
 export const USER_MENU: MenuSection = [
   { icon: ShoppingBag, label: 'My Orders', path: '/orders' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: User, label: 'Profile', path: '/profile' },
 ];

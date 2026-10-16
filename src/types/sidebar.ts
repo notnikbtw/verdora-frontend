@@ -6,6 +6,7 @@ export type SidebarSection = {
     title: string;
     path: string;
     icon: LucideIcon;
+    iconClassName?: string;
   }>;
 };
 
