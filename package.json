@@ -69,5 +69,8 @@
     "vite": "^8.0.1",
     "vite-plugin-svgr": "^5.2.0",
     "vite-tsconfig-paths": "^6.1.1"
+  },
+  "overrides": {
+    "react-is": "^19.2.0"
   }
 }

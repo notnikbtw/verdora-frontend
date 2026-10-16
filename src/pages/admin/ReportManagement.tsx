@@ -38,18 +38,22 @@ import {
 } from '@components/admin/reports/ReportCharts';
 import { formatOrderDate, formatOrderPrice } from '@/utils/order.utils';
 import {
+  countDaysInclusive,
   getRecentRange,
   parsePositiveInteger,
   stripNonDigits,
 } from '@/utils/report.utils';
 import {
+  DATE_INPUT_DEBOUNCE_MS,
   DEFAULT_GROUP_BY,
+  MAX_RANGE_DAYS,
   DEFAULT_PENDING_DAYS,
   GROUP_BY_OPTIONS,
   PENDING_DAYS_MAX_LENGTH,
   REPORT_TABLE_CONTAINER_CLASS,
 } from '@/config/report.config';
 import type { ReportGroupBy } from '@/types/report';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import {
   BarChart3,
   Clock,
@@ -69,16 +73,25 @@ const ReportManagement = () => {
 
   const validPendingDays = parsePositiveInteger(pendingDaysInput);
 
+  // Typing into a date input yields many valid intermediate dates (0002-…,
+  // 0020-…), so only query once the user pauses.
+  const queryFrom = useDebouncedValue(dateFrom, DATE_INPUT_DEBOUNCE_MS);
+  const queryTo = useDebouncedValue(dateTo, DATE_INPUT_DEBOUNCE_MS);
+  const isSettling = queryFrom !== dateFrom || queryTo !== dateTo;
+
   const purchased = useTopPurchased();
   const cancelled = useTopCancelled();
+  const maxDays = MAX_RANGE_DAYS[groupBy];
   const revenueRangeError =
-    !dateFrom || !dateTo
+    !queryFrom || !queryTo
       ? 'Both From and To dates are required.'
-      : dateFrom > dateTo
+      : queryFrom > queryTo
         ? 'The From date must not be after the To date.'
-        : null;
+        : countDaysInclusive(queryFrom, queryTo) > maxDays
+          ? `Grouped by ${groupBy.toLowerCase()}, the period can span at most ${maxDays} days. Choose a shorter period or a coarser grouping.`
+          : null;
   const revenue = useRevenueReport(
-    { dateFrom, dateTo, groupBy },
+    { dateFrom: queryFrom, dateTo: queryTo, groupBy },
     !revenueRangeError
   );
   const pending = usePendingPaymentOrders(validPendingDays);
@@ -90,10 +103,11 @@ const ReportManagement = () => {
     pending.isRefetching;
 
   const refetchAll = () => {
+    // refetch() ignores `enabled`, so skip queries whose inputs are invalid.
     purchased.refetch();
     cancelled.refetch();
-    revenue.refetch();
-    pending.refetch();
+    if (!revenueRangeError) revenue.refetch();
+    if (validPendingDays !== undefined) pending.refetch();
   };
 
   const metrics = useMemo(() => {
@@ -251,7 +265,7 @@ const ReportManagement = () => {
                 </div>
               }
             />
-          ) : revenue.isLoading ? (
+          ) : revenue.isLoading || isSettling ? (
             <TableSkeleton />
           ) : revenue.isError ? (
             <ErrorSection

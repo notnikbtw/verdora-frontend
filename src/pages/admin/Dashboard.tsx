@@ -25,15 +25,11 @@ import {
   DashboardMetricCard,
   DashboardMetricCardSkeleton,
 } from '@components/common/cards/DashboardMetricCard';
-import { useMemo, useState } from 'react';
-import { useAllOrders } from '@api/order/order.hooks';
+import { useState } from 'react';
+import { useAdminOrders, useOrderCount } from '@api/order/order.hooks';
 import { useRevenueReport } from '@api/report/report.hooks';
-import {
-  formatOrderDate,
-  formatOrderPrice,
-  sortOrdersNewestFirst,
-} from '@/utils/order.utils';
-import { getRecentRange } from '@/utils/report.utils';
+import { formatOrderDate, formatOrderPrice } from '@/utils/order.utils';
+import { useRecentRange } from '@/hooks/useRecentRange';
 import { REVENUE_RANGE_DAYS } from '@/config/report.config';
 import { RECENT_ORDERS_COUNT, SALE_STATUSES } from '@/config/dashboard.config';
 import { Skeleton } from '@components/ui/skeleton';
@@ -53,13 +49,8 @@ const AdminDashboard = () => {
     isError: categoriesError,
   } = useAllCategories();
 
-  const {
-    data: orders,
-    isPending: ordersPending,
-    isError: ordersError,
-  } = useAllOrders();
-
-  const range = useMemo(() => getRecentRange(), []);
+  // One range feeds both "last N days" cards so they always cover the same period.
+  const range = useRecentRange();
   const {
     data: revenueData,
     isPending: revenuePending,
@@ -72,20 +63,22 @@ const AdminDashboard = () => {
 
   const totalRevenue = revenueData?.reduce((sum, r) => sum + r.revenue, 0);
 
-  const salesCount = useMemo(() => {
-    const since = new Date(`${range.from}T00:00:00`).getTime();
-    return orders?.filter(
-      o =>
-        SALE_STATUSES.includes(o.status) &&
-        new Date(o.createdAt).getTime() >= since
-    ).length;
-  }, [orders, range.from]);
+  const {
+    count: salesCount,
+    isPending: salesPending,
+    isError: salesError,
+  } = useOrderCount(SALE_STATUSES, { dateFrom: range.from, dateTo: range.to });
 
-  const recentOrders = useMemo(
-    () =>
-      orders ? sortOrdersNewestFirst(orders).slice(0, RECENT_ORDERS_COUNT) : [],
-    [orders]
-  );
+  const {
+    data: recentOrdersPage,
+    isPending: ordersPending,
+    isError: ordersError,
+  } = useAdminOrders({
+    page: 0,
+    size: RECENT_ORDERS_COUNT,
+    sort: 'createdAt,desc',
+  });
+  const recentOrders = recentOrdersPage?.content ?? [];
 
   return (
     <AdminLayout>
@@ -107,7 +100,7 @@ const AdminDashboard = () => {
             errorMessage="Failed to load revenue. Please try again later."
           />
         )}
-        {ordersPending ? (
+        {salesPending ? (
           <DashboardMetricCardSkeleton />
         ) : (
           <DashboardMetricCard
@@ -115,7 +108,7 @@ const AdminDashboard = () => {
             title="Sales"
             description={`Paid orders in the last ${REVENUE_RANGE_DAYS} days`}
             icon={CreditCard}
-            error={ordersError}
+            error={salesError}
             errorMessage="Failed to load orders. Please try again later."
           />
         )}
