@@ -16,6 +16,7 @@ const FIELDS = ['price', 'discountPrice'] as const;
 export type DiscountFormMode = 'set' | 'edit';
 
 type DiscountFormDialogProps = {
+  open: boolean;
   product: Product | null;
   mode: DiscountFormMode;
   onSubmit: (data: DiscountFormData) => void;
@@ -26,6 +27,7 @@ type DiscountFormDialogProps = {
 };
 
 export const DiscountFormDialog: React.FC<DiscountFormDialogProps> = ({
+  open,
   product,
   mode,
   onSubmit,
@@ -47,19 +49,21 @@ export const DiscountFormDialog: React.FC<DiscountFormDialogProps> = ({
     name: 'discountPrice',
   });
 
+  // Reset when the dialog opens, not when it closes: the closing animation
+  // still shows the form, and a reopened form must not keep old input.
   useEffect(() => {
-    if (!product) return;
-    const hasDiscountPrice =
+    if (!open || !product) return;
+    const hasDiscountValue =
       product.discountPrice !== undefined && product.discountPrice !== null;
     form.reset({
       price: String(product.price),
       // Setting a discount starts from an empty field, never from a stored 0.
       discountPrice:
-        mode === 'edit' && hasDiscountPrice
+        mode === 'edit' && hasDiscountValue
           ? String(product.discountPrice)
           : undefined,
     });
-  }, [product, mode, form]);
+  }, [open, product, mode, form]);
 
   useEffect(() => {
     FIELDS.forEach(field => {
@@ -67,6 +71,16 @@ export const DiscountFormDialog: React.FC<DiscountFormDialogProps> = ({
       if (message) form.setError(field, { type: 'server', message });
     });
   }, [fieldErrors, form]);
+
+  // The schema's cross-field rule attaches errors to both fields, so changing
+  // either one has to re-check both, or a stale message stays on the other.
+  const updateField = (
+    name: 'price' | 'discountPrice',
+    value: string | undefined
+  ) => {
+    form.setValue(name, value);
+    void form.trigger(FIELDS);
+  };
 
   const hasFieldError = FIELDS.some(field => fieldErrors?.[field]);
   const otherServerErrors = Object.entries(fieldErrors ?? {})
@@ -76,10 +90,9 @@ export const DiscountFormDialog: React.FC<DiscountFormDialogProps> = ({
     ? otherServerErrors.join('. ')
     : [errorMessage, ...otherServerErrors].filter(Boolean).join('. ');
 
-  const handleOpenChange = (open: boolean) => {
+  const handleOpenChange = (isOpen: boolean) => {
     if (isPending) return;
-    onOpenChange(open);
-    if (!open) form.reset();
+    onOpenChange(isOpen);
   };
 
   const submit = form.handleSubmit(data => {
@@ -88,7 +101,7 @@ export const DiscountFormDialog: React.FC<DiscountFormDialogProps> = ({
 
   return (
     <DialogComponent
-      open={!!product}
+      open={open}
       onOpenChange={handleOpenChange}
       headerTitle={mode === 'set' ? 'Set discount' : 'Edit discount'}
       headerDescription={
@@ -118,9 +131,7 @@ export const DiscountFormDialog: React.FC<DiscountFormDialogProps> = ({
                 : undefined
             }
             value={price || ''}
-            onChange={val =>
-              form.setValue('price', val, { shouldValidate: true })
-            }
+            onChange={val => updateField('price', val)}
             error={form.formState.errors.price?.message}
           />
 
@@ -134,9 +145,7 @@ export const DiscountFormDialog: React.FC<DiscountFormDialogProps> = ({
             description="Must be lower than the regular price and not negative."
             value={discountPrice || ''}
             onChange={val =>
-              form.setValue('discountPrice', val === '' ? undefined : val, {
-                shouldValidate: true,
-              })
+              updateField('discountPrice', val === '' ? undefined : val)
             }
             error={form.formState.errors.discountPrice?.message}
           />

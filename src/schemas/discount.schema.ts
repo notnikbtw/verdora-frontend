@@ -26,8 +26,10 @@ const createDiscountSchema = (requireDiscount: boolean) =>
         .refine(value => !value || !(Number(value) < 0), {
           message: 'Discount price cannot be negative',
         })
-        .refine(value => !requireDiscount || !value || !(Number(value) === 0), {
-          message: 'Discount price must be greater than 0',
+        .refine(value => !value || Number(value) !== 0, {
+          message: requireDiscount
+            ? 'Discount price must be greater than 0.'
+            : 'Discount price must be greater than 0. Leave it empty to remove the discount.',
         }),
     })
     .superRefine(({ price, discountPrice }, ctx) => {

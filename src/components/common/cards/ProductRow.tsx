@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { TableRow, TableCell } from '@components/ui/table';
 import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
@@ -6,6 +6,11 @@ import { Eye, Pencil, Trash2, Package } from 'lucide-react';
 import type { Product } from '@/types/product';
 import { Skeleton } from '@components/ui/skeleton';
 import { formatCurrency } from '@/utils/order.utils';
+import {
+  getDiscountPercent,
+  hasDiscountPrice,
+  hasValidDiscount,
+} from '@/utils/product.utils';
 
 type ProductRowProps = {
   product: Product;
@@ -13,6 +18,8 @@ type ProductRowProps = {
   onViewDetails?: (product: Product) => void;
   onEdit?: (product: Product) => void;
   onDelete?: (product: Product) => void;
+  // Replaces the default view/edit/delete buttons when provided.
+  actions?: ReactNode;
 };
 
 export const ProductRow = ({
@@ -21,13 +28,12 @@ export const ProductRow = ({
   onViewDetails,
   onEdit,
   onDelete,
+  actions,
 }: ProductRowProps) => {
   const [imageError, setImageError] = useState(false);
 
-  const hasDiscount =
-    typeof product.discountPrice === 'number' &&
-    product.discountPrice > 0 &&
-    product.discountPrice < product.price;
+  const discounted = hasValidDiscount(product);
+  const invalidDiscount = hasDiscountPrice(product) && !discounted;
 
   return (
     <TableRow className="hover:bg-muted/30 transition-colors">
@@ -77,7 +83,7 @@ export const ProductRow = ({
       </TableCell>
 
       <TableCell className="text-right font-medium text-foreground">
-        {hasDiscount ? (
+        {discounted ? (
           <span className="text-xs line-through text-muted-foreground">
             {formatCurrency(product.price)}
           </span>
@@ -87,7 +93,7 @@ export const ProductRow = ({
       </TableCell>
 
       <TableCell className="text-right">
-        {hasDiscount ? (
+        {discounted ? (
           <div className="flex items-center justify-end gap-1.5">
             <span className="font-semibold text-emerald-600 dark:text-emerald-400">
               {formatCurrency(product.discountPrice!)}
@@ -96,10 +102,20 @@ export const ProductRow = ({
               variant="outline"
               className="text-[10px] px-1 py-0 border-emerald-300 bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
             >
-              {Math.round(
-                ((product.price - product.discountPrice!) / product.price) * 100
-              )}
-              % OFF
+              {getDiscountPercent(product)}% OFF
+            </Badge>
+          </div>
+        ) : invalidDiscount ? (
+          <div className="flex items-center justify-end gap-1.5">
+            <span className="font-semibold text-muted-foreground">
+              {formatCurrency(product.discountPrice)}
+            </span>
+            <Badge
+              variant="destructive"
+              className="text-[10px] px-1 py-0"
+              title="The discount price must be lower than the regular price"
+            >
+              Invalid
             </Badge>
           </div>
         ) : (
@@ -109,46 +125,50 @@ export const ProductRow = ({
 
       <TableCell className="pr-6 text-right">
         <div className="flex items-center justify-end gap-1 sm:gap-2">
-          {onViewDetails && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onViewDetails(product)}
-              className="cursor-pointer h-8 px-2 text-xs"
-              title="View product details"
-              aria-label={`View details of ${product.name}`}
-            >
-              <Eye className="size-3.5 mr-1" />
-              <span className="hidden sm:inline">Details</span>
-            </Button>
-          )}
+          {actions ?? (
+            <>
+              {onViewDetails && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onViewDetails(product)}
+                  className="cursor-pointer h-8 px-2 text-xs"
+                  title="View product details"
+                  aria-label={`View details of ${product.name}`}
+                >
+                  <Eye className="size-3.5 mr-1" />
+                  <span className="hidden sm:inline">Details</span>
+                </Button>
+              )}
 
-          {onEdit && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onEdit(product)}
-              className="cursor-pointer h-8 px-2 text-xs"
-              title="Edit product"
-              aria-label={`Edit ${product.name}`}
-            >
-              <Pencil className="size-3.5 mr-1" />
-              <span className="hidden sm:inline">Edit</span>
-            </Button>
-          )}
+              {onEdit && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onEdit(product)}
+                  className="cursor-pointer h-8 px-2 text-xs"
+                  title="Edit product"
+                  aria-label={`Edit ${product.name}`}
+                >
+                  <Pencil className="size-3.5 mr-1" />
+                  <span className="hidden sm:inline">Edit</span>
+                </Button>
+              )}
 
-          {onDelete && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDelete(product)}
-              className="cursor-pointer h-8 px-2 text-xs text-destructive hover:bg-destructive/10"
-              title="Delete product"
-              aria-label={`Delete ${product.name}`}
-            >
-              <Trash2 className="size-3.5 mr-1" />
-              <span className="hidden sm:inline">Delete</span>
-            </Button>
+              {onDelete && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onDelete(product)}
+                  className="cursor-pointer h-8 px-2 text-xs text-destructive hover:bg-destructive/10"
+                  title="Delete product"
+                  aria-label={`Delete ${product.name}`}
+                >
+                  <Trash2 className="size-3.5 mr-1" />
+                  <span className="hidden sm:inline">Delete</span>
+                </Button>
+              )}
+            </>
           )}
         </div>
       </TableCell>

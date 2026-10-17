@@ -40,6 +40,7 @@ type DiscountTableProps = {
   onPageChange: (page: number) => void;
   onRefetch: () => void;
   onClearAllFilters: () => void;
+  onShowAll: () => void;
   onSetDiscount: (product: Product) => void;
   onEditDiscount: (product: Product) => void;
   onRemoveDiscount: (product: Product) => void;
@@ -73,6 +74,7 @@ export const DiscountTable: React.FC<DiscountTableProps> = ({
   onPageChange,
   onRefetch,
   onClearAllFilters,
+  onShowAll,
   onSetDiscount,
   onEditDiscount,
   onRemoveDiscount,
@@ -137,6 +139,14 @@ export const DiscountTable: React.FC<DiscountTableProps> = ({
                   className="cursor-pointer"
                 >
                   Clear all filters
+                </Button>
+              ) : discountedOnly ? (
+                <Button
+                  variant="outline"
+                  onClick={onShowAll}
+                  className="cursor-pointer"
+                >
+                  Show all products
                 </Button>
               ) : undefined
             }

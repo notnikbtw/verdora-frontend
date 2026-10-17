@@ -14,8 +14,7 @@ import ProductOfTheDayCard from '@components/admin/discounts/ProductOfTheDayCard
 import {
   useGetProductOfTheDay,
   useGetProducts,
-  useRemoveProductDiscount,
-  useUpdateProductPricing,
+  useUpdateProductDiscount,
 } from '@api/product/product.hooks';
 import { useAllCategories } from '@api/category/category.hooks';
 import {
@@ -29,6 +28,7 @@ import {
 } from '@/config/discount.config';
 import type { DiscountFormData } from '@/schemas/discount.schema';
 import type { Product } from '@/types/product';
+import { formatCurrency } from '@/utils/order.utils';
 
 const DiscountManagement = () => {
   const [page, setPage] = useState(0);
@@ -36,11 +36,15 @@ const DiscountManagement = () => {
   const [debouncedSearch] = useDebounce(search, DISCOUNT_SEARCH_DEBOUNCE_MS);
   const [filter, setFilter] = useState<DiscountFilter>(DEFAULT_DISCOUNT_FILTER);
   const [sortBy, setSortBy] = useState(DEFAULT_DISCOUNT_SORT);
+  // The targets outlive the dialogs' open state so their content does not
+  // change while the closing animation runs.
   const [removingProduct, setRemovingProduct] = useState<Product | null>(null);
-  const [formState, setFormState] = useState<{
+  const [isRemoveOpen, setIsRemoveOpen] = useState(false);
+  const [formTarget, setFormTarget] = useState<{
     product: Product;
     mode: DiscountFormMode;
   } | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const { data: categoriesData } = useAllCategories();
 
@@ -71,8 +75,7 @@ const DiscountManagement = () => {
   } = useGetProducts(queryParams);
 
   const productOfTheDay = useGetProductOfTheDay();
-  const removeMutation = useRemoveProductDiscount();
-  const editMutation = useUpdateProductPricing();
+  const discountMutation = useUpdateProductDiscount();
 
   const products = productsData?.content ?? [];
   const totalPages = productsData?.totalPages || (products.length > 0 ? 1 : 0);
@@ -91,43 +94,58 @@ const DiscountManagement = () => {
     setPage(0);
   };
 
-  const closeDialog = () => {
-    setRemovingProduct(null);
-    removeMutation.reset();
+  const openRemoveDialog = (product: Product) => {
+    discountMutation.reset();
+    setRemovingProduct(product);
+    setIsRemoveOpen(true);
   };
+
+  const closeRemoveDialog = () => setIsRemoveOpen(false);
 
   const openDiscountForm = (product: Product, mode: DiscountFormMode) => {
-    editMutation.reset();
-    setFormState({ product, mode });
+    discountMutation.reset();
+    setFormTarget({ product, mode });
+    setIsFormOpen(true);
   };
 
-  const closeEditDialog = () => {
-    setFormState(null);
-    editMutation.reset();
+  const closeDiscountForm = () => setIsFormOpen(false);
+
+  // When the last row of a page leaves the "Discounted only" view, step back so
+  // the page is not left empty.
+  const stepBackIfPageEmptied = () => {
+    if (filter === 'DISCOUNTED' && products.length === 1 && page > 0) {
+      setPage(page - 1);
+    }
   };
 
   const handleEditSubmit = (data: DiscountFormData) => {
-    if (!formState) return;
-    editMutation.mutate(
+    if (!formTarget) return;
+    discountMutation.mutate(
       {
-        product: formState.product,
+        productId: formTarget.product.productId,
         price: Number(data.price),
         discountPrice: data.discountPrice ? Number(data.discountPrice) : null,
       },
-      { onSuccess: closeEditDialog }
+      {
+        onSuccess: () => {
+          stepBackIfPageEmptied();
+          closeDiscountForm();
+        },
+      }
     );
   };
 
   const handleRemoveDiscount = () => {
     if (!removingProduct) return;
-    removeMutation.mutate(removingProduct, {
-      onSuccess: () => {
-        if (filter === 'DISCOUNTED' && products.length === 1 && page > 0) {
-          setPage(page - 1);
-        }
-        closeDialog();
-      },
-    });
+    discountMutation.mutate(
+      { productId: removingProduct.productId, discountPrice: null },
+      {
+        onSuccess: () => {
+          stepBackIfPageEmptied();
+          closeRemoveDialog();
+        },
+      }
+    );
   };
 
   return (
@@ -190,37 +208,39 @@ const DiscountManagement = () => {
         onPageChange={setPage}
         onRefetch={refetch}
         onClearAllFilters={clearAllFilters}
+        onShowAll={() => {
+          setFilter('ALL');
+          setPage(0);
+        }}
         onSetDiscount={product => openDiscountForm(product, 'set')}
         onEditDiscount={product => openDiscountForm(product, 'edit')}
-        onRemoveDiscount={product => {
-          removeMutation.reset();
-          setRemovingProduct(product);
-        }}
+        onRemoveDiscount={openRemoveDialog}
       />
 
       <DiscountFormDialog
-        product={formState?.product ?? null}
-        mode={formState?.mode ?? 'edit'}
+        open={isFormOpen}
+        product={formTarget?.product ?? null}
+        mode={formTarget?.mode ?? 'edit'}
         onSubmit={handleEditSubmit}
         onOpenChange={open => {
-          if (!open) closeEditDialog();
+          if (!open) closeDiscountForm();
         }}
-        isPending={editMutation.isPending}
-        fieldErrors={editMutation.error?.response?.data?.errors}
-        errorMessage={editMutation.error?.response?.data?.message}
+        isPending={discountMutation.isPending}
+        fieldErrors={discountMutation.error?.response?.data?.errors}
+        errorMessage={discountMutation.error?.response?.data?.message}
       />
 
       <AlertComponent
         title="Remove discount"
-        description={`Remove the discount from "${removingProduct?.name}"? It will return to its regular price of $${removingProduct?.price.toFixed(2)}.`}
-        isAlertDialogOpen={!!removingProduct}
+        description={`Remove the discount from "${removingProduct?.name}"? It will return to its regular price of ${formatCurrency(removingProduct?.price)}.`}
+        isAlertDialogOpen={isRemoveOpen}
         onOpenChange={open => {
-          if (!open) closeDialog();
+          if (!open) closeRemoveDialog();
         }}
         actionText="Remove discount"
         loadingText="Removing..."
-        isDeleting={removeMutation.isPending}
-        errorText={removeMutation.error?.response?.data?.message}
+        isDeleting={discountMutation.isPending}
+        errorText={discountMutation.error?.response?.data?.message}
         onAction={handleRemoveDiscount}
       />
     </AdminLayout>
