@@ -43,6 +43,7 @@ export const MAIN_MENU: SidebarSection[] = [
         path: '/favorites',
         icon: Heart,
         iconClassName: 'text-red-500',
+        authAction: 'favorite',
       },
     ],
   },

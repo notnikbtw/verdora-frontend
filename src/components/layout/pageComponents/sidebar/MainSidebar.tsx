@@ -22,6 +22,9 @@ import React, { useState } from 'react';
 import { useAppSelector } from '@api/hooks';
 import { useGetFavorites } from '@api/favorites/favorites.hooks';
 import { useGetCart } from '@api/cart/cart.hooks';
+import LoginPromptDialog, {
+  type AuthPromptAction,
+} from '@components/common/dialog/LoginPromptDialog';
 
 type Props = {
   username?: string;
@@ -38,11 +41,14 @@ const MainSidebar = ({ username, email, loading }: Props) => {
   const navigate = useNavigate();
   const { setOpenMobile, setOpen } = useSidebar();
   const [search, setSearch] = useState('');
+  const [loginPromptAction, setLoginPromptAction] =
+    useState<AuthPromptAction | null>(null);
 
   const { user } = useAppSelector(state => state.auth);
   const { data: favorites } = useGetFavorites(Boolean(user));
   const { data: cart } = useGetCart();
-  const favoritesCount = Array.isArray(favorites) ? favorites.length : 0;
+  const favoritesCount =
+    user && Array.isArray(favorites) ? favorites.length : 0;
   const cartItemCount = (cart?.items ?? []).reduce(
     (sum, item) => sum + item.quantity,
     0
@@ -57,6 +63,19 @@ const MainSidebar = ({ username, email, loading }: Props) => {
     setOpen(false);
   };
 
+  // Items that need an account open the same login prompt as the header
+  // instead of navigating to a protected route.
+  const handleItemClick = (
+    item: { authAction?: AuthPromptAction },
+    e: React.MouseEvent
+  ) => {
+    handleLinkClick();
+    if (item.authAction && !user) {
+      e.preventDefault();
+      setLoginPromptAction(item.authAction);
+    }
+  };
+
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const trimmed = search.trim();
@@ -67,79 +86,88 @@ const MainSidebar = ({ username, email, loading }: Props) => {
   };
 
   return (
-    <Sidebar side="right">
-      <SidebarHeaderComponent />
-      <SidebarContent className="px-2">
-        <form onSubmit={handleSearchSubmit} className="p-2">
-          <TextField
-            type="text"
-            placeholder="Search plants"
-            rightIcon={<SearchIcon />}
-            value={search}
-            onChange={val => setSearch(val)}
-            onRightIconClick={handleSearchSubmit}
-          />
-        </form>
-        {menuItems.map(section => (
-          <SidebarGroup key={section.label}>
-            <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {section.items.map(item => {
-                  const isActive =
-                    location.pathname === item.path ||
-                    (item.path !== '/' &&
-                      location.pathname.startsWith(item.path));
+    <>
+      <Sidebar side="right">
+        <SidebarHeaderComponent />
+        <SidebarContent className="px-2">
+          <form onSubmit={handleSearchSubmit} className="p-2">
+            <TextField
+              type="text"
+              placeholder="Search plants"
+              rightIcon={<SearchIcon />}
+              value={search}
+              onChange={val => setSearch(val)}
+              onRightIconClick={handleSearchSubmit}
+            />
+          </form>
+          {menuItems.map(section => (
+            <SidebarGroup key={section.label}>
+              <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {section.items.map(item => {
+                    const isActive =
+                      location.pathname === item.path ||
+                      (item.path !== '/' &&
+                        location.pathname.startsWith(item.path));
 
-                  const badge = badges[item.path];
+                    const badge = badges[item.path];
 
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        className="[--icon-size:1.25rem]"
-                        onClick={handleLinkClick}
-                      >
-                        <Link to={item.path}>
-                          {item.icon && (
-                            <item.icon className={item.iconClassName} />
-                          )}
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                      {badge && badge.count > 0 && (
-                        <SidebarMenuBadge
-                          className={`${badge.color} ${MENU_BADGE_TEXT}`}
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={isActive}
+                          className="[--icon-size:1.25rem]"
+                          onClick={e => handleItemClick(item, e)}
                         >
-                          {badge.count > 99 ? '99+' : badge.count}
-                        </SidebarMenuBadge>
-                      )}
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
-      </SidebarContent>
-      {username ? (
-        <SidebarFooterComponent
-          username={username}
-          email={email || ''}
-          loading={loading}
-        />
-      ) : (
-        <div className="p-4 mt-auto">
-          <Button asChild className="w-full" onClick={handleLinkClick}>
-            <Link to="/login">
-              <LogIn className="mr-2 size-4" />
-              <span>Log in</span>
-            </Link>
-          </Button>
-        </div>
-      )}
-    </Sidebar>
+                          <Link to={item.path}>
+                            {item.icon && (
+                              <item.icon className={item.iconClassName} />
+                            )}
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                        {badge && badge.count > 0 && (
+                          <SidebarMenuBadge
+                            className={`${badge.color} ${MENU_BADGE_TEXT}`}
+                          >
+                            {badge.count > 99 ? '99+' : badge.count}
+                          </SidebarMenuBadge>
+                        )}
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
+        </SidebarContent>
+        {username ? (
+          <SidebarFooterComponent
+            username={username}
+            email={email || ''}
+            loading={loading}
+          />
+        ) : (
+          <div className="p-4 mt-auto">
+            <Button asChild className="w-full" onClick={handleLinkClick}>
+              <Link to="/login">
+                <LogIn className="mr-2 size-4" />
+                <span>Log in</span>
+              </Link>
+            </Button>
+          </div>
+        )}
+      </Sidebar>
+      <LoginPromptDialog
+        open={loginPromptAction !== null}
+        onOpenChange={open => {
+          if (!open) setLoginPromptAction(null);
+        }}
+        action={loginPromptAction ?? 'favorite'}
+      />
+    </>
   );
 };
 

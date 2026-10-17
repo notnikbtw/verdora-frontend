@@ -35,7 +35,8 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const { data: favorites } = useGetFavorites(Boolean(user));
-  const favoritesCount = Array.isArray(favorites) ? favorites.length : 0;
+  const favoritesCount =
+    user && Array.isArray(favorites) ? favorites.length : 0;
 
   const handleFavouriteClick = (e: React.MouseEvent) => {
     if (!user) {
@@ -118,7 +119,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
                 <Link to="/profile">
                   <Avatar className="w-10 h-10 border-2 border-primary hover:border-primary-hover">
                     <AvatarFallback className="bg-[#d3f2d1] text-primary">
-                      {user.name.charAt(0).toUpperCase() ?? '?'}
+                      {user.name?.charAt(0).toUpperCase() || '?'}
                     </AvatarFallback>
                   </Avatar>
                 </Link>

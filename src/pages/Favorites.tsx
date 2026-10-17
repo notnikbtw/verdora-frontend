@@ -127,11 +127,7 @@ const Favorites = () => {
           />
         )}
 
-        {isFavoritesLoading && (
-          <div className="mt-6 mb-14">
-            <CatalogProductCardSkeleton viewMode="grid" />
-          </div>
-        )}
+        {isFavoritesLoading && <CatalogProductCardSkeleton viewMode="grid" />}
 
         {isErrorView && (
           <ErrorSection
@@ -155,7 +151,7 @@ const Favorites = () => {
         )}
 
         {isListView && (
-          <div className="flex flex-col gap-6 mb-14">
+          <div className="flex flex-col gap-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4.5">
               {pagedProducts.map(product => (
                 <CatalogProductCard
@@ -189,7 +185,7 @@ const Favorites = () => {
         )}
 
         {isReady && suggestionProducts.length > 0 && (
-          <section className="mt-8 pt-8 border-t border-[#E4E8E3]/70">
+          <section className="pt-8 border-t border-[#E4E8E3]/70">
             <div className="flex items-baseline justify-between gap-4 flex-wrap mb-5">
               <div className="flex items-center gap-2">
                 <Sparkles className="size-5 text-[#3E8D35]" />
