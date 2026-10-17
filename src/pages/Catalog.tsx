@@ -228,99 +228,97 @@ const Catalog = () => {
 
   return (
     <LayoutPage>
-      <div className="flex justify-center items-center">
-        <div className="py-6 space-y-6 max-w-300">
-          <Breadcrumbs />
+      <div className="page-stack">
+        <Breadcrumbs />
 
-          <SectionHeader
-            title={pageTitle}
-            count={isLoadingProducts ? undefined : totalElements}
-            countLabel="products"
-            description={pageDescription}
+        <SectionHeader
+          title={pageTitle}
+          count={isLoadingProducts ? undefined : totalElements}
+          countLabel="products"
+          description={pageDescription}
+        />
+
+        <div className="flex justify-center flex-col lg:flex-row items-start gap-7 pt-2">
+          <CatalogFilterSidebar
+            categories={Array.isArray(categories) ? categories : []}
+            isLoadingCategories={isLoadingCategories}
+            isCategoriesError={isCategoriesError}
+            onRetryCategories={() => refetchCategories()}
+            selectedCategoryId={selectedCategoryId}
+            onSelectCategory={handleSelectCategory}
+            priceRange={priceRange}
+            onPriceRangeChange={handlePriceRangeChange}
+            onSaleOnly={onSaleOnly}
+            onToggleOnSaleOnly={handleToggleOnSaleOnly}
+            onResetAll={handleResetAll}
           />
 
-          <div className="flex justify-center flex-col lg:flex-row items-start gap-7 pt-2">
-            <CatalogFilterSidebar
-              categories={Array.isArray(categories) ? categories : []}
-              isLoadingCategories={isLoadingCategories}
-              isCategoriesError={isCategoriesError}
-              onRetryCategories={() => refetchCategories()}
-              selectedCategoryId={selectedCategoryId}
-              onSelectCategory={handleSelectCategory}
-              priceRange={priceRange}
-              onPriceRangeChange={handlePriceRangeChange}
-              onSaleOnly={onSaleOnly}
-              onToggleOnSaleOnly={handleToggleOnSaleOnly}
-              onResetAll={handleResetAll}
+          <div className="flex-1 min-w-0 w-full flex flex-col gap-6">
+            <CatalogToolbar
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              selectedSort={selectedSort}
+              onSortChange={handleSortChange}
             />
 
-            <div className="flex-1 min-w-0 w-full flex flex-col gap-6">
-              <CatalogToolbar
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-                selectedSort={selectedSort}
-                onSortChange={handleSortChange}
-              />
+            {searchQuery && (
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-muted/50 border border-border text-sm">
+                <span className="text-text-muted">Search results for:</span>
+                <span className="font-semibold text-text-h">
+                  &ldquo;{searchQuery}&rdquo;
+                </span>
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="ml-auto flex items-center gap-1 text-xs text-text-muted hover:text-text cursor-pointer transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X className="size-3.5" />
+                  <span>Clear</span>
+                </button>
+              </div>
+            )}
 
-              {searchQuery && (
-                <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-muted/50 border border-border text-sm">
-                  <span className="text-text-muted">Search results for:</span>
-                  <span className="font-semibold text-text-h">
-                    &ldquo;{searchQuery}&rdquo;
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleClearSearch}
-                    className="ml-auto flex items-center gap-1 text-xs text-text-muted hover:text-text cursor-pointer transition-colors"
-                    aria-label="Clear search"
-                  >
-                    <X className="size-3.5" />
-                    <span>Clear</span>
-                  </button>
-                </div>
-              )}
+            <CatalogProductList
+              products={products}
+              isLoading={isLoadingProducts}
+              isError={isProductsError}
+              onRetry={() => refetchProducts()}
+              categoryMap={categoryMap}
+              viewMode={viewMode}
+              onAddToCart={addToCart}
+              onAuthRequired={() => setIsLoginPromptOpen(true)}
+              onResetAll={handleResetAll}
+              searchQuery={searchQuery}
+              hasActiveFilters={hasActiveFilters}
+              isFavorite={isFavorite}
+              isFavoritePending={isFavoritePending}
+              onToggleFavorite={toggleFavorite}
+            />
 
-              <CatalogProductList
-                products={products}
-                isLoading={isLoadingProducts}
-                isError={isProductsError}
-                onRetry={() => refetchProducts()}
-                categoryMap={categoryMap}
-                viewMode={viewMode}
-                onAddToCart={addToCart}
-                onAuthRequired={() => setIsLoginPromptOpen(true)}
-                onResetAll={handleResetAll}
-                searchQuery={searchQuery}
-                hasActiveFilters={hasActiveFilters}
-                isFavorite={isFavorite}
-                isFavoritePending={isFavoritePending}
-                onToggleFavorite={toggleFavorite}
-              />
-
-              {!isLoadingProducts && totalElements > 0 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-border gap-4">
-                  <span className="text-xs sm:text-sm text-text">
-                    {showingText}
-                  </span>
-                  {totalPages > 1 && (
-                    <PaginationComponent
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={page => setCurrentPage(page)}
-                    />
-                  )}
-                </div>
-              )}
-            </div>
+            {!isLoadingProducts && totalElements > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-border gap-4">
+                <span className="text-xs sm:text-sm text-text">
+                  {showingText}
+                </span>
+                {totalPages > 1 && (
+                  <PaginationComponent
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={page => setCurrentPage(page)}
+                  />
+                )}
+              </div>
+            )}
           </div>
         </div>
-
-        <LoginPromptDialog
-          open={isLoginPromptOpen}
-          onOpenChange={setIsLoginPromptOpen}
-          action="favorite"
-        />
       </div>
+
+      <LoginPromptDialog
+        open={isLoginPromptOpen}
+        onOpenChange={setIsLoginPromptOpen}
+        action="favorite"
+      />
     </LayoutPage>
   );
 };

@@ -25,6 +25,7 @@ import OrderResult from '@pages/OrderResult';
 import ProductDetails from '@pages/ProductDetails';
 import Favorites from '@pages/Favorites';
 import ScrollToTop from '@components/common/ScrollToTop';
+import UserScopedCacheReset from '@components/common/UserScopedCacheReset';
 import { fetchMe } from '@api/auth/auth.actions';
 import Profile from '@pages/Profile';
 
@@ -36,6 +37,7 @@ createRoot(document.getElementById('root')!).render(
       <TooltipProvider>
         <BrowserRouter basename={import.meta.env.BASE_URL}>
           <ScrollToTop />
+          <UserScopedCacheReset />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/catalog" element={<Catalog />} />

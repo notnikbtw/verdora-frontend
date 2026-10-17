@@ -149,7 +149,7 @@ export const Profile = () => {
 
   return (
     <LayoutPage>
-      <div className="w-full py-6 sm:py-8 space-y-6">
+      <div className="page-stack sm:py-8">
         <Breadcrumbs items={breadcrumbsItems} />
 
         {successToast && (

@@ -152,7 +152,7 @@ export const Home = () => {
 
   return (
     <LayoutPage>
-      <div className="mt-8 sm:mt-16 flex flex-col items-center gap-16 sm:gap-24 w-full max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+      <div className="mt-8 sm:mt-16 flex flex-col items-center gap-16 sm:gap-24 w-full pb-16">
         <section className="flex flex-col items-center text-center w-full max-w-4xl mx-auto">
           <div className="flex flex-col items-center gap-6 w-full">
             <h1
