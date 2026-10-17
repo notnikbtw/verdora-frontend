@@ -42,10 +42,19 @@ export const useGetProductById = (id: number, enabled: boolean = true) => {
   });
 };
 
+// Resolves to null when the backend has no product of the day (HTTP 404), which
+// is an expected state rather than an error.
 export const useGetProductOfTheDay = () => {
-  return useQuery<Product, ProductAxiosError>({
+  return useQuery<Product | null, ProductAxiosError>({
     queryKey: ['products', 'product-of-the-day'],
-    queryFn: () => productService.getProductOfTheDay(),
+    queryFn: async () => {
+      try {
+        return await productService.getProductOfTheDay();
+      } catch (error) {
+        if ((error as ProductAxiosError).response?.status === 404) return null;
+        throw error;
+      }
+    },
     retry: (failureCount, error) => {
       if (error?.response?.status === 404) return false;
       return failureCount < 2;
@@ -90,5 +99,32 @@ export const useDeleteProduct = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
+  });
+};
+
+// The API has no discount endpoint, so a discount is saved with PUT, which
+// replaces the whole product. Read the current product first so the write does
+// not revert fields that changed since the list was loaded. Pass discountPrice
+// as null to remove the discount.
+export const useUpdateProductDiscount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    Product,
+    ProductAxiosError,
+    { productId: number; price?: number; discountPrice: number | null }
+  >({
+    mutationFn: async ({ productId, price, discountPrice }) => {
+      const current = await productService.getProductById(productId);
+      return productService.updateProduct(productId, {
+        name: current.name,
+        description: current.description,
+        categoryId: current.categoryId,
+        imageUrl: current.imageUrl,
+        price: price ?? current.price,
+        discountPrice,
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
   });
 };

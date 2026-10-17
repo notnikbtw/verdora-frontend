@@ -20,6 +20,7 @@ import AdminDashboard from '@pages/admin/Dashboard';
 import ProtectedRoute from '@/guards/ProtectedRoute';
 import OrderManagement from '@pages/admin/OrderManagement';
 import ProductManagement from '@pages/admin/ProductManagement';
+import DiscountManagement from '@pages/admin/DiscountManagement';
 import Checkout from '@pages/Checkout';
 import OrderResult from '@pages/OrderResult';
 import ProductDetails from '@pages/ProductDetails';
@@ -161,6 +162,14 @@ createRoot(document.getElementById('root')!).render(
                 element={
                   <ProtectedRoute allowedRoles={['ADMIN']}>
                     <ProductManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="discounts"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <DiscountManagement />
                   </ProtectedRoute>
                 }
               />
