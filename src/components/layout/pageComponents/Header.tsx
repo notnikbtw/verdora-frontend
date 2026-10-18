@@ -93,7 +93,13 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
               }
               onClick={handleFavouriteClick}
             >
-              <Heart className="size-5 text-favourite [&_path]:fill-current" />
+              <Heart
+                className={`size-5 transition-colors ${
+                  favoritesCount > 0
+                    ? 'text-favourite [&_path]:fill-current'
+                    : 'text-[#2C332D] [&_path]:fill-none'
+                }`}
+              />
               {favoritesCount > 0 && (
                 <span className="count-badge bg-favourite">
                   {favoritesCount > 99 ? '99+' : favoritesCount}
