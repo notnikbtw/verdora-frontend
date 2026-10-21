@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 import ProductGridSection from '@components/common/section/ProductGridSection';
 import CategoryGridSection from '@components/common/section/CategoryGridSection';
 import SectionLayout from '@components/common/section/SectionLayout';
+import ReviewsCarousel from '@components/home/ReviewsCarousel';
 import { HOTSPOTS } from '@/config/home.config';
 import CatalogProductCard from '@components/catalog/CatalogProductCard';
 import CatalogProductCardSkeleton from '@/components/catalog/CatalogProductCardSkeleton';
@@ -39,7 +40,8 @@ export const Home = () => {
   const { data: categories, isLoading: isCategoriesLoading } =
     useAllCategories();
   const categoryMap = useMemo(
-    () => new Map(categories?.map(cat => [Number(cat.categoryId), cat.name]) || []),
+    () =>
+      new Map(categories?.map(cat => [Number(cat.categoryId), cat.name]) || []),
     [categories]
   );
   const { data: products, isLoading: isProductsLoading } = useGetProducts();
@@ -221,7 +223,7 @@ export const Home = () => {
                 </>
               ) : productOfTheDay ? (
                 <>
-                  <div className="lg:col-span-6 flex justify-center w-full">
+                  <div className="lg:col-span-6 flex min-w-0 justify-center w-full">
                     <div className="relative aspect-[1.19] w-full max-w-120 p-4 sm:p-6">
                       <FrameIcon className="pointer-events-none absolute inset-0 z-20 size-full" />
                       <div className="relative z-10 size-full overflow-hidden flex items-center justify-center p-4">
@@ -257,11 +259,11 @@ export const Home = () => {
                     </div>
                   </div>
 
-                  <div className="lg:col-span-6 flex flex-col items-start gap-4">
-                    <h3 className="text-2xl sm:text-4xl font-bold text-link-text">
+                  <div className="lg:col-span-6 flex min-w-0 flex-col items-start gap-4">
+                    <h3 className="w-full min-w-0 wrap-break-word text-2xl sm:text-4xl font-bold text-link-text">
                       {productOfTheDay.name}
                     </h3>
-                    <p className="text-sm sm:text-base text-[#4A5568] leading-relaxed">
+                    <p className="w-full min-w-0 wrap-break-word text-sm sm:text-base text-[#4A5568] leading-relaxed">
                       {productOfTheDay.description}
                     </p>
                     <Button asChild>
@@ -438,10 +440,7 @@ export const Home = () => {
         />
 
         <SectionLayout title="Our reviews">
-          <div
-            className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 no-scrollbar"
-            aria-label="Customer reviews"
-          >
+          <ReviewsCarousel>
             {reviews.map(review => (
               <article
                 key={review.name}
@@ -464,7 +463,7 @@ export const Home = () => {
                 </div>
               </article>
             ))}
-          </div>
+          </ReviewsCarousel>
         </SectionLayout>
       </div>
 
