@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
+import type { AuthPromptAction } from '@components/common/dialog/LoginPromptDialog';
 
 export type SidebarSection = {
   label: string;
@@ -6,6 +7,8 @@ export type SidebarSection = {
     title: string;
     path: string;
     icon: LucideIcon;
+    iconClassName?: string;
+    authAction?: AuthPromptAction;
   }>;
 };
 

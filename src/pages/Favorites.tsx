@@ -27,8 +27,6 @@ const getErrorMessage = (error: unknown, fallback: string) =>
   (error as AxiosError<ApiErrorResponse> | null)?.response?.data?.message ||
   fallback;
 
-// Optimistic adds insert a placeholder item without product details, so we
-// fill the gaps from the already loaded product list when possible.
 const toProduct = (
   item: FavoriteItem,
   productsById: Map<number, Product>
@@ -110,7 +108,7 @@ const Favorites = () => {
 
   return (
     <LayoutPage>
-      <div className="max-w-300 w-full mx-auto px-4 sm:px-8 pt-6 pb-28">
+      <div className="flex flex-col gap-6 pt-6 pb-28">
         <Breadcrumbs className="text-sm" />
 
         <SectionHeader
@@ -129,11 +127,7 @@ const Favorites = () => {
           />
         )}
 
-        {isFavoritesLoading && (
-          <div className="mt-6 mb-14">
-            <CatalogProductCardSkeleton viewMode="grid" />
-          </div>
-        )}
+        {isFavoritesLoading && <CatalogProductCardSkeleton viewMode="grid" />}
 
         {isErrorView && (
           <ErrorSection
@@ -157,7 +151,7 @@ const Favorites = () => {
         )}
 
         {isListView && (
-          <div className="flex flex-col gap-6 mb-14">
+          <div className="flex flex-col gap-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4.5">
               {pagedProducts.map(product => (
                 <CatalogProductCard
@@ -191,7 +185,7 @@ const Favorites = () => {
         )}
 
         {isReady && suggestionProducts.length > 0 && (
-          <section className="mt-8 pt-8 border-t border-[#E4E8E3]/70">
+          <section className="pt-8 border-t border-[#E4E8E3]/70">
             <div className="flex items-baseline justify-between gap-4 flex-wrap mb-5">
               <div className="flex items-center gap-2">
                 <Sparkles className="size-5 text-[#3E8D35]" />

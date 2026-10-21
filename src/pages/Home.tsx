@@ -152,7 +152,7 @@ export const Home = () => {
 
   return (
     <LayoutPage>
-      <div className="mt-8 sm:mt-16 flex flex-col items-center gap-16 sm:gap-24 w-full max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+      <div className="mt-8 sm:mt-16 flex flex-col items-center gap-16 sm:gap-24 w-full pb-16">
         <section className="flex flex-col items-center text-center w-full max-w-4xl mx-auto">
           <div className="flex flex-col items-center gap-6 w-full">
             <h1
@@ -219,11 +219,11 @@ export const Home = () => {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white/70 backdrop-blur-sm rounded-3xl p-6 sm:p-8 border border-white/80 shadow-xs hover:shadow-md transition-all duration-300">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center p-6 sm:p-8">
               {isProductOfTheDayLoading ? (
                 <>
                   <div className="lg:col-span-6 flex justify-center w-full">
-                    <div className="relative aspect-[1.19] w-full max-w-[480px] p-4 sm:p-6 flex items-center justify-center">
+                    <div className="relative aspect-[1.19] w-full max-w-120 p-4 sm:p-6 flex items-center justify-center">
                       <Spinner className="size-8 text-[#1E331B]" />
                     </div>
                   </div>
@@ -237,9 +237,9 @@ export const Home = () => {
               ) : productOfTheDay ? (
                 <>
                   <div className="lg:col-span-6 flex justify-center w-full">
-                    <div className="relative aspect-[1.19] w-full max-w-[480px] p-4 sm:p-6">
+                    <div className="relative aspect-[1.19] w-full max-w-120 p-4 sm:p-6">
                       <FrameIcon className="pointer-events-none absolute inset-0 z-20 size-full" />
-                      <div className="relative z-10 size-full overflow-hidden rounded-[48px] sm:rounded-[70px] bg-[#50614A] flex items-center justify-center p-4">
+                      <div className="relative z-10 size-full overflow-hidden flex items-center justify-center p-4">
                         <img
                           src={productOfTheDay.imageUrl || ProductOfTheDayImage}
                           alt={productOfTheDay.name}
@@ -247,7 +247,7 @@ export const Home = () => {
                             (e.currentTarget as HTMLImageElement).src =
                               ProductOfTheDayImage;
                           }}
-                          className="size-full object-contain p-4 transition-transform duration-500 hover:scale-105"
+                          className="size-full object-contain p-4 transition-transform duration-500 hover:scale-104 bg-[#50614A] rounded-[48px] sm:rounded-[70px]"
                         />
                         <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap shadow-lg">
                           {productOfTheDay.discountPrice &&
@@ -273,9 +273,6 @@ export const Home = () => {
                   </div>
 
                   <div className="lg:col-span-6 flex flex-col items-start gap-4">
-                    <span className="inline-flex items-center rounded-full bg-[#1E331B]/10 px-3 py-1 text-xs font-semibold text-[#1E331B]">
-                      Deal of the Day
-                    </span>
                     <h3 className="text-2xl sm:text-4xl font-bold text-link-text">
                       {productOfTheDay.name}
                     </h3>

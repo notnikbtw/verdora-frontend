@@ -30,3 +30,8 @@ export const FOOTER_SECTIONS: FooterSection[] = [
     ],
   },
 ];
+
+export const SHOP_LINKS = [
+  { text: 'All Products', to: '/catalog' },
+  { text: 'Discounts & Sales', to: '/catalog?discount=true' },
+];

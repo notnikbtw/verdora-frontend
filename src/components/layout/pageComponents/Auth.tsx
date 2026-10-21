@@ -10,6 +10,7 @@ import { Button } from '@components/ui/button';
 import LinkComponent from '@components/common/Link';
 import AuthImg from '@assets/images/frame1.png';
 import Logo from '@components/common/Logo';
+import NoiseBackground from '@components/layout/pageComponents/NoiseBackground';
 
 type AuthFormProps = {
   title?: string;
@@ -42,13 +43,8 @@ const AuthForm = ({
   continueWithGoogle = true,
 }: AuthFormProps) => {
   return (
-    <div className="relative flex min-h-screen w-full bg-[#E6EAE5] dark:bg-zinc-950 overflow-hidden">
-      <div
-        className="fixed inset-0 pointer-events-none z-0 opacity-10 mix-blend-multiply bg-repeat"
-        style={{
-          backgroundImage: `url(${import.meta.env.BASE_URL}noise.svg)`,
-        }}
-      />
+    <div className="relative flex min-h-screen w-full page-background dark:bg-zinc-950 overflow-hidden">
+      <NoiseBackground />
       <div className="relative z-10 flex w-full min-h-screen">
         <div className="hidden lg:block lg:w-1/2 relative min-h-screen overflow-hidden">
           <img
@@ -64,7 +60,7 @@ const AuthForm = ({
           </div>
 
           <div className="flex-1 flex items-end sm:items-center justify-center w-full">
-            <Card className="w-full max-w-full sm:max-w-[440px] bg-white dark:bg-zinc-900 rounded-t-[36px] rounded-b-none sm:rounded-[28px] border-0 shadow-sm p-6 sm:p-8 flex flex-col justify-start gap-4 sm:gap-5 flex-1 sm:flex-initial">
+            <Card className="w-full max-w-full sm:max-w-110 bg-white dark:bg-zinc-900 rounded-t-[36px] rounded-b-none sm:rounded-[28px] border-0 shadow-sm p-6 sm:p-8 flex flex-col justify-start gap-4 sm:gap-5 flex-1 sm:flex-initial">
               {title && (
                 <CardHeader className="text-center space-y-1 pb-1 px-0">
                   <CardTitle className="text-xl font-medium font-sans tracking-tight text-foreground">

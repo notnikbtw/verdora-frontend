@@ -61,7 +61,7 @@ const OrderResult = () => {
 
   return (
     <LayoutPage>
-      <div className="max-w-2xl mx-auto py-8 px-4">
+      <div className="max-w-2xl mx-auto py-8">
         {isOrderLoading ? (
           <Card className="p-6 space-y-6">
             <Skeleton className="h-16 w-16 rounded-full mx-auto" />
