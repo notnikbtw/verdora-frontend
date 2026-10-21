@@ -39,7 +39,7 @@ const AdminCategoriesPage = () => {
     if (!canSubmit()) return;
 
     createMutation.mutate(
-      { name: data.category },
+      { name: data.category, imageUrl: data.imageUrl || undefined },
       {
         onSuccess: () => {
           setIsCreateOpen(false);
@@ -55,7 +55,7 @@ const AdminCategoriesPage = () => {
     <AdminLayout>
       <AdminSectionHeader
         title="Categories"
-        count={Array.isArray(items) ? items.length : 0}
+        count={items ? items.length : 0}
         description="Manage how products are organized in your catalog."
       >
         <Button
@@ -147,6 +147,17 @@ const AdminCategoriesPage = () => {
               setCreateValue('category', value, { shouldValidate: true })
             }
             error={createFormErrors.category?.message}
+          />
+          <TextField
+            type="text"
+            label="Image URL (optional)"
+            id="category-image-url"
+            placeholder="https://example.com/categories/garden.jpg"
+            value={watchCreate('imageUrl') ?? ''}
+            onChange={value =>
+              setCreateValue('imageUrl', value, { shouldValidate: true })
+            }
+            error={createFormErrors.imageUrl?.message}
           />
           {errorCreate ? (
             <p

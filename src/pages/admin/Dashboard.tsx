@@ -134,16 +134,10 @@ const AdminDashboard = () => {
         ) : (
           <DashboardMetricCard
             key="total-categories"
-            value={
-              Array.isArray(categoriesData)
-                ? categoriesData.length.toString()
-                : 'N/A'
-            }
+            value={categoriesData ? categoriesData.length.toString() : 'N/A'}
             title="Total Categories"
             description={
-              Array.isArray(categoriesData)
-                ? 'Number of categories'
-                : 'No category data'
+              categoriesData ? 'Number of categories' : 'No category data'
             }
             icon={ChartBarStacked}
             error={categoriesError}
@@ -177,7 +171,7 @@ const AdminDashboard = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px] sm:w-[120px]">ID</TableHead>
+                  <TableHead className="w-25 sm:w-30">ID</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead className="hidden sm:table-cell">Email</TableHead>
                   <TableHead className="text-right">Phone</TableHead>

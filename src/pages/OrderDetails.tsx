@@ -79,7 +79,7 @@ const OrderDetails = () => {
 
   return (
     <LayoutPage>
-      <div className="w-full py-8 space-y-6">
+      <div className="page-stack">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Link
             to="/orders"

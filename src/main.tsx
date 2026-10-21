@@ -21,13 +21,15 @@ import AdminDashboard from '@pages/admin/Dashboard';
 import ProtectedRoute from '@/guards/ProtectedRoute';
 import OrderManagement from '@pages/admin/OrderManagement';
 import ProductManagement from '@pages/admin/ProductManagement';
+import DiscountManagement from '@pages/admin/DiscountManagement';
 import Checkout from '@pages/Checkout';
 import OrderResult from '@pages/OrderResult';
 import ProductDetails from '@pages/ProductDetails';
+import Favorites from '@pages/Favorites';
 import ScrollToTop from '@components/common/ScrollToTop';
+import UserScopedCacheReset from '@components/common/UserScopedCacheReset';
 import { fetchMe } from '@api/auth/auth.actions';
 import Profile from '@pages/Profile';
-import Favourites from '@pages/Favourites';
 import { Spinner } from '@components/ui/spinner';
 
 // Admin-only and pulls in recharts, so keep it out of the main bundle.
@@ -41,6 +43,7 @@ createRoot(document.getElementById('root')!).render(
       <TooltipProvider>
         <BrowserRouter basename={import.meta.env.BASE_URL}>
           <ScrollToTop />
+          <UserScopedCacheReset />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/catalog" element={<Catalog />} />
@@ -56,18 +59,7 @@ createRoot(document.getElementById('root')!).render(
               path="/sales"
               element={<Navigate to="/catalog?discount=true" replace />}
             />
-            <Route
-              path="/favourites"
-              element={
-                <ProtectedRoute requireAuth={true}>
-                  <Favourites />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/favorites"
-              element={<Navigate to="/favourites" replace />}
-            />
+
             <Route path="/products/:id" element={<ProductDetails />} />
             <Route
               path="/login"
@@ -102,6 +94,18 @@ createRoot(document.getElementById('root')!).render(
               }
             />
             <Route path="/cart" element={<Cart />} />
+            <Route
+              path="/favourites"
+              element={<Navigate to="/favorites" replace />}
+            />
+            <Route
+              path="/favorites"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Favorites />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/checkout"
               element={
@@ -165,6 +169,14 @@ createRoot(document.getElementById('root')!).render(
                 element={
                   <ProtectedRoute allowedRoles={['ADMIN']}>
                     <ProductManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="discounts"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <DiscountManagement />
                   </ProtectedRoute>
                 }
               />

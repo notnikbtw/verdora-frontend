@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useCallback } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import Breadcrumbs, {
@@ -9,11 +9,7 @@ import { Button } from '@components/ui/button';
 import { Skeleton } from '@components/ui/skeleton';
 import { useGetProductById, useGetProducts } from '@api/product/product.hooks';
 import { useCategoryById } from '@api/category/category.hooks';
-import {
-  useFavoriteProductIds,
-  useAddToFavorites,
-  useRemoveFromFavorites,
-} from '@api/favorites/favorites.hooks';
+import { useToggleFavorite } from '@hooks/useToggleFavorite';
 import { ProductGallery } from '@components/product/ProductGallery';
 import { ProductInfo } from '@components/product/ProductInfo';
 import { ProductTabs } from '@components/product/ProductTabs';
@@ -36,33 +32,11 @@ const ProductDetails = () => {
     refetch,
   } = useGetProductById(productId, isValidId);
 
-  const { favoriteIdsSet } = useFavoriteProductIds();
-  const addToFavoritesMutation = useAddToFavorites();
-  const removeFromFavoritesMutation = useRemoveFromFavorites();
+  const { isFavorite, isFavoritePending, toggleFavorite } = useToggleFavorite();
 
-  const isFavoritePending =
-    addToFavoritesMutation.isPending || removeFromFavoritesMutation.isPending;
-
-  const isProductFavorite = Boolean(
-    product && favoriteIdsSet.has(product.productId)
-  );
-
-  const handleToggleFavorite = useCallback(
-    (targetProductId: number) => {
-      if (isFavoritePending) return;
-
-      if (favoriteIdsSet.has(targetProductId)) {
-        removeFromFavoritesMutation.mutate(targetProductId);
-      } else {
-        addToFavoritesMutation.mutate(targetProductId);
-      }
-    },
-    [
-      favoriteIdsSet,
-      isFavoritePending,
-      addToFavoritesMutation,
-      removeFromFavoritesMutation,
-    ]
+  const isProductFavorite = Boolean(product && isFavorite(product.productId));
+  const isProductFavoritePending = Boolean(
+    product && isFavoritePending(product.productId)
   );
 
   const categoryId = product?.categoryId;
@@ -134,7 +108,7 @@ const ProductDetails = () => {
 
   return (
     <LayoutPage>
-      <div className="w-full max-w-300 mx-auto px-4 sm:px-8 py-5 sm:py-7 space-y-6 sm:space-y-8">
+      <div className="flex flex-col gap-6 py-5 sm:gap-8 sm:py-7">
         <Breadcrumbs items={breadcrumbItems} className="text-sm" />
 
         {isLoading ? (
@@ -184,8 +158,8 @@ const ProductDetails = () => {
                 categoryName={categoryName}
                 isLoadingCategory={isLoadingCategory}
                 isFavorite={isProductFavorite}
-                isFavoritePending={isFavoritePending}
-                onToggleFavorite={handleToggleFavorite}
+                isFavoritePending={isProductFavoritePending}
+                onToggleFavorite={toggleFavorite}
               />
             </div>
 
@@ -201,8 +175,9 @@ const ProductDetails = () => {
                 products={relatedProducts}
                 isLoading={isLoadingRelated}
                 viewAllHref={`/catalog?category=${categoryId}`}
-                isFavorite={id => favoriteIdsSet.has(id)}
-                onToggleFavorite={handleToggleFavorite}
+                isFavorite={isFavorite}
+                isFavoritePending={isFavoritePending}
+                onToggleFavorite={toggleFavorite}
               />
             )}
           </div>

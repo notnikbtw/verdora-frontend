@@ -8,3 +8,8 @@ export type FavoriteItem = {
 };
 
 export type Favorites = FavoriteItem;
+
+export type FavoriteState = {
+  productId: number;
+  favorite: boolean;
+};

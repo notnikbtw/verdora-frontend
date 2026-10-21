@@ -77,7 +77,7 @@ const Orders = () => {
 
   return (
     <LayoutPage>
-      <div className="w-full py-8 space-y-6">
+      <div className="page-stack">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-border/60">
           <div className="space-y-1">
             <div className="flex items-center gap-3">

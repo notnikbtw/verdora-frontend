@@ -11,9 +11,8 @@ import { Button } from '@/components/ui/button';
 import FrameIcon from '@assets/icons/frame.svg?react';
 import { Star, Sparkles, PackageX, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAppSelector } from '@api/hooks';
-import { useAddItemToCart } from '@api/cart/cart.hooks';
 import { useAllCategories } from '@api/category/category.hooks';
 import {
   useGetProducts,
@@ -26,14 +25,23 @@ import ProductGridSection from '@components/common/section/ProductGridSection';
 import CategoryGridSection from '@components/common/section/CategoryGridSection';
 import SectionLayout from '@components/common/section/SectionLayout';
 import { HOTSPOTS } from '@/config/home.config';
+import CatalogProductCard from '@components/catalog/CatalogProductCard';
+import CatalogProductCardSkeleton from '@/components/catalog/CatalogProductCardSkeleton';
+import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
+import { useToggleFavorite } from '@hooks/useToggleFavorite';
+import { useAddProductToCart } from '@hooks/useAddProductToCart';
 
 export const Home = () => {
   const navigate = useNavigate();
   const { user } = useAppSelector(state => state.auth);
-  const { mutate: addToCart, isPending: isAddingToCart } = useAddItemToCart();
 
+  const { addToCart, isAddingToCart } = useAddProductToCart();
   const { data: categories, isLoading: isCategoriesLoading } =
     useAllCategories();
+  const categoryMap = useMemo(
+    () => new Map(categories?.map(cat => [Number(cat.categoryId), cat.name]) || []),
+    [categories]
+  );
   const { data: products, isLoading: isProductsLoading } = useGetProducts();
   const { data: salesProducts, isLoading: isSalesLoading } = useGetProducts({
     discount: true,
@@ -41,15 +49,15 @@ export const Home = () => {
   const { data: productOfTheDay, isLoading: isProductOfTheDayLoading } =
     useGetProductOfTheDay();
 
-  const hotspot1Query = useGetProductById(HOTSPOTS[0].productId);
-  const hotspot2Query = useGetProductById(HOTSPOTS[1].productId);
+  const hotspot1Query = useGetProductById(HOTSPOTS[0]?.productId);
+  const hotspot2Query = useGetProductById(HOTSPOTS[1]?.productId);
 
   const isHotspot1NotFound = hotspot1Query.error?.response?.status === 404;
   const isHotspot2NotFound = hotspot2Query.error?.response?.status === 404;
 
   const visibleHotspots = HOTSPOTS.filter(spot => {
-    if (spot.productId === HOTSPOTS[0].productId) return !isHotspot1NotFound;
-    if (spot.productId === HOTSPOTS[1].productId) return !isHotspot2NotFound;
+    if (spot.productId === HOTSPOTS[0]?.productId) return !isHotspot1NotFound;
+    if (spot.productId === HOTSPOTS[1]?.productId) return !isHotspot2NotFound;
     return true;
   });
 
@@ -63,27 +71,35 @@ export const Home = () => {
       : visibleHotspots[0]?.productId;
 
   const currentProductQuery =
-    activeProductId === HOTSPOTS[1].productId ? hotspot2Query : hotspot1Query;
+    activeProductId === HOTSPOTS[1]?.productId ? hotspot2Query : hotspot1Query;
 
   const selectedProduct = currentProductQuery.data;
   const isSelectedProductLoading = currentProductQuery.isLoading;
   const isSelectedProductError = currentProductQuery.isError;
   const selectedProductError = currentProductQuery.error;
   const refetchSelectedProduct = currentProductQuery.refetch;
+  const isSelectedProductPanelLoading =
+    isProductsLoading || isSelectedProductLoading;
+  const showSelectedProductCard =
+    isSelectedProductPanelLoading ||
+    Boolean(selectedProduct && !isSelectedProductError);
+
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+  const { isFavorite, isFavoritePending, toggleFavorite } = useToggleFavorite({
+    onAuthRequired: () => setIsLoginPromptOpen(true),
+  });
+  const { addToCart: addSelectedProductToCart } = useAddProductToCart();
 
   const handleBuyNow = (productId: number) => {
     if (!user) {
       navigate('/login');
       return;
     }
-    addToCart(
-      { productId, quantity: 1 },
-      {
-        onSuccess: () => {
-          navigate('/cart');
-        },
-      }
-    );
+    addToCart(productId, 1, {
+      onSuccess: () => {
+        navigate('/cart');
+      },
+    });
   };
 
   const reviews = [
@@ -121,7 +137,7 @@ export const Home = () => {
 
   return (
     <LayoutPage>
-      <div className="mt-8 sm:mt-16 flex flex-col items-center gap-16 sm:gap-24 w-full max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+      <div className="mt-8 sm:mt-16 flex flex-col items-center gap-16 sm:gap-24 w-full pb-16">
         <section className="flex flex-col items-center text-center w-full max-w-4xl mx-auto">
           <div className="flex flex-col items-center gap-6 w-full">
             <h1
@@ -188,7 +204,7 @@ export const Home = () => {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white/70 backdrop-blur-sm rounded-3xl p-6 sm:p-8 border border-white/80 shadow-xs hover:shadow-md transition-all duration-300">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center p-6 sm:p-8">
               {isProductOfTheDayLoading ? (
                 <>
                   <div className="lg:col-span-6 flex justify-center w-full">
@@ -208,7 +224,7 @@ export const Home = () => {
                   <div className="lg:col-span-6 flex justify-center w-full">
                     <div className="relative aspect-[1.19] w-full max-w-120 p-4 sm:p-6">
                       <FrameIcon className="pointer-events-none absolute inset-0 z-20 size-full" />
-                      <div className="relative z-10 size-full overflow-hidden rounded-[48px] sm:rounded-[70px] bg-[#50614A] flex items-center justify-center p-4">
+                      <div className="relative z-10 size-full overflow-hidden flex items-center justify-center p-4">
                         <img
                           src={productOfTheDay.imageUrl || ProductOfTheDayImage}
                           alt={productOfTheDay.name}
@@ -216,7 +232,7 @@ export const Home = () => {
                             (e.currentTarget as HTMLImageElement).src =
                               ProductOfTheDayImage;
                           }}
-                          className="size-full object-contain p-4 transition-transform duration-500 hover:scale-105"
+                          className="size-full object-contain p-4 transition-transform duration-500 hover:scale-104 bg-[#50614A] rounded-[48px] sm:rounded-[70px]"
                         />
                         <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap shadow-lg">
                           {productOfTheDay.discountPrice &&
@@ -242,9 +258,6 @@ export const Home = () => {
                   </div>
 
                   <div className="lg:col-span-6 flex flex-col items-start gap-4">
-                    <span className="inline-flex items-center rounded-full bg-[#1E331B]/10 px-3 py-1 text-xs font-semibold text-[#1E331B]">
-                      Deal of the Day
-                    </span>
                     <h3 className="text-2xl sm:text-4xl font-bold text-link-text">
                       {productOfTheDay.name}
                     </h3>
@@ -269,6 +282,7 @@ export const Home = () => {
           products={salesProducts?.content}
           isLoading={isSalesLoading}
           limit={8}
+          categoryMap={categoryMap}
           emptyTitle="No sales products found"
           emptyDescription="There are no discounted products available at the moment."
         />
@@ -304,51 +318,38 @@ export const Home = () => {
               })}
             </div>
 
-            <div className="lg:col-span-4 flex flex-col justify-between items-center gap-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-white/80 p-6 text-center shadow-xs min-h-95">
-              {isProductsLoading || isSelectedProductLoading ? (
-                <>
-                  <div className="h-7 w-36 bg-zinc-200/80 dark:bg-zinc-800 rounded-lg animate-pulse" />
-                  <div className="relative z-10 w-full h-56 flex items-center justify-center">
-                    <Spinner className="size-8 text-[#1E331B]" />
-                  </div>
-                  <div className="h-10 w-32 bg-zinc-200/80 dark:bg-zinc-800 rounded-xl animate-pulse" />
-                </>
+            <div
+              className={cn(
+                'lg:col-span-4 flex flex-col items-center gap-4',
+                showSelectedProductCard
+                  ? 'justify-center'
+                  : 'justify-between gap-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-white/80 p-6 text-center shadow-xs min-h-95'
+              )}
+            >
+              {isSelectedProductPanelLoading ? (
+                <CatalogProductCardSkeleton
+                  viewMode="grid"
+                  count={1}
+                  className="w-full"
+                />
               ) : selectedProduct && !isSelectedProductError ? (
                 <>
-                  <h3 className="text-xl sm:text-2xl font-bold text-link-text line-clamp-1">
-                    {selectedProduct.name}
-                  </h3>
-                  <div className="relative z-10 w-full h-56 flex items-center justify-center">
-                    <img
-                      src={selectedProduct.imageUrl || PlantImage}
-                      alt={selectedProduct.name}
-                      onError={e => {
-                        (e.currentTarget as HTMLImageElement).src = PlantImage;
-                      }}
-                      className="h-full w-auto max-w-full object-contain transition-transform duration-500 hover:scale-105"
-                    />
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 whitespace-nowrap shadow-md">
-                      {selectedProduct.discountPrice &&
-                      selectedProduct.discountPrice > 0 &&
-                      selectedProduct.discountPrice < selectedProduct.price ? (
-                        <>
-                          <span className="rounded-xl bg-red-600 px-3.5 py-1.5 text-lg font-bold text-white">
-                            {selectedProduct.discountPrice}₴
-                          </span>
-                          <span className="rounded-lg bg-link-text/70 backdrop-blur-xs px-2.5 py-1 text-sm text-white line-through">
-                            {selectedProduct.price}₴
-                          </span>
-                        </>
-                      ) : (
-                        <span className="rounded-xl bg-link-text px-5 py-2 text-xl font-bold text-white">
-                          {selectedProduct.price}₴
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                  <CatalogProductCard
+                    product={selectedProduct}
+                    categoryName={categoryMap.get(selectedProduct.categoryId)}
+                    viewMode="grid"
+                    isFavorite={isFavorite(selectedProduct.productId)}
+                    isFavoritePending={isFavoritePending(
+                      selectedProduct.productId
+                    )}
+                    onToggleFavorite={toggleFavorite}
+                    onAddToCart={addSelectedProductToCart}
+                    onAuthRequired={() => setIsLoginPromptOpen(true)}
+                    className="w-full"
+                  />
                   <Button
                     type="button"
-                    className="w-full sm:w-auto px-8 cursor-pointer"
+                    className="w-full cursor-pointer"
                     onClick={() => handleBuyNow(selectedProduct.productId)}
                     disabled={isAddingToCart}
                   >
@@ -433,6 +434,7 @@ export const Home = () => {
           products={products?.content}
           isLoading={isProductsLoading}
           limit={8}
+          categoryMap={categoryMap}
         />
 
         <SectionLayout title="Our reviews">
@@ -465,6 +467,12 @@ export const Home = () => {
           </div>
         </SectionLayout>
       </div>
+
+      <LoginPromptDialog
+        open={isLoginPromptOpen}
+        onOpenChange={setIsLoginPromptOpen}
+        action="favorite"
+      />
     </LayoutPage>
   );
 };

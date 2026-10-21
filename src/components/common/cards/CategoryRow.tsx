@@ -34,6 +34,7 @@ const CategoryRow = ({ category, categoryMaxLength }: Props) => {
   const handleOpenEdit = () => {
     updateMutation.reset();
     setEditValue('category', category.name, { shouldValidate: true });
+    setEditValue('imageUrl', category.imageUrl ?? '', { shouldValidate: true });
     setIsEditOpen(true);
   };
 
@@ -65,12 +66,17 @@ const CategoryRow = ({ category, categoryMaxLength }: Props) => {
           }
         }}
         headerTitle="Edit category"
-        headerDescription="Update the category name."
+        headerDescription="Update the category name and image."
         cancelText="Cancel"
         submitText="Save changes"
         onSubmit={handleEditSubmit(data =>
           updateMutation.mutate(
-            { categoryId: category.categoryId, name: data.category },
+            {
+              categoryId: category.categoryId,
+              name: data.category,
+              // PUT replaces the category, so always send the image back.
+              imageUrl: data.imageUrl || undefined,
+            },
             { onSuccess: () => setIsEditOpen(false) }
           )
         )}
@@ -97,6 +103,17 @@ const CategoryRow = ({ category, categoryMaxLength }: Props) => {
               setEditValue('category', value, { shouldValidate: true })
             }
             error={editFormErrors.category?.message}
+          />
+          <TextField
+            type="text"
+            label="Image URL (optional)"
+            id={`edit-category-image-${category.categoryId}`}
+            placeholder="https://example.com/categories/garden.jpg"
+            value={watchEdit('imageUrl') ?? ''}
+            onChange={value =>
+              setEditValue('imageUrl', value, { shouldValidate: true })
+            }
+            error={editFormErrors.imageUrl?.message}
           />
           {errorUpdate ? (
             <p

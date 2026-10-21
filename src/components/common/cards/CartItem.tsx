@@ -37,9 +37,20 @@ const CartItem = ({
       : 0;
 
   return (
-    <div className="flex items-center justify-between gap-6 p-4 border rounded-2xl w-full bg-white min-h-28">
-      <div className="flex items-center gap-4 flex-1 min-w-0">
-        <div className="w-25 h-25 shrink-0 overflow-hidden rounded-xl p-2">
+    <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 sm:p-4 border rounded-2xl w-full bg-white min-w-0">
+      <Button
+        size="icon-sm"
+        variant="destructive"
+        onClick={onRemove}
+        disabled={isUpdating || isRemoving}
+        aria-label={`Remove ${productName} from cart`}
+        className="absolute top-3 right-3 sm:hidden"
+      >
+        <Trash2 className="size-4" />
+      </Button>
+
+      <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 pr-8 sm:pr-0">
+        <div className="size-20 sm:size-24 shrink-0 overflow-hidden rounded-xl p-1 bg-gray-50 flex items-center justify-center">
           {(productImage ?? '') ? (
             <img
               src={productImage}
@@ -52,66 +63,72 @@ const CartItem = ({
         </div>
 
         <div className="flex flex-col justify-center min-w-0">
-          <h3 className="text-lg text-[#2D2D2D] truncate">
+          <h3 className="text-base sm:text-lg font-medium text-[#2D2D2D] truncate">
             {productName ?? 'Unknown product'}
           </h3>
+
+          <div className="flex items-center gap-2 mt-1">
+            <span className="font-semibold text-sm sm:text-base text-[#1A1A1A]">
+              {formatOrderPrice(currentPrice)}
+            </span>
+            {hasDiscount && (
+              <span className="text-xs sm:text-sm text-gray-400 line-through">
+                {formatOrderPrice(price)}
+              </span>
+            )}
+          </div>
+
           {hasDiscount && (
-            <span className="text-sm font-medium text-[#E57373] mt-0.5">
+            <span className="text-xs font-medium text-[#E57373] mt-0.5">
               {discountPercent}% off
             </span>
           )}
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center text-center min-w-25">
-        <p className="font-bold text-lg text-[#1A1A1A]">
-          {formatOrderPrice(currentPrice)}
-        </p>
+      <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 w-full sm:w-auto">
+        <div className="flex items-center gap-2 sm:gap-3 rounded-full border border-gray-200 px-2 py-1 bg-white">
+          <Button
+            size="sm"
+            onClick={onDecrease}
+            disabled={quantity <= 1 || isUpdating || isRemoving}
+            className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+          >
+            -
+          </Button>
 
-        {hasDiscount && (
-          <p className="text-sm text-gray-400 line-through mt-0.5">
-            {formatOrderPrice(price)}
+          <span className="text-center font-medium text-sm sm:text-base text-[#1A1A1A] min-w-6">
+            {quantity}
+          </span>
+
+          <Button
+            size="sm"
+            onClick={onIncrease}
+            disabled={isUpdating || isRemoving}
+            className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+          >
+            +
+          </Button>
+        </div>
+
+        <div className="text-right">
+          <span className="text-xs text-gray-400 block sm:hidden">Total:</span>
+          <p className="font-bold text-base sm:text-lg text-[#1A1A1A]">
+            {formatOrderPrice(totalPrice)}
           </p>
-        )}
-      </div>
-
-      <div className="flex gap-4 items-center rounded-full border border-gray-200 px-2 py-2 bg-white justify-between">
-        <Button
-          size="sm"
-          onClick={onDecrease}
-          disabled={quantity <= 1 || isUpdating || isRemoving}
-        >
-          -
-        </Button>
-
-        <span className="text-center font-medium text-base text-[#1A1A1A]">
-          {quantity}
-        </span>
+        </div>
 
         <Button
-          size="sm"
-          onClick={onIncrease}
+          size="icon-sm"
+          variant="destructive"
+          onClick={onRemove}
           disabled={isUpdating || isRemoving}
+          aria-label={`Remove ${productName} from cart`}
+          className="hidden sm:inline-flex"
         >
-          +
+          <Trash2 className="size-4" />
         </Button>
       </div>
-
-      <div className="text-right pr-8">
-        <p className="font-bold text-lg text-[#1A1A1A]">
-          {formatOrderPrice(totalPrice)}
-        </p>
-      </div>
-
-      <Button
-        size="icon-sm"
-        variant="destructive"
-        onClick={onRemove}
-        disabled={isUpdating || isRemoving}
-        aria-label={`Remove ${productName} from cart`}
-      >
-        <Trash2 />
-      </Button>
     </div>
   );
 };

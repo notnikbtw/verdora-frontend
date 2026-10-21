@@ -12,7 +12,10 @@ import type {
 type RawCategory = {
   categoryId: number | string;
   name: string;
+  imageUrl?: string | null;
 };
+
+const CATEGORIES_PAGE_SIZE = 100;
 
 const normalizeCategory = (cat: RawCategory): Category => ({
   ...cat,
@@ -50,28 +53,25 @@ export const categoryService = {
     return normalizeCategory(response.data.data);
   },
 
-  getAllCategories: async (params?: {
-    page?: number;
-    size?: number;
-  }): Promise<Category[]> => {
-    const response = await instance.get<
-      ApiResponse<PaginatedData<RawCategory> | RawCategory[]>
-    >(`/categories`, {
-      params: { size: 100, ...params },
-    });
+  // GET /categories is paginated; load every page so the UI gets the full list.
+  getAllCategories: async (): Promise<Category[]> => {
+    const fetchPage = async (page: number) => {
+      const response = await instance.get<
+        ApiResponse<PaginatedData<RawCategory>>
+      >('/categories', { params: { page, size: CATEGORIES_PAGE_SIZE } });
 
-    const data = response.data.data;
-    let list: RawCategory[] = [];
+      return response.data.data;
+    };
 
-    if (Array.isArray(data)) {
-      list = data;
-    } else if (
-      data &&
-      Array.isArray((data as PaginatedData<RawCategory>).content)
-    ) {
-      list = (data as PaginatedData<RawCategory>).content;
-    }
+    const first = await fetchPage(0);
+    const rest = await Promise.all(
+      Array.from({ length: Math.max(first.totalPages - 1, 0) }, (_, i) =>
+        fetchPage(i + 1)
+      )
+    );
 
-    return list.map(normalizeCategory);
+    return [first, ...rest]
+      .flatMap(page => page.content)
+      .map(normalizeCategory);
   },
 };

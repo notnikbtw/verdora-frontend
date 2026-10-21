@@ -7,6 +7,7 @@ import { useAppSelector } from '@api/hooks';
 import { cn } from '@/lib/utils';
 import type { ViewMode } from './CatalogToolbar';
 import type { Product } from '@/types/product';
+import { Spinner } from '@components/ui/spinner';
 
 export type CatalogProduct = Product;
 
@@ -15,6 +16,7 @@ type Props = {
   categoryName?: string;
   viewMode?: ViewMode;
   isFavorite?: boolean;
+  isFavoritePending?: boolean;
   onToggleFavorite?: (id: number) => void;
   onAddToCart?: (id: number) => void;
   onAuthRequired?: () => void;
@@ -28,6 +30,7 @@ export const CatalogProductCard = ({
   categoryName,
   viewMode = 'grid',
   isFavorite = false,
+  isFavoritePending = false,
   onToggleFavorite,
   onAddToCart,
   onAuthRequired,
@@ -97,6 +100,7 @@ export const CatalogProductCard = ({
       onAuthRequired?.();
       return;
     }
+    if (isFavoritePending) return;
     onToggleFavorite?.(productId);
   };
 
@@ -154,8 +158,10 @@ export const CatalogProductCard = ({
           <button
             type="button"
             onClick={handleToggleFavorite}
+            disabled={isFavoritePending}
+            aria-busy={isFavoritePending}
             className={cn(
-              'size-9 rounded-full border flex items-center justify-center cursor-pointer transition-colors bg-white',
+              'size-9 rounded-full border flex items-center justify-center cursor-pointer transition-colors bg-white disabled:cursor-wait',
               isFavorite
                 ? 'border-[#FA1105]/40 text-[#FA1105]'
                 : 'border-[#D9DEDB] text-[#0C0C0C] hover:border-zinc-400'
@@ -164,14 +170,18 @@ export const CatalogProductCard = ({
               isFavorite ? 'Remove from favorites' : 'Add to favorites'
             }
           >
-            <Heart
-              className={cn(
-                'size-5 transition-colors',
-                isFavorite
-                  ? 'fill-[#FA1105] text-[#FA1105]'
-                  : 'text-[#0C0C0C] hover:text-[#FA1105]'
-              )}
-            />
+            {isFavoritePending ? (
+              <Spinner className="size-4 text-zinc-500" />
+            ) : (
+              <Heart
+                className={cn(
+                  'size-5 transition-colors',
+                  isFavorite
+                    ? 'fill-[#FA1105] text-[#FA1105]'
+                    : 'text-[#0C0C0C] hover:text-[#FA1105]'
+                )}
+              />
+            )}
           </button>
 
           <button

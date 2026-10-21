@@ -1,11 +1,15 @@
-import ProductCard from '@components/common/cards/ProductCard';
-import { Skeleton } from '@components/ui/skeleton';
+import { useState } from 'react';
 import { EmptySection } from '@components/common/section/EmptySection';
 import { Button } from '@components/ui/button';
 import CartIcon from '@assets/icons/cart.svg?react';
 import { Link } from 'react-router-dom';
 import type { Product } from '@/types/product';
 import SectionLayout from '@components/common/section/SectionLayout';
+import CatalogProductCard from '@components/catalog/CatalogProductCard';
+import CatalogProductCardSkeleton from '@components/catalog/CatalogProductCardSkeleton';
+import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
+import { useToggleFavorite } from '@hooks/useToggleFavorite';
+import { useAddProductToCart } from '@hooks/useAddProductToCart';
 import type React from 'react';
 
 type ProductGridSectionProps = {
@@ -16,6 +20,7 @@ type ProductGridSectionProps = {
   products?: Product[];
   isLoading?: boolean;
   limit?: number;
+  categoryMap?: Map<number, string>;
   emptyTitle?: string;
   emptyDescription?: string;
   gridClassName?: string;
@@ -29,11 +34,20 @@ const ProductGridSection = ({
   products,
   isLoading,
   limit = 8,
+  categoryMap,
   emptyTitle = 'No products found',
   emptyDescription = 'There are no products available at the moment. Please try again later.',
   gridClassName = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6',
 }: ProductGridSectionProps) => {
   const displayProducts = products ? products.slice(0, limit) : [];
+
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+  const openLoginPrompt = () => setIsLoginPromptOpen(true);
+
+  const { isFavorite, isFavoritePending, toggleFavorite } = useToggleFavorite({
+    onAuthRequired: openLoginPrompt,
+  });
+  const { addToCart } = useAddProductToCart();
 
   return (
     <SectionLayout
@@ -44,21 +58,23 @@ const ProductGridSection = ({
       contentClassName={gridClassName}
     >
       {isLoading ? (
-        Array.from({ length: 4 }).map((_, idx) => (
-          <Skeleton key={idx} className="w-full aspect-[1/0.98] rounded-3xl" />
-        ))
+        <CatalogProductCardSkeleton
+          viewMode="grid"
+          count={4}
+          className="contents"
+        />
       ) : displayProducts.length > 0 ? (
         displayProducts.map(item => (
-          <ProductCard
+          <CatalogProductCard
             key={item.productId}
-            productId={item.productId}
-            title={item.name}
-            imageSrc={
-              item.imageUrl ||
-              `https://placehold.co/600x400?text=${encodeURIComponent(item.name)}`
-            }
-            price={item.price}
-            newPrice={item.discountPrice}
+            product={item}
+            categoryName={categoryMap?.get(item.categoryId)}
+            viewMode="grid"
+            isFavorite={isFavorite(item.productId)}
+            isFavoritePending={isFavoritePending(item.productId)}
+            onToggleFavorite={toggleFavorite}
+            onAddToCart={addToCart}
+            onAuthRequired={openLoginPrompt}
           />
         ))
       ) : (
@@ -74,6 +90,12 @@ const ProductGridSection = ({
           }
         />
       )}
+
+      <LoginPromptDialog
+        open={isLoginPromptOpen}
+        onOpenChange={setIsLoginPromptOpen}
+        action="favorite"
+      />
     </SectionLayout>
   );
 };

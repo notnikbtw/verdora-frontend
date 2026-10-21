@@ -71,7 +71,7 @@ export const OrderItemsCard: FC<Props> = ({ order }) => {
                         variant="secondary"
                         className="text-[11px] font-normal px-2 py-0.5 bg-muted text-muted-foreground"
                       >
-                        {item.category || 'General'}
+                        {item.categoryName || 'General'}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
                         SKU #{item.productId}

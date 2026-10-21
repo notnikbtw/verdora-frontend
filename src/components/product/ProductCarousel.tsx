@@ -12,7 +12,7 @@ import { Skeleton } from '@components/ui/skeleton';
 import { CatalogProductCard } from '@components/catalog/CatalogProductCard';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
 import { useAppSelector } from '@api/hooks';
-import { useAddItemToCart } from '@api/cart/cart.hooks';
+import { useAddProductToCart } from '@hooks/useAddProductToCart';
 import { useAllCategories } from '@api/category/category.hooks';
 import type { Product } from '@/types/product';
 
@@ -26,6 +26,7 @@ export type ProductCarouselProps = {
   onAddToCart?: (productId: number) => void;
   onToggleFavorite?: (productId: number) => void;
   isFavorite?: (productId: number) => boolean;
+  isFavoritePending?: (productId: number) => boolean;
   showNavigation?: boolean;
   showViewAll?: boolean;
   onProductClick?: (productId: number) => void;
@@ -41,6 +42,7 @@ export const ProductCarousel = ({
   onAddToCart,
   onToggleFavorite,
   isFavorite,
+  isFavoritePending,
   showNavigation = true,
   showViewAll = true,
   onProductClick,
@@ -58,17 +60,16 @@ export const ProductCarousel = ({
     return map;
   }, [externalCategoryMap, categories]);
 
-  const addItemMutation = useAddItemToCart();
+  const { addToCart } = useAddProductToCart();
   const handleAddToCart = useCallback(
     (productId: number) => {
       if (onAddToCart) {
         onAddToCart(productId);
       } else {
-        const product = products?.find(p => p.productId === productId);
-        addItemMutation.mutate({ productId, quantity: 1, product });
+        addToCart(productId);
       }
     },
-    [onAddToCart, addItemMutation, products]
+    [onAddToCart, addToCart]
   );
 
   const handleToggleFavorite = useCallback(
@@ -160,6 +161,11 @@ export const ProductCarousel = ({
                     categoryName={internalCategoryMap.get(product.categoryId)}
                     isFavorite={
                       isFavorite ? isFavorite(product.productId) : false
+                    }
+                    isFavoritePending={
+                      isFavoritePending
+                        ? isFavoritePending(product.productId)
+                        : false
                     }
                     onAddToCart={handleAddToCart}
                     onToggleFavorite={
