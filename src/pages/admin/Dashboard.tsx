@@ -16,17 +16,24 @@ import {
 } from '@components/ui/table';
 import OrderStatusBadge from '@components/common/Badge/OrderStatusBadge';
 import NoticeAlert from '@components/common/NoticeAlert';
-import { KPI_METRICS, RECENT_ORDERS } from '@fixtures/dashboard.fixture';
 import AdminSectionHeader from '@components/common/section/AdminSectionHeader';
 import { useGetAllUsers } from '@api/user/user.hooks';
 import { useAllCategories } from '@api/category/category.hooks';
 import { Spinner } from '@components/ui/spinner';
-import { ChartBarStacked, Users } from 'lucide-react';
+import { ChartBarStacked, CreditCard, DollarSign, Users } from 'lucide-react';
 import {
   DashboardMetricCard,
   DashboardMetricCardSkeleton,
 } from '@components/common/cards/DashboardMetricCard';
 import { useState } from 'react';
+import { useAdminOrders, useOrderCount } from '@api/order/order.hooks';
+import { useRevenueReport } from '@api/report/report.hooks';
+import { formatOrderDate, formatOrderPrice } from '@/utils/order.utils';
+import { useRecentRange } from '@/hooks/useRecentRange';
+import { REVENUE_RANGE_DAYS } from '@/config/report.config';
+import { RECENT_ORDERS_COUNT, SALE_STATUSES } from '@/config/dashboard.config';
+import { Skeleton } from '@components/ui/skeleton';
+
 import { PaginationComponent } from '@components/common/pagination/Pagination';
 
 const AdminDashboard = () => {
@@ -42,6 +49,37 @@ const AdminDashboard = () => {
     isError: categoriesError,
   } = useAllCategories();
 
+  // One range feeds both "last N days" cards so they always cover the same period.
+  const range = useRecentRange();
+  const {
+    data: revenueData,
+    isPending: revenuePending,
+    isError: revenueError,
+  } = useRevenueReport({
+    dateFrom: range.from,
+    dateTo: range.to,
+    groupBy: 'DAY',
+  });
+
+  const totalRevenue = revenueData?.reduce((sum, r) => sum + r.revenue, 0);
+
+  const {
+    count: salesCount,
+    isPending: salesPending,
+    isError: salesError,
+  } = useOrderCount(SALE_STATUSES, { dateFrom: range.from, dateTo: range.to });
+
+  const {
+    data: recentOrdersPage,
+    isPending: ordersPending,
+    isError: ordersError,
+  } = useAdminOrders({
+    page: 0,
+    size: RECENT_ORDERS_COUNT,
+    sort: 'createdAt,desc',
+  });
+  const recentOrders = recentOrdersPage?.content ?? [];
+
   return (
     <AdminLayout>
       <AdminSectionHeader
@@ -50,17 +88,30 @@ const AdminDashboard = () => {
       />
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        {KPI_METRICS.map((metric, index) => (
+        {revenuePending ? (
+          <DashboardMetricCardSkeleton />
+        ) : (
           <DashboardMetricCard
-            key={index}
-            value={metric.value}
-            title={metric.title}
-            description={metric.description}
-            icon={metric.icon}
-            error={false}
-            errorMessage={''}
+            value={formatOrderPrice(totalRevenue)}
+            title="Total Revenue"
+            description={`Last ${REVENUE_RANGE_DAYS} days`}
+            icon={DollarSign}
+            error={revenueError}
+            errorMessage="Failed to load revenue. Please try again later."
           />
-        ))}
+        )}
+        {salesPending ? (
+          <DashboardMetricCardSkeleton />
+        ) : (
+          <DashboardMetricCard
+            value={salesCount?.toString() ?? 'N/A'}
+            title="Sales"
+            description={`Paid orders in the last ${REVENUE_RANGE_DAYS} days`}
+            icon={CreditCard}
+            error={salesError}
+            errorMessage="Failed to load orders. Please try again later."
+          />
+        )}
         {userPending ? (
           <DashboardMetricCardSkeleton />
         ) : (
@@ -156,43 +207,57 @@ const AdminDashboard = () => {
         <CardHeader>
           <CardTitle>Recent Orders</CardTitle>
           <CardDescription>
-            You made {RECENT_ORDERS.length} sales this week.
+            The latest {RECENT_ORDERS_COUNT} orders placed in your store.
           </CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-25 sm:w-30">Order</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead className="hidden sm:table-cell">Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {RECENT_ORDERS.map(order => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.id}</TableCell>
-                  <TableCell>
-                    <div className="font-medium">{order.customer}</div>
-                    <div className="text-xs text-muted-foreground hidden sm:block">
-                      {order.email}
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    {order.date}
-                  </TableCell>
-                  <TableCell>
-                    <OrderStatusBadge status={order.status} format="raw" />
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {order.amount}
-                  </TableCell>
+          {ordersPending ? (
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : ordersError ? (
+            <NoticeAlert
+              variant="error"
+              message="Failed to load orders. Please try again later."
+            />
+          ) : recentOrders.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">
+              No orders have been placed yet.
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px] sm:w-[120px]">
+                    Order
+                  </TableHead>
+                  <TableHead className="hidden sm:table-cell">Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {recentOrders.map(order => (
+                  <TableRow key={order.orderId}>
+                    <TableCell className="font-medium">
+                      #{order.orderId}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      {formatOrderDate(order.createdAt)}
+                    </TableCell>
+                    <TableCell>
+                      <OrderStatusBadge status={order.status} />
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatOrderPrice(order.totalPrice)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </AdminLayout>

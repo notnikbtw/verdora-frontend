@@ -18,28 +18,14 @@ import { useGetCurrentUser } from '@api/user/user.hooks';
 import { useCheckoutForm } from '@hooks/useCheckoutForm';
 import type { CheckoutFormData } from '@/schemas/checkout.schema';
 import { rateLimit } from '@/utils/rateLimit';
+import {
+  PICKUP_LOCATIONS,
+  SUBMIT_RATE_LIMIT_MS,
+} from '@/config/checkout.config';
 import { Truck, User, Mail, Phone, RotateCcw } from 'lucide-react';
 import DeliveryMethodSelector from '@components/checkout/DeliveryMethodSelector';
 import DeliveryAddressForm from '@components/checkout/DeliveryAddressForm';
 import PickupLocationSelector from '@components/checkout/PickupLocationSelector';
-
-const PICKUP_LOCATIONS = [
-  {
-    id: 'kyiv-1',
-    name: 'Kyiv Central Store',
-    address: 'Khreshchatyk St, 15, Kyiv',
-  },
-  {
-    id: 'lviv-1',
-    name: 'Lviv Flagship Store',
-    address: 'Svobody Ave, 28, Lviv',
-  },
-  {
-    id: 'odesa-1',
-    name: 'Odesa Coastal Branch',
-    address: 'Deribasivska St, 10, Odesa',
-  },
-];
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -55,7 +41,7 @@ const Checkout = () => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [termsError, setTermsError] = useState<string | undefined>(undefined);
   const isPreFilledRef = useRef(false);
-  const canSubmit = useMemo(() => rateLimit(2000), []);
+  const canSubmit = useMemo(() => rateLimit(SUBMIT_RATE_LIMIT_MS), []);
 
   const {
     handleSubmit,

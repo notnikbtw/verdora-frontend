@@ -1,7 +1,12 @@
 import instance from '@api/axiosInstance';
 import type { ApiResponse } from '@/types/api';
-import type { Order, UpdateOrderPayload } from '@/types/order';
 import type { PaginatedData } from '@/types/pagination';
+import type {
+  AdminOrderSummary,
+  AdminOrdersParams,
+  Order,
+  UpdateOrderPayload,
+} from '@/types/order';
 
 const ORDERS_PAGE_SIZE = 12;
 
@@ -32,6 +37,14 @@ export const orderService = {
     );
 
     return [first, ...rest].flatMap(page => page.content);
+  },
+
+  getAdminOrders: async (params: AdminOrdersParams) => {
+    const response = await instance.get<
+      ApiResponse<PaginatedData<AdminOrderSummary>>
+    >('/orders/all', { params });
+
+    return response.data.data;
   },
 
   getOrderById: async (orderId: number) => {

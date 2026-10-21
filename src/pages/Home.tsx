@@ -24,27 +24,12 @@ import { cn } from '@/lib/utils';
 import ProductGridSection from '@components/common/section/ProductGridSection';
 import CategoryGridSection from '@components/common/section/CategoryGridSection';
 import SectionLayout from '@components/common/section/SectionLayout';
+import { HOTSPOTS } from '@/config/home.config';
 import CatalogProductCard from '@components/catalog/CatalogProductCard';
 import CatalogProductCardSkeleton from '@/components/catalog/CatalogProductCardSkeleton';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
 import { useToggleFavorite } from '@hooks/useToggleFavorite';
 import { useAddProductToCart } from '@hooks/useAddProductToCart';
-
-// Interior plant hotspots matching plants in section-background.png:
-// - Hotspot 19: Rubber Plant (ficus on the left)
-// - Hotspot 20: Rose (on the table)
-const HOTSPOTS = [
-  {
-    productId: 19,
-    className: 'bottom-[22%] left-[23%]',
-    label: 'Rubber Plant',
-  },
-  {
-    productId: 20,
-    className: 'bottom-[31%] left-[49%]',
-    label: 'Rose',
-  },
-];
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -54,7 +39,7 @@ export const Home = () => {
   const { data: categories, isLoading: isCategoriesLoading } =
     useAllCategories();
   const categoryMap = useMemo(
-    () => new Map(categories.map(cat => [Number(cat.categoryId), cat.name])),
+    () => new Map(categories?.map(cat => [Number(cat.categoryId), cat.name]) || []),
     [categories]
   );
   const { data: products, isLoading: isProductsLoading } = useGetProducts();
@@ -64,15 +49,15 @@ export const Home = () => {
   const { data: productOfTheDay, isLoading: isProductOfTheDayLoading } =
     useGetProductOfTheDay();
 
-  const hotspot1Query = useGetProductById(HOTSPOTS[0].productId);
-  const hotspot2Query = useGetProductById(HOTSPOTS[1].productId);
+  const hotspot1Query = useGetProductById(HOTSPOTS[0]?.productId);
+  const hotspot2Query = useGetProductById(HOTSPOTS[1]?.productId);
 
   const isHotspot1NotFound = hotspot1Query.error?.response?.status === 404;
   const isHotspot2NotFound = hotspot2Query.error?.response?.status === 404;
 
   const visibleHotspots = HOTSPOTS.filter(spot => {
-    if (spot.productId === HOTSPOTS[0].productId) return !isHotspot1NotFound;
-    if (spot.productId === HOTSPOTS[1].productId) return !isHotspot2NotFound;
+    if (spot.productId === HOTSPOTS[0]?.productId) return !isHotspot1NotFound;
+    if (spot.productId === HOTSPOTS[1]?.productId) return !isHotspot2NotFound;
     return true;
   });
 
@@ -86,7 +71,7 @@ export const Home = () => {
       : visibleHotspots[0]?.productId;
 
   const currentProductQuery =
-    activeProductId === HOTSPOTS[1].productId ? hotspot2Query : hotspot1Query;
+    activeProductId === HOTSPOTS[1]?.productId ? hotspot2Query : hotspot1Query;
 
   const selectedProduct = currentProductQuery.data;
   const isSelectedProductLoading = currentProductQuery.isLoading;

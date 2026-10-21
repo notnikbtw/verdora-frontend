@@ -13,8 +13,7 @@ import NoticeAlert from '@components/common/NoticeAlert';
 import { sortOrdersNewestFirst } from '@/utils/order.utils';
 import { ShoppingBag, Package, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-const ORDERS_PER_PAGE = 12;
+import { ORDERS_PER_PAGE } from '@/config/orders.config';
 
 const Orders = () => {
   const {
