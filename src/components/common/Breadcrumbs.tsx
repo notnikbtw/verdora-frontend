@@ -85,7 +85,7 @@ export const Breadcrumbs = ({ items, root, className }: BreadcrumbsProps) => {
   }
 
   return (
-    <Breadcrumb className={cn(className, 'mt-3')}>
+    <Breadcrumb className={cn(className, 'mt-3 min-w-0 max-w-full')}>
       <BreadcrumbList>
         {resolvedItems.map((item, index) => {
           const isLast = index === resolvedItems.length - 1;
@@ -93,13 +93,20 @@ export const Breadcrumbs = ({ items, root, className }: BreadcrumbsProps) => {
 
           return (
             <React.Fragment key={index}>
-              <BreadcrumbItem>
+              <BreadcrumbItem className="min-w-0 max-w-full">
                 {isLink ? (
                   <BreadcrumbLink asChild>
                     <Link to={item.href!}>{item.label}</Link>
                   </BreadcrumbLink>
                 ) : (
-                  <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                  <BreadcrumbPage
+                    className="min-w-0 truncate"
+                    title={
+                      typeof item.label === 'string' ? item.label : undefined
+                    }
+                  >
+                    {item.label}
+                  </BreadcrumbPage>
                 )}
               </BreadcrumbItem>
               {!isLast && <BreadcrumbSeparator />}

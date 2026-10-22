@@ -1,18 +1,18 @@
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import HeroImage from '@assets/images/hero-plants.webp';
 import ProductOfTheDayImage from '@assets/images/plant.png';
-import SectionImage from '@assets/images/section-background.png';
+import IntegrateSectionImage from '@assets/images/integrate-section.png';
 import PlantImage from '@assets/images/Plant1.png';
 import DeliveryIcon from '@assets/icons/delivery.svg?react';
 import LabelIcon from '@assets/icons/label.svg?react';
 import LikeMessageIcon from '@assets/icons/like-message.svg?react';
 import PlantIcon from '@assets/icons/plant.svg?react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@components/ui/avatar';
 import FrameIcon from '@assets/icons/frame.svg?react';
-import { Star, Sparkles, PackageX, AlertCircle } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Star, Sparkles, PackageX, AlertCircle, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useMemo, useState } from 'react';
-import { useAppSelector } from '@api/hooks';
 import { useAllCategories } from '@api/category/category.hooks';
 import {
   useGetProducts,
@@ -23,23 +23,18 @@ import { Spinner } from '@components/ui/spinner';
 import { cn } from '@/lib/utils';
 import ProductGridSection from '@components/common/section/ProductGridSection';
 import CategoryGridSection from '@components/common/section/CategoryGridSection';
+import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder';
 import SectionLayout from '@components/common/section/SectionLayout';
+import ReviewsCarousel from '@components/home/ReviewsCarousel';
 import { HOTSPOTS } from '@/config/home.config';
-import CatalogProductCard from '@components/catalog/CatalogProductCard';
 import CatalogProductCardSkeleton from '@/components/catalog/CatalogProductCardSkeleton';
-import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
-import { useToggleFavorite } from '@hooks/useToggleFavorite';
-import { useAddProductToCart } from '@hooks/useAddProductToCart';
 
 export const Home = () => {
-  const navigate = useNavigate();
-  const { user } = useAppSelector(state => state.auth);
-
-  const { addToCart, isAddingToCart } = useAddProductToCart();
   const { data: categories, isLoading: isCategoriesLoading } =
     useAllCategories();
   const categoryMap = useMemo(
-    () => new Map(categories?.map(cat => [Number(cat.categoryId), cat.name]) || []),
+    () =>
+      new Map(categories?.map(cat => [Number(cat.categoryId), cat.name]) || []),
     [categories]
   );
   const { data: products, isLoading: isProductsLoading } = useGetProducts();
@@ -80,27 +75,12 @@ export const Home = () => {
   const refetchSelectedProduct = currentProductQuery.refetch;
   const isSelectedProductPanelLoading =
     isProductsLoading || isSelectedProductLoading;
-  const showSelectedProductCard =
-    isSelectedProductPanelLoading ||
-    Boolean(selectedProduct && !isSelectedProductError);
 
-  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
-  const { isFavorite, isFavoritePending, toggleFavorite } = useToggleFavorite({
-    onAuthRequired: () => setIsLoginPromptOpen(true),
-  });
-  const { addToCart: addSelectedProductToCart } = useAddProductToCart();
-
-  const handleBuyNow = (productId: number) => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    addToCart(productId, 1, {
-      onSuccess: () => {
-        navigate('/cart');
-      },
-    });
-  };
+  const selectedProductPrice =
+    selectedProduct?.discountPrice &&
+    selectedProduct.discountPrice < selectedProduct.price
+      ? selectedProduct.discountPrice
+      : selectedProduct?.price;
 
   const reviews = [
     {
@@ -221,7 +201,7 @@ export const Home = () => {
                 </>
               ) : productOfTheDay ? (
                 <>
-                  <div className="lg:col-span-6 flex justify-center w-full">
+                  <div className="lg:col-span-6 flex min-w-0 justify-center w-full">
                     <div className="relative aspect-[1.19] w-full max-w-120 p-4 sm:p-6">
                       <FrameIcon className="pointer-events-none absolute inset-0 z-20 size-full" />
                       <div className="relative z-10 size-full overflow-hidden flex items-center justify-center p-4">
@@ -257,11 +237,11 @@ export const Home = () => {
                     </div>
                   </div>
 
-                  <div className="lg:col-span-6 flex flex-col items-start gap-4">
-                    <h3 className="text-2xl sm:text-4xl font-bold text-link-text">
+                  <div className="lg:col-span-6 flex min-w-0 flex-col items-start gap-4">
+                    <h3 className="w-full min-w-0 wrap-break-word text-2xl sm:text-4xl font-bold text-link-text">
                       {productOfTheDay.name}
                     </h3>
-                    <p className="text-sm sm:text-base text-[#4A5568] leading-relaxed">
+                    <p className="w-full min-w-0 wrap-break-word text-sm sm:text-base text-[#4A5568] leading-relaxed">
                       {productOfTheDay.description}
                     </p>
                     <Button asChild>
@@ -288,10 +268,10 @@ export const Home = () => {
         />
 
         <SectionLayout title="Integrate in your house">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            <div className="lg:col-span-8 relative aspect-4/3 sm:aspect-16/10 overflow-hidden rounded-3xl shadow-xs group">
+          <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[3fr_1fr]">
+            <div className="group relative aspect-361/299 overflow-hidden rounded-3xl lg:h-120 lg:aspect-auto">
               <img
-                src={SectionImage}
+                src={IntegrateSectionImage}
                 alt="Cozy living room with houseplants"
                 className="size-full object-cover transition-transform duration-700 group-hover:scale-102"
               />
@@ -303,75 +283,81 @@ export const Home = () => {
                     type="button"
                     onClick={() => setSelectedProductId(spot.productId)}
                     className={cn(
-                      'absolute flex size-12 sm:size-14 items-center justify-center rounded-full backdrop-blur-xs text-3xl font-light leading-none text-white transition-all shadow-lg cursor-pointer',
+                      'absolute flex size-12 items-center justify-center rounded-full text-white transition-all cursor-pointer bg-[#6A7B66]/80 backdrop-blur-md lg:size-14',
                       spot.className,
                       isSelected
-                        ? 'bg-[#1E331B] ring-4 ring-white/90 scale-110 shadow-xl'
-                        : 'bg-[#1E331B]/80 hover:scale-110 hover:bg-[#1E331B] opacity-90 hover:opacity-100'
+                        ? 'ring-4 ring-white/90 scale-110 shadow-xl bg-[#23511E]'
+                        : 'hover:scale-110 opacity-90 hover:opacity-100'
                     )}
                     aria-label={`View plant ${spot.label}`}
                     aria-pressed={isSelected}
                   >
-                    +
+                    <Plus
+                      className="size-6 lg:size-8"
+                      strokeWidth={1.5}
+                      aria-hidden="true"
+                    />
                   </button>
                 );
               })}
             </div>
 
-            <div
-              className={cn(
-                'lg:col-span-4 flex flex-col items-center gap-4',
-                showSelectedProductCard
-                  ? 'justify-center'
-                  : 'justify-between gap-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-white/80 p-6 text-center shadow-xs min-h-95'
-              )}
-            >
+            <div className="flex h-full min-w-0 flex-col">
               {isSelectedProductPanelLoading ? (
                 <CatalogProductCardSkeleton
                   viewMode="grid"
                   count={1}
-                  className="w-full"
+                  className="size-full"
                 />
               ) : selectedProduct && !isSelectedProductError ? (
-                <>
-                  <CatalogProductCard
-                    product={selectedProduct}
-                    categoryName={categoryMap.get(selectedProduct.categoryId)}
-                    viewMode="grid"
-                    isFavorite={isFavorite(selectedProduct.productId)}
-                    isFavoritePending={isFavoritePending(
-                      selectedProduct.productId
-                    )}
-                    onToggleFavorite={toggleFavorite}
-                    onAddToCart={addSelectedProductToCart}
-                    onAuthRequired={() => setIsLoginPromptOpen(true)}
-                    className="w-full"
-                  />
+                <div className="flex h-full flex-col justify-between rounded-[32px] bg-white p-6 shadow-sm lg:p-7">
+                  <h3 className="text-center text-2xl font-bold tracking-tight text-[#0C0C0C] lg:text-3xl">
+                    {selectedProduct.name}
+                  </h3>
+
+                  <div className="relative my-auto flex w-full flex-1 items-center justify-center py-4">
+                    <ImageWithPlaceholder
+                      src={selectedProduct.imageUrl}
+                      alt={selectedProduct.name}
+                      placeholderLabel={
+                        categoryMap.get(selectedProduct.categoryId) ||
+                        'Verdora Plant'
+                      }
+                      className="h-auto aspect-square max-h-72 w-full rounded-2xl"
+                      imageClassName="h-auto max-h-72 w-full object-contain"
+                    />
+
+                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-2xl bg-[#0C0C0C] px-7 py-3 text-2xl font-bold leading-none text-white shadow-lg lg:text-3xl">
+                      {selectedProductPrice}₴
+                    </span>
+                  </div>
+
                   <Button
                     type="button"
-                    className="w-full cursor-pointer"
-                    onClick={() => handleBuyNow(selectedProduct.productId)}
-                    disabled={isAddingToCart}
+                    className="h-13 w-full rounded-full bg-[#23511E] text-base font-semibold text-white transition-colors hover:bg-[#1b4017] disabled:opacity-50"
+                    asChild
                   >
-                    {isAddingToCart ? 'Adding...' : 'Buy now'}
+                    <Link to={`/products/${selectedProduct.productId}`}>
+                      View product
+                    </Link>
                   </Button>
-                </>
+                </div>
               ) : isSelectedProductError &&
                 selectedProductError?.response?.status !== 404 ? (
-                <>
+                <div className="flex h-full flex-col items-center justify-between rounded-[32px] bg-white p-6 text-center shadow-sm">
                   <div className="space-y-1">
-                    <h3 className="text-xl sm:text-2xl font-bold text-red-700">
+                    <h3 className="text-xl font-bold text-red-700 sm:text-2xl">
                       Failed to load
                     </h3>
                     <p className="text-sm text-[#4A5568]">
-                      Unable to connect to the server. Please try again.
+                      Unable to connect to the server.
                     </p>
                   </div>
-                  <div className="relative z-10 w-full h-56 flex flex-col items-center justify-center gap-3">
-                    <div className="relative flex size-28 items-center justify-center rounded-full bg-red-50 border border-red-200">
-                      <AlertCircle className="size-12 text-red-500" />
+                  <div className="relative z-10 flex h-48 w-full flex-col items-center justify-center gap-3">
+                    <div className="relative flex size-24 items-center justify-center rounded-full border border-red-200 bg-red-50">
+                      <AlertCircle className="size-10 text-red-500" />
                     </div>
-                    <span className="rounded-xl bg-red-100 text-red-700 px-4 py-1.5 text-sm font-semibold">
+                    <span className="rounded-xl bg-red-100 px-4 py-1.5 text-sm font-semibold text-red-700">
                       Connection error
                     </span>
                   </div>
@@ -379,44 +365,40 @@ export const Home = () => {
                     variant="outline"
                     type="button"
                     onClick={() => refetchSelectedProduct()}
-                    className="w-full sm:w-auto px-8 cursor-pointer"
+                    className="w-full cursor-pointer px-8"
                   >
                     Try again
                   </Button>
-                </>
+                </div>
               ) : (
-                <>
+                <div className="flex h-full flex-col items-center justify-between rounded-[32px] bg-white p-6 text-center shadow-sm">
                   <div className="space-y-1">
-                    <h3 className="text-xl sm:text-2xl font-bold text-link-text">
+                    <h3 className="text-xl font-bold text-link-text sm:text-2xl">
                       Product not found
                     </h3>
                     <p className="text-sm text-[#4A5568]">
                       This product does not exist in the catalog
                     </p>
                   </div>
-                  <div className="relative z-10 w-full h-56 flex flex-col items-center justify-center gap-3">
-                    <div className="relative flex size-28 items-center justify-center rounded-full bg-[#1E331B]/5 border border-[#1E331B]/10">
+                  <div className="relative z-10 flex h-48 w-full flex-col items-center justify-center gap-3">
+                    <div className="relative flex size-24 items-center justify-center rounded-full border border-[#1E331B]/10 bg-[#1E331B]/5">
                       <img
                         src={PlantImage}
                         alt="Product not found"
-                        className="size-20 object-contain grayscale opacity-35"
+                        className="size-16 object-contain opacity-35 grayscale"
                       />
-                      <div className="absolute -bottom-1 -right-1 flex size-8 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 border-2 border-white shadow-xs">
-                        <PackageX className="size-4" />
+                      <div className="absolute -bottom-1 -right-1 flex size-7 items-center justify-center rounded-full border-2 border-white bg-zinc-100 text-zinc-600 shadow-xs">
+                        <PackageX className="size-3.5" />
                       </div>
                     </div>
-                    <span className="rounded-xl bg-zinc-200/80 text-zinc-600 px-4 py-1.5 text-sm font-semibold">
+                    <span className="rounded-xl bg-zinc-200/80 px-4 py-1.5 text-sm font-semibold text-zinc-600">
                       Not found
                     </span>
                   </div>
-                  <Button
-                    variant="outline"
-                    asChild
-                    className="w-full sm:w-auto px-8"
-                  >
+                  <Button variant="outline" asChild className="w-full px-8">
                     <Link to="/catalog">Browse catalog</Link>
                   </Button>
-                </>
+                </div>
               )}
             </div>
           </div>
@@ -438,41 +420,38 @@ export const Home = () => {
         />
 
         <SectionLayout title="Our reviews">
-          <div
-            className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 no-scrollbar"
-            aria-label="Customer reviews"
-          >
+          <ReviewsCarousel>
             {reviews.map(review => (
               <article
                 key={review.name}
                 className="flex min-w-70 sm:min-w-85 snap-start flex-col justify-between rounded-2xl bg-white/80 backdrop-blur-sm border border-white/80 p-6 shadow-xs hover:shadow-md transition-all duration-300"
               >
-                <p className="text-sm sm:text-base leading-relaxed text-[#2C332D] mb-4">
+                <p className="text-sm sm:text-base leading-relaxed text-[#2C332D] mb-6">
                   "{review.text}"
                 </p>
-                <div className="flex items-center justify-between gap-4 text-xs sm:text-sm text-[#1E331B] font-medium pt-2 border-t border-black/5">
+                <div className="flex items-center justify-between gap-4 text-xs sm:text-sm text-[#1E331B] font-medium">
                   <div className="flex min-w-0 items-center gap-2.5">
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#D9E3D5] text-xs font-bold text-[#1E331B]">
-                      {review.initials}
+                    <Avatar className="size-8 after:hidden">
+                      <AvatarFallback className="bg-[#D9E3D5] text-xs font-bold text-[#1E331B]">
+                        {review.initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-[#1E331B] font-sans">
+                      {review.name}
                     </span>
-                    <span className="truncate">{review.name}</span>
                   </div>
-                  <span className="flex items-center gap-1 shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold text-[#B78103]">
-                    <Star className="size-3.5 fill-[#FFC400] text-[#FFC400]" />
-                    {review.rating}
+                  <span className="flex items-center gap-1 shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold">
+                    <Star className="size-3.5 fill-[#FFC800] text-[#FFC800]" />
+                    <span className="text-sm font-normal leading-none tracking-[0.02em] text-[#1E331B]">
+                      {review.rating}
+                    </span>
                   </span>
                 </div>
               </article>
             ))}
-          </div>
+          </ReviewsCarousel>
         </SectionLayout>
       </div>
-
-      <LoginPromptDialog
-        open={isLoginPromptOpen}
-        onOpenChange={setIsLoginPromptOpen}
-        action="favorite"
-      />
     </LayoutPage>
   );
 };

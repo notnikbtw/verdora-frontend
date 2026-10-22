@@ -1,6 +1,7 @@
 import { Button } from '@components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { formatOrderPrice } from '@/utils/order.utils';
+import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder';
 
 type Props = {
   productName: string;
@@ -51,15 +52,13 @@ const CartItem = ({
 
       <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 pr-8 sm:pr-0">
         <div className="size-20 sm:size-24 shrink-0 overflow-hidden rounded-xl p-1 bg-gray-50 flex items-center justify-center">
-          {(productImage ?? '') ? (
-            <img
-              src={productImage}
-              alt={productName ?? 'Unknown product'}
-              className="w-full h-full object-contain rounded-lg"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-100 rounded-lg" />
-          )}
+          <ImageWithPlaceholder
+            src={productImage}
+            alt={productName ?? 'Unknown product'}
+            className="rounded-lg"
+            imageClassName="object-contain"
+            iconClassName="size-7 sm:size-8"
+          />
         </div>
 
         <div className="flex flex-col justify-center min-w-0">

@@ -27,7 +27,7 @@ const CONTACT_INFO = [
     icon: Phone,
     content: (
       <a href="tel:+380984769000" className="hover:underline transition-colors">
-        +380 (98) 476-90-00
+        +380984769000
       </a>
     ),
   },
@@ -129,7 +129,7 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="hidden md:flex relative pt-12 flex-col items-center justify-center">
+      <div className="hidden md:flex relative flex-col items-center justify-center">
         <div className="relative w-full max-w-170 aspect-square items-center justify-center z-10 px-4">
           <img
             src={footerCircleImg}
@@ -137,7 +137,7 @@ const Footer = () => {
             className="w-full h-full object-contain pointer-events-none select-none"
             loading="lazy"
           />
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10 max-w-[320px] mx-auto">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10 max-w-82.5 mx-auto">
             <NewsletterForm />
           </div>
         </div>
@@ -146,7 +146,7 @@ const Footer = () => {
           <div className="flex-1 h-full bg-[#C3E3BD]" />
           <div className="w-185 shrink-0 h-full overflow-hidden">
             <svg
-              viewBox="0 0 740 380"
+              viewBox="0 0 739 379"
               className="w-full h-full block text-[#C3E3BD]"
               preserveAspectRatio="none"
             >
@@ -160,25 +160,25 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="bg-[#C3E3BD] pt-0 pb-16 px-6 md:px-12 lg:px-20 text-[#19271B]">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16 items-start pt-2">
-          <div className="flex flex-col items-start gap-3">
-            <Logo fontSize="text-3xl" className="text-[#102012]" />
-            <p className="text-sm text-[#2D3E2F] leading-relaxed max-w-sm">
+      <div className="bg-[#C3E3BD] pt-3 pb-16 px-6 md:px-12 lg:px-20 text-foreground">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-center items-start gap-12 md:gap-24 pt-2">
+          <div className="flex flex-col items-start gap-3 md:max-w-xs">
+            <Logo fontSize="text-3xl text-foreground" />
+            <p className="text-sm leading-relaxed">
               Your trusted botanical store. We offer fresh indoor plants and
               unique green decor to make your home feel alive
             </p>
           </div>
 
           <div className="flex flex-col items-start gap-3">
-            <h3 className="text-base font-semibold text-[#102012]">Shop</h3>
-            <ul className="flex flex-col gap-2 text-sm text-[#2D3E2F]">
+            <h3 className="text-base font-semibold">Shop</h3>
+            <ul className="flex flex-col gap-2 text-sm">
               {SHOP_LINKS.map(link => (
                 <li key={link.to}>
                   <LinkComponent
                     text={link.text}
                     to={link.to}
-                    className="text-sm font-normal text-[#2D3E2F] hover:text-[#102012] no-underline hover:underline"
+                    className="text-sm font-normal no-underline hover:underline text-foreground"
                   />
                 </li>
               ))}
@@ -186,14 +186,12 @@ const Footer = () => {
           </div>
 
           <div className="flex flex-col items-start gap-3">
-            <h3 className="text-base font-semibold text-[#102012]">
-              Contact us
-            </h3>
+            <h3 className="text-base font-semibold">Contact us</h3>
             <address className="not-italic">
-              <ul className="flex flex-col gap-3 text-sm text-[#2D3E2F]">
+              <ul className="flex flex-col gap-3 text-sm">
                 {CONTACT_INFO.map(({ icon: Icon, content }, index) => (
                   <li key={index} className="flex items-center gap-3">
-                    <Icon className="size-4 shrink-0 text-[#102012]" />
+                    <Icon className="size-4 shrink-0" />
                     {content}
                   </li>
                 ))}

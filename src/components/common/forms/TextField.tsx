@@ -69,7 +69,7 @@ const TextField = ({
       )}
       <InputGroup
         className={cn(
-          `w-full rounded-[12px] border-2 border-zinc-300 bg-block-bg
+          `group relative w-full rounded-[12px] border-2 border-zinc-300 bg-block-bg
           transition-all duration-100 ease-in-out
           hover:border-primary
           focus-within:border-primary!
@@ -77,13 +77,13 @@ const TextField = ({
 
           [&_svg]:text-zinc-400
           [&_svg]:transition-colors
-          hover:[&_svg]:text-primary
+          group-hover:[&_svg]:text-primary
           focus-within:[&_svg]:text-primary!`,
           error &&
             `border-red-500 focus-within:border-red-500!
-            [&_svg]:text-red-500 focus-within:[&_svg]:text-red-500!`,
+            [&_svg]:text-red-500! focus-within:[&_svg]:text-red-500!`,
           disabled &&
-            'opacity-60 cursor-not-allowed bg-zinc-100/80 hover:border-zinc-300',
+            'opacity-60 cursor-not-allowed bg-zinc-100/80 hover:border-zinc-300 [&_svg]:text-zinc-400',
           containerClassName
         )}
       >
@@ -96,13 +96,13 @@ const TextField = ({
           onChange={e => onChange?.(e.target.value)}
           onBlur={onBlur}
           className={cn(
-            `text-sm text-text-h
+            `text-sm text-[#70826E] font-sans
             focus:outline-none focus-visible:outline-none focus-visible:ring-0
             placeholder:text-sm
             placeholder:[font-family:var(--font-sans)]
             placeholder:text-text-muted`,
             disabled && 'cursor-not-allowed text-zinc-500',
-            error && 'placeholder:text-red-400',
+            error && 'placeholder:text-red-400 text-red-400',
             inputClassName
           )}
         />
