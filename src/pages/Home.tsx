@@ -8,6 +8,7 @@ import LabelIcon from '@assets/icons/label.svg?react';
 import LikeMessageIcon from '@assets/icons/like-message.svg?react';
 import PlantIcon from '@assets/icons/plant.svg?react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@components/ui/avatar';
 import FrameIcon from '@assets/icons/frame.svg?react';
 import { Star, Sparkles, PackageX, AlertCircle, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -425,19 +426,25 @@ export const Home = () => {
                 key={review.name}
                 className="flex min-w-70 sm:min-w-85 snap-start flex-col justify-between rounded-2xl bg-white/80 backdrop-blur-sm border border-white/80 p-6 shadow-xs hover:shadow-md transition-all duration-300"
               >
-                <p className="text-sm sm:text-base leading-relaxed text-[#2C332D] mb-4">
+                <p className="text-sm sm:text-base leading-relaxed text-[#2C332D] mb-6">
                   "{review.text}"
                 </p>
-                <div className="flex items-center justify-between gap-4 text-xs sm:text-sm text-[#1E331B] font-medium pt-2 border-t border-black/5">
+                <div className="flex items-center justify-between gap-4 text-xs sm:text-sm text-[#1E331B] font-medium">
                   <div className="flex min-w-0 items-center gap-2.5">
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#D9E3D5] text-xs font-bold text-[#1E331B]">
-                      {review.initials}
+                    <Avatar className="size-8 after:hidden">
+                      <AvatarFallback className="bg-[#D9E3D5] text-xs font-bold text-[#1E331B]">
+                        {review.initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-[#1E331B] font-sans">
+                      {review.name}
                     </span>
-                    <span className="truncate">{review.name}</span>
                   </div>
-                  <span className="flex items-center gap-1 shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold text-[#B78103]">
-                    <Star className="size-3.5 fill-[#FFC400] text-[#FFC400]" />
-                    {review.rating}
+                  <span className="flex items-center gap-1 shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold">
+                    <Star className="size-3.5 fill-[#FFC800] text-[#FFC800]" />
+                    <span className="text-sm font-normal leading-none tracking-[0.02em] text-[#1E331B]">
+                      {review.rating}
+                    </span>
                   </span>
                 </div>
               </article>

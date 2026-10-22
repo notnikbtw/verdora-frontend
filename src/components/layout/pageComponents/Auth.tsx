@@ -63,11 +63,11 @@ const AuthForm = ({
             <Card className="w-full max-w-full sm:max-w-110 bg-white dark:bg-zinc-900 rounded-t-[36px] rounded-b-none sm:rounded-[28px] border-0 shadow-sm p-6 sm:p-8 flex flex-col justify-start gap-4 sm:gap-5 flex-1 sm:flex-initial">
               {title && (
                 <CardHeader className="text-center space-y-1 pb-1 px-0">
-                  <CardTitle className="text-xl font-medium font-sans tracking-tight text-foreground">
+                  <CardTitle className="font-sans font-medium text-xl leading-[184%] tracking-[-0.05em] text-center text-foreground">
                     {title}
                   </CardTitle>
                   {subtitle && (
-                    <CardDescription className="text-[16px] font-medium text-foreground">
+                    <CardDescription className="font-sans font-medium text-base leading-[150%] tracking-[-0.05em] text-center text-foreground">
                       {subtitle}
                     </CardDescription>
                   )}
