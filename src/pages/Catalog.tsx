@@ -140,6 +140,11 @@ const Catalog = () => {
     setCurrentPage(0);
   };
 
+  const handlePageChange = (page: number) => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    setCurrentPage(page);
+  };
+
   const handleSelectCategory = (id?: number) => {
     setSearchParams(prev => {
       const next = new URLSearchParams(prev);
@@ -306,7 +311,7 @@ const Catalog = () => {
                   <PaginationComponent
                     currentPage={currentPage}
                     totalPages={totalPages}
-                    onPageChange={page => setCurrentPage(page)}
+                    onPageChange={handlePageChange}
                   />
                 )}
               </div>
