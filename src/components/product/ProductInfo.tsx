@@ -214,8 +214,11 @@ export const ProductInfo = ({
             )}
           </div>
 
-          <div>
-            <h1 className="text-3xl sm:text-[40px] font-heading font-bold text-[#0C0C0C] leading-[1.1] tracking-tight">
+          <div className="min-w-0">
+            <h1
+              title={product.name}
+              className="truncate text-3xl sm:text-[40px] font-heading font-bold text-[#0C0C0C] leading-[1.1] tracking-tight"
+            >
               {product.name}
             </h1>
             <p className="text-sm text-text-muted mt-1.5">

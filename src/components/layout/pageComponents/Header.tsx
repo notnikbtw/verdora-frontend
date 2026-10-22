@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import Logo from '@components/common/Logo';
 import { Button } from '@components/ui/button';
 import { useAppSelector } from '@api/hooks';
@@ -24,10 +24,19 @@ type HeaderProps = {
 
 const Header = ({ onOpenMenu }: HeaderProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isOnline } = useNetworkStatus();
   const { handleLogout, isLoggingOut } = useLogout();
   const { user, hydrating } = useAppSelector(state => state.auth);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+
+  const isSalesPage =
+    location.pathname.includes('/sales') ||
+    (location.pathname === '/catalog' &&
+      (new URLSearchParams(location.search).get('discount') === 'true' ||
+        new URLSearchParams(location.search).get('onSale') === 'true'));
+  const isSalesActive = isSalesPage;
+  const isCatalogActive = location.pathname === '/catalog' && !isSalesPage;
   const [search, setSearch] = useState('');
 
   const { data: cart } = useGetCart();
@@ -65,8 +74,16 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
 
         <nav className="hidden lg:flex items-center gap-6 text-[16px] text-link-text">
           <LinkComponent text="Home" to="/" />
-          <LinkComponent text="Catalog" to="/catalog" />
-          <LinkComponent text="Sales" to="/catalog?discount=true" />
+          <LinkComponent
+            text="Catalog"
+            to="/catalog"
+            isActive={isCatalogActive}
+          />
+          <LinkComponent
+            text="Sales"
+            to="/catalog?discount=true"
+            isActive={isSalesActive}
+          />
         </nav>
 
         <div className="hidden lg:flex items-center gap-6">

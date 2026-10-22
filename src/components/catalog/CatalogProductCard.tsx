@@ -142,7 +142,10 @@ export const CatalogProductCard = ({
               {categoryName}
             </span>
           )}
-          <h3 className="font-heading font-medium text-[16px] leading-[1.3] text-[#0C0C0C] tracking-tight line-clamp-2 group-hover:text-primary transition-colors">
+          <h3
+            title={product.name}
+            className="font-heading font-medium text-[16px] leading-[1.3] text-[#0C0C0C] tracking-tight line-clamp-2 group-hover:text-primary transition-colors"
+          >
             {product.name}
           </h3>
           {!isGrid && product.description && (
