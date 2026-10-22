@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@components/ui/card';
-import { Skeleton } from '@components/ui/skeleton';
-import { Heart, Flower2, Check } from 'lucide-react';
+import { Heart, Check } from 'lucide-react';
+import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder';
 import { useAppSelector } from '@api/hooks';
 import { cn } from '@/lib/utils';
 import type { ViewMode } from './CatalogToolbar';
@@ -43,8 +43,6 @@ export const CatalogProductCard = ({
   const isLoggedIn =
     isAuthenticated !== undefined ? isAuthenticated : Boolean(user);
 
-  const [imageError, setImageError] = useState(false);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [added, setAdded] = useState(false);
   const isGrid = viewMode === 'grid';
 
@@ -222,32 +220,11 @@ export const CatalogProductCard = ({
           isGrid ? 'h-52 sm:h-56' : 'h-48 sm:w-64 sm:h-44 order-1'
         }`}
       >
-        {product.imageUrl && !imageError ? (
-          <>
-            {!isImageLoaded && (
-              <Skeleton className="absolute inset-0 size-full rounded-none" />
-            )}
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              onLoad={() => setIsImageLoaded(true)}
-              onError={() => {
-                setImageError(true);
-                setIsImageLoaded(true);
-              }}
-              className={`w-full h-full object-cover transition-opacity duration-300 ${
-                isImageLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-            />
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center gap-1.5 text-text-muted p-4 text-center">
-            <Flower2 className="size-10 stroke-[1.2] text-primary/40" />
-            <span className="text-xs font-medium text-text-muted">
-              {categoryName || 'Verdora Plant'}
-            </span>
-          </div>
-        )}
+        <ImageWithPlaceholder
+          src={product.imageUrl}
+          alt={product.name}
+          placeholderLabel={categoryName || 'Verdora Plant'}
+        />
 
         <div className="absolute left-3.5 bottom-3.5 flex items-center gap-1.5 z-10">
           <span

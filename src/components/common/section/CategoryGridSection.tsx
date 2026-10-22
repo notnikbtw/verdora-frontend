@@ -2,9 +2,7 @@ import { Link } from 'react-router-dom';
 import { Skeleton } from '@components/ui/skeleton';
 import type { Category } from '@/types/category';
 import SectionLayout from '@components/common/section/SectionLayout';
-
-const getPlaceholder = (name: string) =>
-  `https://placehold.co/600x400?text=${encodeURIComponent(name)}`;
+import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder';
 
 type CategoryGridSectionProps = {
   title?: string;
@@ -51,17 +49,11 @@ const CategoryGridSection = ({
                 {category.name}
               </p>
               <div className="h-28 w-full flex items-center justify-center overflow-hidden">
-                <img
-                  src={category.imageUrl || getPlaceholder(category.name)}
+                <ImageWithPlaceholder
+                  src={category.imageUrl}
                   alt={category.name}
-                  loading="lazy"
-                  onError={e => {
-                    const fallback = getPlaceholder(category.name);
-                    if (e.currentTarget.src !== fallback) {
-                      e.currentTarget.src = fallback;
-                    }
-                  }}
-                  className="max-h-full w-auto object-contain transition-transform duration-300 group-hover:scale-110"
+                  className="rounded-xl"
+                  imageClassName="object-contain transition-transform duration-300 group-hover:scale-110"
                 />
               </div>
             </Link>
