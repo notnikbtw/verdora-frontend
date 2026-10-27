@@ -133,7 +133,7 @@ export const ProductCarousel = ({
                   key={`skeleton-${index}`}
                   className="pl-4 sm:pl-5 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                 >
-                  <div className="border border-border bg-[#fcfdfb] rounded-[22px] p-4 flex flex-col gap-3.5 h-full">
+                  <div className="card-surface p-4 flex flex-col gap-3.5 h-full">
                     <div className="flex items-start justify-between gap-3 w-full">
                       <div className="flex-1 space-y-1.5">
                         <Skeleton className="h-3 w-20" />

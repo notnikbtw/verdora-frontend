@@ -48,24 +48,11 @@ export const ProductInfo = ({
   const [loginPromptAction, setLoginPromptAction] =
     useState<AuthPromptAction>('general');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [addedToast, setAddedToast] = useState<{
-    show: boolean;
-    qty: number;
-  }>({
-    show: false,
-    qty: 1,
-  });
+  // Drives the button's "Added to cart" label only; the notification is a toast.
+  const [justAdded, setJustAdded] = useState(false);
 
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const dismissToast = useCallback(() => {
-    if (toastTimerRef.current) {
-      clearTimeout(toastTimerRef.current);
-      toastTimerRef.current = null;
-    }
-    setAddedToast({ show: false, qty: 1 });
-  }, []);
 
   const dismissError = useCallback(() => {
     if (errorTimerRef.current) {
@@ -75,13 +62,13 @@ export const ProductInfo = ({
     setErrorMessage(null);
   }, []);
 
-  const triggerToast = useCallback((qty: number) => {
+  const markJustAdded = useCallback(() => {
     if (toastTimerRef.current) {
       clearTimeout(toastTimerRef.current);
     }
-    setAddedToast({ show: true, qty });
+    setJustAdded(true);
     toastTimerRef.current = setTimeout(() => {
-      setAddedToast(prev => ({ ...prev, show: false }));
+      setJustAdded(false);
       toastTimerRef.current = null;
     }, 4500);
   }, []);
@@ -131,7 +118,7 @@ export const ProductInfo = ({
     if (onAddToCart) {
       onAddToCart(product.productId, quantity);
       dismissError();
-      triggerToast(quantity);
+      markJustAdded();
     } else {
       addItemMutation.mutate(
         {
@@ -142,7 +129,7 @@ export const ProductInfo = ({
         {
           onSuccess: () => {
             dismissError();
-            triggerToast(quantity);
+            markJustAdded();
           },
           onError: error => {
             triggerError(
@@ -159,7 +146,7 @@ export const ProductInfo = ({
     quantity,
     addItemMutation,
     dismissError,
-    triggerToast,
+    markJustAdded,
     triggerError,
   ]);
 
@@ -279,7 +266,7 @@ export const ProductInfo = ({
             disabled={addItemMutation.isPending}
             className="h-12 flex-1 rounded-[16px] bg-[#3E8D35] hover:bg-[#34782c] disabled:opacity-70 text-white font-medium text-[15px] tracking-tight flex items-center justify-center gap-2.5 transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
-            {addedToast.show ? (
+            {justAdded ? (
               <>
                 <Check className="size-5 stroke-[2.5]" />
                 <span>Added to cart</span>
@@ -334,27 +321,6 @@ export const ProductInfo = ({
           )}
           <span>{isFavorite ? 'Added to favorites' : 'Add to favorites'}</span>
         </Button>
-
-        {addedToast.show && (
-          <NoticeAlert
-            variant="success"
-            className="bg-[#C6E3B4] border-transparent text-[#0C0C0C] rounded-[16px] py-3.5 px-4 shadow-xs"
-            onDismiss={dismissToast}
-            action={
-              <Link
-                to="/cart"
-                className="text-[15px] font-medium text-[#0C0C0C] underline underline-offset-3 hover:text-primary transition-colors shrink-0"
-              >
-                View cart
-              </Link>
-            }
-          >
-            <span className="text-[15px] font-medium text-[#0C0C0C]">
-              Cart updated — {addedToast.qty} × {product.name} added to your
-              cart
-            </span>
-          </NoticeAlert>
-        )}
 
         {errorMessage && (
           <NoticeAlert

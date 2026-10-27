@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { cartService } from '@api/cart/cart.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAppSelector } from '@api/hooks';
@@ -123,7 +124,18 @@ export const useAddItemToCart = () => {
         quantity: data.quantity,
       });
     },
-    onSuccess: updateCartCache,
+    onSuccess: (cart, variables) => {
+      updateCartCache(cart);
+      // The returned cart has the product name, so grid cards need not pass it.
+      const name = cart.items.find(
+        item => item.productId === variables.productId
+      )?.productName;
+      toast.success(
+        name
+          ? `${variables.quantity} × ${name} added to your cart`
+          : 'Item added to your cart'
+      );
+    },
   });
 };
 
@@ -169,12 +181,18 @@ export const useRemoveItemFromCart = () => {
         queryClient.setQueryData(context.activeKey, context.previousCart);
       }
     },
-    onSuccess: (data, _variables, context) => {
+    onSuccess: (data, variables, context) => {
       if (context?.activeKey) {
         queryClient.setQueryData(context.activeKey, data);
       } else {
         updateCartCache(data);
       }
+      const name = context?.previousCart?.items.find(
+        item => item.cartItemId === variables.cartItemId
+      )?.productName;
+      toast.success(
+        name ? `${name} removed from your cart` : 'Item removed from your cart'
+      );
     },
   });
 };

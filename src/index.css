@@ -256,6 +256,16 @@ svg {
   @apply flex flex-col gap-6 py-6;
 }
 
+/* Surface for clickable cards on the paper background. */
+@utility card-surface {
+  @apply rounded-2xl border border-white/80 bg-white/80 shadow-xs backdrop-blur-sm;
+}
+
+/* Hover for clickable cards: lift, brighten, and deepen the shadow. */
+@utility card-interactive {
+  @apply transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-md;
+}
+
 @utility count-badge {
   @apply absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white shadow-xs;
 }

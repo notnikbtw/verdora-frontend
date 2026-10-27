@@ -27,14 +27,14 @@ export const SectionLayout = ({
       <div className={headerClassName}>
         <div className="flex items-center gap-3">
           {titleIcon}
-          <h2 className="text-2xl sm:text-4xl font-semibold text-link-text">
+          <h2 className="text-lg lg:text-2xl sm:text-4xl font-semibold text-link-text">
             {title}
           </h2>
         </div>
         {viewAllLink && (
           <Link
             to={viewAllLink}
-            className="text-2xl sm:text-4xl font-semibold text-link-text"
+            className="text-lg lg:text-2xl sm:text-4xl font-semibold text-link-text"
           >
             {viewAllText}
           </Link>

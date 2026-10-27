@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card } from '@components/ui/card';
 import { Heart, Check } from 'lucide-react';
 import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder';
 import { useAppSelector } from '@api/hooks';
@@ -116,7 +115,7 @@ export const CatalogProductCard = ({
   };
 
   return (
-    <Card
+    <div
       role="button"
       tabIndex={0}
       onClick={handleCardClick}
@@ -124,7 +123,7 @@ export const CatalogProductCard = ({
       onKeyDown={handleKeyDown}
       aria-label={`View details for ${product.name}`}
       className={cn(
-        'border border-border bg-[#fcfdfb] rounded-[22px] overflow-hidden p-4 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+        'card-surface card-interactive overflow-hidden p-4 cursor-pointer group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
         isGrid
           ? 'flex flex-col gap-3.5'
           : 'flex flex-col sm:flex-row items-center gap-5',
@@ -136,15 +135,15 @@ export const CatalogProductCard = ({
           !isGrid ? 'order-2 flex-1' : ''
         }`}
       >
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 truncate">
           {categoryName && (
-            <span className="text-[11px] font-semibold tracking-wider uppercase text-text-muted mb-0.5 block">
+            <span className="text-[11px] font-semibold tracking-wider uppercase text-text-muted mb-0.5 block truncate">
               {categoryName}
             </span>
           )}
           <h3
             title={product.name}
-            className="font-heading font-medium text-[16px] leading-[1.3] text-[#0C0C0C] tracking-tight line-clamp-2 group-hover:text-primary transition-colors"
+            className="font-heading font-medium text-[16px] leading-[1.3] text-[#0C0C0C] tracking-tight line-clamp-2 group-hover:text-primary transition-colors truncate"
           >
             {product.name}
           </h3>
@@ -247,7 +246,7 @@ export const CatalogProductCard = ({
           )}
         </div>
       </div>
-    </Card>
+    </div>
   );
 };
 

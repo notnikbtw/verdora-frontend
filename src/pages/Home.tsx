@@ -311,7 +311,7 @@ export const Home = () => {
                 />
               ) : selectedProduct && !isSelectedProductError ? (
                 <div className="flex h-full flex-col justify-between rounded-[32px] bg-white p-6 shadow-sm lg:p-7">
-                  <h3 className="text-center text-2xl font-bold tracking-tight text-[#0C0C0C] lg:text-3xl">
+                  <h3 className="text-center text-lg lg:text-2xl font-bold tracking-tight text-[#0C0C0C]">
                     {selectedProduct.name}
                   </h3>
 

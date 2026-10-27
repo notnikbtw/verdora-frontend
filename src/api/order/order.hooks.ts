@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
+import { toast } from 'react-toastify';
 import type { ApiErrorResponse } from '@/types/api';
 import type { PaginatedData } from '@/types/pagination';
 import type {
@@ -16,7 +17,7 @@ import type {
   UpdateOrderPayload,
 } from '@/types/order';
 
-import { isFinalOrderStatus } from '@/utils/order.utils';
+import { getOrderStatusLabel, isFinalOrderStatus } from '@/utils/order.utils';
 
 import { clearGuestCart } from '@/utils/guestCart';
 
@@ -31,6 +32,7 @@ export const useCreateOrder = () => {
       clearGuestCart();
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
+      toast.success('Your order has been placed');
     },
   });
 };
@@ -40,8 +42,11 @@ export const useUpdateOrder = () => {
 
   return useMutation<Order, OrderAxiosError, UpdateOrderPayload>({
     mutationFn: data => orderService.updateOrder(data),
-    onSuccess: () => {
+    onSuccess: (_order, variables) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      toast.success(
+        `Order #${variables.orderId} is now ${getOrderStatusLabel(variables.status)}`
+      );
     },
   });
 };
@@ -51,6 +56,9 @@ export const useCancelOrder = () => {
 
   return useMutation<Order, OrderAxiosError, number>({
     mutationFn: orderId => orderService.cancelOrder(orderId),
+    onSuccess: (_order, orderId) => {
+      toast.success(`Order #${orderId} has been cancelled`);
+    },
     onSettled: (_data, _error, orderId) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       if (orderId) {

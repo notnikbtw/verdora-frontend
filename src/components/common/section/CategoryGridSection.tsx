@@ -43,9 +43,9 @@ const CategoryGridSection = ({
             <Link
               to={`/catalog?categoryId=${category.categoryId}`}
               key={category.categoryId}
-              className="group flex flex-col justify-between items-center gap-3 rounded-2xl bg-white/70 hover:bg-white backdrop-blur-sm border border-white/80 p-4 h-48 text-center shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer"
+              className="group card-surface card-interactive flex flex-col justify-between items-center gap-3 p-4 h-48 text-center cursor-pointer"
             >
-              <p className="text-sm sm:text-base font-semibold leading-tight text-link-text group-hover:text-[#1E331B] transition-colors">
+              <p className="text-sm sm:text-base font-semibold leading-tight text-link-text group-hover:text-[#1E331B] transition-colors truncate">
                 {category.name}
               </p>
               <div className="h-28 w-full flex items-center justify-center overflow-hidden">
