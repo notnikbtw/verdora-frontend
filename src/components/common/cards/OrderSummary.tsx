@@ -61,9 +61,9 @@ const OrderSummary = ({
   if (loading) {
     return (
       <div
-        className={`bg-white p-4 sm:p-6 md:p-8 flex flex-col rounded-2xl border w-full lg:w-80 shrink-0 gap-6 lg:sticky lg:top-240 ${className}`}
+        className={`bg-white p-4 sm:p-6 md:p-8 flex flex-col rounded-2xl border shadow-sm w-full lg:w-80 shrink-0 gap-4 lg:sticky lg:top-24 ${className}`}
       >
-        <Skeleton className="h-6 w-40" />
+        <Skeleton className="h-10 w-40" />
 
         <div className="flex flex-col gap-3">
           <Skeleton className="h-4 w-full" />
@@ -71,9 +71,9 @@ const OrderSummary = ({
         </div>
 
         <Skeleton className="h-px w-full" />
-        <Skeleton className="h-6 w-full text-lg font-bold" />
+        <Skeleton className="h-11 w-full" />
+        <Skeleton className="h-16 w-full" />
         <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-10 w-full" />
       </div>
     );
   }
@@ -123,7 +123,7 @@ const OrderSummary = ({
 
       {hasTerms && (
         <div className="flex gap-2 flex-col w-full pt-1">
-          <div className="flex items-start gap-2.5 w-full text-xs">
+          <div className="flex items-center  gap-2.5 w-full text-xs">
             <Checkbox
               id="orderSummaryTerms"
               checked={agreeToTerms}

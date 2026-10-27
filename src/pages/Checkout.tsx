@@ -179,8 +179,8 @@ const Checkout = () => {
           />
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          <div className="lg:col-span-2 space-y-6 w-full">
             <Card>
               <CardHeader className="pb-3 border-b">
                 <CardTitle className="text-lg flex items-center justify-between">
@@ -310,20 +310,20 @@ const Checkout = () => {
             isActionLoading={createOrderMutation.isPending}
             secondaryActionText="Return to Cart"
             secondaryActionLink="/cart"
-            className="sticky top-6 lg:max-w-none"
+            className="sticky top-6"
           >
             <div className="space-y-2.5">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Items ({items.length})
               </p>
-              <div className="divide-y max-h-48 overflow-y-auto pr-1">
+              <div>
                 {items.map(item => (
                   <div
                     key={item.cartItemId}
                     className="py-2 flex justify-between items-center text-sm"
                   >
-                    <div>
-                      <p className="font-medium text-gray-900 text-xs">
+                    <div className="truncate">
+                      <p className="font-medium text-gray-900 text-xs truncate">
                         {item.productName}
                       </p>
                       <p className="text-xs text-gray-500">
