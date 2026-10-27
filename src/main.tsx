@@ -46,11 +46,7 @@ createRoot(document.getElementById('root')!).render(
         <BrowserRouter basename={import.meta.env.BASE_URL}>
           <ScrollToTop />
           <UserScopedCacheReset />
-          <ToastContainer
-            position="bottom-right"
-            autoClose={4000}
-            newestOnTop
-          />
+          <ToastContainer position="top-right" autoClose={4000} newestOnTop />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/catalog" element={<Catalog />} />

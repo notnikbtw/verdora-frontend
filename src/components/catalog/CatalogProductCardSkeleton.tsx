@@ -1,4 +1,3 @@
-import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 type Props = {
@@ -25,9 +24,9 @@ const CatalogProductCardSkeleton = ({
       }
     >
       {Array.from({ length: count }).map((_, i) => (
-        <Card
+        <div
           key={i}
-          className={`border border-border bg-[#fcfdfb] rounded-[22px] overflow-hidden p-4 shadow-xs ${
+          className={`card-surface overflow-hidden p-4 ${
             isGrid
               ? 'flex flex-col gap-3.5'
               : 'flex flex-col sm:flex-row items-center gap-5'
@@ -56,7 +55,7 @@ const CatalogProductCardSkeleton = ({
             <Skeleton className="w-full h-full rounded-none" />
             <Skeleton className="absolute left-3.5 bottom-3.5 h-6 w-16 rounded-[7px]" />
           </div>
-        </Card>
+        </div>
       ))}
     </div>
   );
