@@ -2,8 +2,10 @@ import { Button } from '@components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { formatOrderPrice } from '@/utils/order.utils';
 import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder';
+import { Link } from 'react-router';
 
 type Props = {
+  productId: number;
   productName: string;
   productImage: string;
   price: number;
@@ -17,6 +19,7 @@ type Props = {
 };
 
 const CartItem = ({
+  productId,
   productName,
   productImage,
   price,
@@ -32,6 +35,7 @@ const CartItem = ({
     discountPrice != null && discountPrice > 0 && discountPrice < price;
   const currentPrice = hasDiscount ? discountPrice : price;
   const totalPrice = currentPrice * quantity;
+  const productPath = `/products/${productId}`;
   const discountPercent =
     hasDiscount && price > 0
       ? Math.round(((price - discountPrice) / price) * 100)
@@ -51,19 +55,29 @@ const CartItem = ({
       </Button>
 
       <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 pr-8 sm:pr-0">
-        <div className="size-20 sm:size-24 shrink-0 overflow-hidden rounded-xl p-1 bg-gray-50 flex items-center justify-center">
+        <Link
+          to={productPath}
+          tabIndex={-1}
+          aria-hidden="true"
+          className="size-20 sm:size-24 shrink-0 overflow-hidden rounded-xl p-1 bg-gray-50 flex items-center justify-center"
+        >
           <ImageWithPlaceholder
             src={productImage}
-            alt={productName ?? 'Unknown product'}
+            alt=""
             className="rounded-lg"
             imageClassName="object-contain"
             iconClassName="size-7 sm:size-8"
           />
-        </div>
+        </Link>
 
         <div className="flex flex-col justify-center min-w-0">
           <h3 className="text-base sm:text-lg font-medium text-[#2D2D2D] truncate">
-            {productName ?? 'Unknown product'}
+            <Link
+              to={productPath}
+              className="block truncate hover:text-link-text hover:underline transition-colors duration-100"
+            >
+              {productName ?? 'Unknown product'}
+            </Link>
           </h3>
 
           <div className="flex items-center gap-2 mt-1">

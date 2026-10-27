@@ -178,6 +178,7 @@ export const ProfileCartTab = () => {
             {items.map(item => (
               <CartItem
                 key={item.cartItemId}
+                productId={item.productId}
                 productName={item.productName}
                 productImage={item.imageUrl}
                 price={item.price}
