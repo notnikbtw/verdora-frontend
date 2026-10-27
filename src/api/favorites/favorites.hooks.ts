@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 import { favoritesService } from '@api/favorites/favorites.service';
 import { useAppSelector } from '@api/hooks';
 import type { AxiosError } from 'axios';
@@ -57,6 +58,10 @@ export const useAddToFavorites = () => {
       return { previousFavorites, previousIsFavorite };
     },
 
+    onSuccess: () => {
+      toast.success('Added to favorites');
+    },
+
     onError: (_error, productId, context) => {
       if (context?.previousFavorites !== undefined) {
         queryClient.setQueryData(['favorites'], context.previousFavorites);
@@ -106,6 +111,10 @@ export const useRemoveFromFavorites = () => {
       );
 
       return { previousFavorites, previousIsFavorite };
+    },
+
+    onSuccess: () => {
+      toast.success('Removed from favorites');
     },
 
     onError: (_error, productId, context) => {

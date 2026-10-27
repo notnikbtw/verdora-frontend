@@ -4,6 +4,8 @@ import { store } from '@api/store';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import '@/index.css';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 import Login from '@pages/auth/Login';
 import Register from '@pages/auth/Register';
 import Home from '@pages/Home';
@@ -44,6 +46,11 @@ createRoot(document.getElementById('root')!).render(
         <BrowserRouter basename={import.meta.env.BASE_URL}>
           <ScrollToTop />
           <UserScopedCacheReset />
+          <ToastContainer
+            position="bottom-right"
+            autoClose={4000}
+            newestOnTop
+          />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/catalog" element={<Catalog />} />
