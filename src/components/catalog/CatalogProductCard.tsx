@@ -7,6 +7,11 @@ import { cn } from '@/lib/utils';
 import type { ViewMode } from './CatalogToolbar';
 import type { Product } from '@/types/product';
 import { Spinner } from '@components/ui/spinner';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@components/ui/tooltip';
 
 export type CatalogProduct = Product;
 
@@ -141,12 +146,16 @@ export const CatalogProductCard = ({
               {categoryName}
             </span>
           )}
-          <h3
-            title={product.name}
-            className="font-heading font-medium text-[16px] leading-[1.3] text-[#0C0C0C] tracking-tight line-clamp-2 group-hover:text-primary transition-colors truncate"
-          >
-            {product.name}
-          </h3>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <h3 className="font-heading font-medium text-[16px] leading-[1.3] text-[#0C0C0C] tracking-tight line-clamp-2 group-hover:text-primary transition-colors truncate">
+                {product.name}
+              </h3>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs break-words">
+              {product.name}
+            </TooltipContent>
+          </Tooltip>
           {!isGrid && product.description && (
             <p className="text-xs text-text mt-1.5 line-clamp-2">
               {product.description}
