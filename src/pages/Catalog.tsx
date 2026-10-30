@@ -41,6 +41,17 @@ const mapSortToParam = (sortId: string): string | undefined => {
   }
 };
 
+const readPriceParam = (
+  params: URLSearchParams,
+  key: string,
+  fallback: number
+): number => {
+  const raw = params.get(key);
+  if (raw === null) return fallback;
+  const value = Number(raw);
+  return Number.isFinite(value) && value >= 0 ? value : fallback;
+};
+
 const Catalog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -61,10 +72,20 @@ const Catalog = () => {
 
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [currentPage, setCurrentPage] = useState(0);
-  const [priceRange, setPriceRange] = useState<[number, number]>([
-    DEFAULT_MIN_PRICE,
-    DEFAULT_MAX_PRICE,
-  ]);
+  const minPriceParam = readPriceParam(
+    searchParams,
+    'minPrice',
+    DEFAULT_MIN_PRICE
+  );
+  const maxPriceParam = readPriceParam(
+    searchParams,
+    'maxPrice',
+    DEFAULT_MAX_PRICE
+  );
+  const priceRange = useMemo<[number, number]>(
+    () => [minPriceParam, maxPriceParam],
+    [minPriceParam, maxPriceParam]
+  );
   const [debouncedPriceRange] = useDebounce(priceRange, 400);
   const [selectedSort, setSelectedSort] = useState<string>('rating');
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
@@ -98,9 +119,11 @@ const Catalog = () => {
 
     if (selectedCategoryId !== undefined)
       params.categoryId = selectedCategoryId;
-    if (debouncedPriceRange[0] > DEFAULT_MIN_PRICE)
+    // A minimum above the maximum is shown as an error, so it is not sent.
+    const isPriceRangeValid = debouncedPriceRange[0] <= debouncedPriceRange[1];
+    if (isPriceRangeValid && debouncedPriceRange[0] > DEFAULT_MIN_PRICE)
       params.minPrice = debouncedPriceRange[0];
-    if (debouncedPriceRange[1] < DEFAULT_MAX_PRICE)
+    if (isPriceRangeValid && debouncedPriceRange[1] < DEFAULT_MAX_PRICE)
       params.maxPrice = debouncedPriceRange[1];
     if (onSaleOnly) params.discount = true;
     if (searchQuery) params.search = searchQuery;
@@ -160,7 +183,23 @@ const Catalog = () => {
   };
 
   const handlePriceRangeChange = (range: [number, number]) => {
-    setPriceRange(range);
+    setSearchParams(
+      prev => {
+        const next = new URLSearchParams(prev);
+        if (range[0] > DEFAULT_MIN_PRICE) {
+          next.set('minPrice', String(range[0]));
+        } else {
+          next.delete('minPrice');
+        }
+        if (range[1] < DEFAULT_MAX_PRICE) {
+          next.set('maxPrice', String(range[1]));
+        } else {
+          next.delete('maxPrice');
+        }
+        return next;
+      },
+      { replace: true }
+    );
     setCurrentPage(0);
   };
 
@@ -184,7 +223,6 @@ const Catalog = () => {
   };
 
   const handleResetAll = () => {
-    setPriceRange([DEFAULT_MIN_PRICE, DEFAULT_MAX_PRICE]);
     setSelectedSort('rating');
     setCurrentPage(0);
     setSearchParams({});

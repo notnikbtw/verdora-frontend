@@ -14,6 +14,7 @@ import type { Product } from '@/types/product';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Spinner } from '@components/ui/spinner';
+import { getApiErrorMessage } from '@/utils/error.utils';
 
 export type ProductInfoProps = {
   product: Product;
@@ -133,8 +134,10 @@ export const ProductInfo = ({
           },
           onError: error => {
             triggerError(
-              error.response?.data?.message ||
+              getApiErrorMessage(
+                error,
                 'Failed to add item to cart. Please try again.'
+              )
             );
           },
         }

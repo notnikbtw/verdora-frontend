@@ -1,15 +1,7 @@
-import { useState } from 'react';
 import Logo from '@components/common/Logo';
 import LinkComponent from '@components/common/Link';
-import { Button } from '@components/ui/button';
 import { Mail, Phone, MapPin } from 'lucide-react';
-import footerCircleImg from '@assets/images/footer-circle.webp';
-import TextField from '@components/common/forms/TextField';
 import { SHOP_LINKS } from '@fixtures/footer';
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const IS_NEWSLETTER_ENABLED =
-  import.meta.env.VITE_NEWSLETTER_ENABLED === 'true';
 
 const CONTACT_INFO = [
   {
@@ -46,120 +38,9 @@ const CONTACT_INFO = [
   },
 ];
 
-const NewsletterForm = () => {
-  const [email, setEmail] = useState('');
-  const [emailError, setEmailError] = useState<string | undefined>();
-  const [subscribed, setSubscribed] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!IS_NEWSLETTER_ENABLED) return;
-
-    const trimmed = email.trim();
-    if (!trimmed) {
-      setEmailError('Please enter your email address');
-      return;
-    }
-    if (!EMAIL_REGEX.test(trimmed)) {
-      setEmailError('Please enter a valid email address');
-      return;
-    }
-    setEmailError(undefined);
-    setSubscribed(true);
-    setEmail('');
-  };
-
-  return (
-    <>
-      {!IS_NEWSLETTER_ENABLED && (
-        <span className="inline-flex items-center rounded-full bg-[#1E331B]/10 px-3 py-0.5 text-xs font-semibold text-[#1E331B] mb-2">
-          Coming soon
-        </span>
-      )}
-      <h2 className="text-2xl lg:text-4xl font-semibold text-[#1B3022] leading-tight">
-        Don’t miss our discounts!
-      </h2>
-
-      {IS_NEWSLETTER_ENABLED && subscribed ? (
-        <div className="bg-white/90 backdrop-blur rounded-full py-2.5 px-5 text-sm font-medium text-[#203622] shadow-sm mt-3">
-          Thank you for subscribing!
-        </div>
-      ) : (
-        <form
-          onSubmit={handleSubmit}
-          className="w-full flex flex-col gap-2.5 mt-3"
-        >
-          <TextField
-            type="email"
-            placeholder={
-              IS_NEWSLETTER_ENABLED
-                ? 'Enter your email'
-                : 'Newsletter coming soon'
-            }
-            value={email}
-            error={emailError}
-            className={
-              !IS_NEWSLETTER_ENABLED
-                ? 'opacity-60 cursor-not-allowed pointer-events-none'
-                : ''
-            }
-            onChange={val => {
-              setEmail(val);
-              if (emailError) setEmailError(undefined);
-            }}
-          />
-          <Button
-            variant="default"
-            disabled={!IS_NEWSLETTER_ENABLED || !email.trim()}
-          >
-            {IS_NEWSLETTER_ENABLED ? 'Subscribe' : 'Coming soon'}
-          </Button>
-        </form>
-      )}
-    </>
-  );
-};
-
 const Footer = () => {
   return (
     <footer className="relative w-full font-sans overflow-hidden">
-      <div className="md:hidden px-4 pt-8 pb-4">
-        <div className="bg-[#C3E3BD]/60 backdrop-blur-sm rounded-2xl p-6 text-center border border-[#A8C89A]/40 shadow-xs max-w-md mx-auto flex flex-col items-center">
-          <NewsletterForm />
-        </div>
-      </div>
-
-      <div className="hidden md:flex relative flex-col items-center justify-center">
-        <div className="relative w-full max-w-170 aspect-square items-center justify-center z-10 px-4">
-          <img
-            src={footerCircleImg}
-            alt="Discounts flower wheel"
-            className="w-full h-full object-contain pointer-events-none select-none"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10 max-w-82.5 mx-auto">
-            <NewsletterForm />
-          </div>
-        </div>
-
-        <div className="absolute bottom-0 left-0 w-full h-95 pointer-events-none z-0 flex items-start">
-          <div className="flex-1 h-full bg-[#C3E3BD]" />
-          <div className="w-185 shrink-0 h-full overflow-hidden">
-            <svg
-              viewBox="0 0 739 379"
-              className="w-full h-full block text-[#C3E3BD]"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M 0 0 A 370 370 0 0 0 740 0 L 740 380 L 0 380 Z"
-                fill="currentColor"
-              />
-            </svg>
-          </div>
-          <div className="flex-1 h-full bg-[#C3E3BD]" />
-        </div>
-      </div>
-
       <div className="bg-[#C3E3BD] pt-3 pb-16 px-6 md:px-12 lg:px-20 text-foreground">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-center items-start gap-12 md:gap-24 pt-2">
           <div className="flex flex-col items-start gap-3 md:max-w-xs">
