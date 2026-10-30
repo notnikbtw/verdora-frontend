@@ -14,8 +14,9 @@ import {
   getGuestCartSyncError,
 } from '@/utils/guestCart';
 
-export const NO_INTERNET_MESSAGE =
-  'No internet connection. Please check your network connection and try again.';
+import { NO_INTERNET_MESSAGE } from '@/utils/error.utils';
+
+export { NO_INTERNET_MESSAGE };
 
 export const SERVER_UNAVAILABLE_MESSAGE =
   'Server is currently unavailable. Please try again in a few moments.';

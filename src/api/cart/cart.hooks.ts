@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { assertOnline } from '@/utils/error.utils';
 import { cartService } from '@api/cart/cart.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAppSelector } from '@api/hooks';
@@ -118,6 +119,7 @@ export const useAddItemToCart = () => {
 
   return useMutation<Cart, CartAxiosError, AddItemToCartArgs>({
     mutationFn: async data => {
+      assertOnline();
       const service = await getService();
       return service.addItemToCart({
         productId: data.productId,
