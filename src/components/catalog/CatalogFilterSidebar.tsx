@@ -32,6 +32,7 @@ const CatalogFilterSidebar = ({
   onToggleOnSaleOnly,
   onResetAll,
 }: Props) => {
+  const isPriceRangeInvalid = priceRange[0] > priceRange[1];
   const activeFiltersCount =
     (selectedCategoryId !== undefined ? 1 : 0) +
     (onSaleOnly ? 1 : 0) +
@@ -69,35 +70,37 @@ const CatalogFilterSidebar = ({
           <div className="flex items-center gap-2.5">
             <input
               type="number"
+              autoComplete="off"
               placeholder="0"
               value={priceRange[0]}
               min={0}
-              max={priceRange[1]}
+              aria-invalid={isPriceRangeInvalid}
               onChange={e => {
                 const val = Math.max(0, Number(e.target.value) || 0);
-                onPriceRangeChange([val, Math.max(val, priceRange[1])]);
+                onPriceRangeChange([val, priceRange[1]]);
               }}
               className="w-full rounded-md border border-border bg-white px-3 py-1.5 text-sm text-text-h [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
             />
             <span className="text-text-muted">—</span>
             <input
               type="number"
+              autoComplete="off"
               placeholder="9000"
               value={priceRange[1]}
-              min={priceRange[0]}
               max={99999}
+              aria-invalid={isPriceRangeInvalid}
               onChange={e => {
-                const val = Math.max(
-                  priceRange[0],
-                  Number(e.target.value) || 0
-                );
+                const val = Math.max(0, Number(e.target.value) || 0);
                 onPriceRangeChange([priceRange[0], val]);
               }}
               className="w-full rounded-md border border-border bg-white px-3 py-1.5 text-sm text-text-h [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
             />
           </div>
           <Slider
-            value={[priceRange[0], priceRange[1]]}
+            value={[
+              Math.min(priceRange[0], priceRange[1]),
+              Math.max(priceRange[0], priceRange[1]),
+            ]}
             onValueChange={vals => {
               if (vals.length === 2) {
                 onPriceRangeChange([vals[0], vals[1]]);
@@ -112,6 +115,12 @@ const CatalogFilterSidebar = ({
             <span>{priceRange[0]} ₴</span>
             <span>{priceRange[1]} ₴</span>
           </div>
+          {isPriceRangeInvalid && (
+            <p role="alert" className="text-xs text-red-600">
+              The minimum can't be higher than the maximum. The price filter is
+              paused until this is fixed
+            </p>
+          )}
         </div>
 
         <div className="p-5 border-b border-border space-y-3">
