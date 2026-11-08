@@ -207,7 +207,7 @@ export const ProductInfo = ({
           <div className="min-w-0">
             <h1
               title={product.name}
-              className="truncate text-3xl sm:text-[40px] font-heading font-bold text-[#0C0C0C] leading-[1.1] tracking-tight"
+              className="text-3xl sm:text-[40px] font-heading font-bold text-[#0C0C0C] leading-[1.1] tracking-tight"
             >
               {product.name}
             </h1>
@@ -226,7 +226,7 @@ export const ProductInfo = ({
                 : 'bg-[#D9DEDB] text-[#0C0C0C]'
             )}
           >
-            {currentPrice}₴
+            ₴{currentPrice}
           </span>
 
           {hasDiscount && originalPrice !== undefined && (
@@ -234,7 +234,7 @@ export const ProductInfo = ({
               <span className="flex items-baseline gap-1.5 text-lg sm:text-xl font-medium tracking-tight text-[#0C0C0C]">
                 <span className="text-xs text-[#586455] font-normal">Was</span>
                 <span className="line-through decoration-2">
-                  {originalPrice}₴
+                  ₴{originalPrice}
                 </span>
               </span>
 

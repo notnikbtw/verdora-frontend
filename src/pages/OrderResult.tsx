@@ -8,7 +8,7 @@ import {
   CardTitle,
   CardFooter,
 } from '@components/ui/card';
-import OrderStatusBadge from '@components/common/Badge/OrderStatusBadge';
+import OrderStatusBadge from '@/components/common/badge/OrderStatusBadge';
 import { formatOrderPrice } from '@/utils/order.utils';
 import { Skeleton } from '@components/ui/skeleton';
 import ErrorSection from '@components/common/section/ErrorSection';

@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@components/ui/table';
-import OrderStatusBadge from '@components/common/Badge/OrderStatusBadge';
+import OrderStatusBadge from '@/components/common/badge/OrderStatusBadge';
 import NoticeAlert from '@components/common/NoticeAlert';
 import AdminSectionHeader from '@components/common/section/AdminSectionHeader';
 import { useGetAllUsers } from '@api/user/user.hooks';
