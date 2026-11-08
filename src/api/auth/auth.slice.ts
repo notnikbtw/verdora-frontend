@@ -83,6 +83,8 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action) => {
         state.loading.register = false;
+        state.hydrating = false;
+        state.initialized = true;
         state.user = action.payload.data;
         state.errors.register = null;
       })
@@ -99,6 +101,8 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading.login = false;
+        state.hydrating = false;
+        state.initialized = true;
         state.user = action.payload.data;
         state.errors.login = null;
       })

@@ -15,8 +15,10 @@ import NoticeAlert from '@components/common/NoticeAlert';
 import MailIcon from '@assets/icons/message.svg?react';
 import LockIcon from '@assets/icons/lock.svg?react';
 import { RefreshCw } from 'lucide-react';
+import { useGuestCartSyncStatus } from '@hooks/useGuestCartSyncStatus';
 
 const Login = () => {
+  const isSyncingCart = useGuestCartSyncStatus();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -154,7 +156,11 @@ const Login = () => {
             disabled={!isValid || loading.login}
             variant={'outline'}
           >
-            {loading.login ? 'Signing in...' : 'Log in'}
+            {isSyncingCart
+              ? 'Transferring your cart...'
+              : loading.login
+                ? 'Signing in...'
+                : 'Log in'}
           </Button>
         </div>
       </form>

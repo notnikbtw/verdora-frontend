@@ -3,6 +3,7 @@ import type { UserType } from '@/types/user';
 import { isAxiosError } from 'axios';
 import type { ApiResponse, ApiErrorResponse } from '@/types/api';
 import { authService } from '@api/auth/auth.service';
+import { queryClient } from '@api/queryClient';
 import type {
   ForgotPasswordPayload,
   RegisterPayload,
@@ -93,9 +94,11 @@ export const register = createAsyncThunk<
     });
   }
   try {
-    const response = await authService.register(userData);
-    // Sync guest cart in background without blocking the auth flow
-    syncGuestCartToBackend().catch(e => {
+    await authService.register(userData);
+    const response = await authService.fetchMe();
+    await queryClient.cancelQueries({ queryKey: ['profile'] });
+    queryClient.setQueryData(['profile'], response.data.data);
+    await syncGuestCartToBackend().catch(e => {
       console.warn('Failed to sync guest cart on register', e);
     });
     return response.data;
@@ -122,9 +125,11 @@ export const login = createAsyncThunk<
       });
     }
     try {
-      const response = await authService.login(userData);
-      // Sync guest cart in background without blocking the auth flow
-      syncGuestCartToBackend().catch(e => {
+      await authService.login(userData);
+      const response = await authService.fetchMe();
+      await queryClient.cancelQueries({ queryKey: ['profile'] });
+      queryClient.setQueryData(['profile'], response.data.data);
+      await syncGuestCartToBackend().catch(e => {
         console.warn('Failed to sync guest cart on login', e);
       });
       return response.data;
