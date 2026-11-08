@@ -1,4 +1,4 @@
-import type React from 'react';
+import { useId, type ReactNode } from 'react';
 import { Separator } from '@components/ui/separator';
 import { Button } from '@components/ui/button';
 import { Link } from 'react-router-dom';
@@ -12,7 +12,7 @@ type Props = {
   totalItemsPrice?: number;
   subtotal?: number;
   shippingCost?: number;
-  shippingText?: React.ReactNode;
+  shippingText?: ReactNode;
   totalCost: number;
   agreeToTerms?: boolean;
   agreeToTermsError?: string;
@@ -22,13 +22,14 @@ type Props = {
   onAction?: () => void;
   handleProceedToCheckout?: () => void;
   isActionDisabled?: boolean;
+  actionDisabledReason?: string;
   isActionLoading?: boolean;
   secondaryActionText?: string;
   secondaryActionLink?: string;
   onSecondaryAction?: () => void;
   loading?: boolean;
   className?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 };
 
 const OrderSummary = ({
@@ -46,6 +47,7 @@ const OrderSummary = ({
   onAction,
   handleProceedToCheckout,
   isActionDisabled = false,
+  actionDisabledReason,
   isActionLoading = false,
   secondaryActionText = 'Continue Shopping',
   secondaryActionLink = '/catalog',
@@ -57,6 +59,14 @@ const OrderSummary = ({
   const displaySubtotal = subtotal !== undefined ? subtotal : totalItemsPrice;
   const triggerAction = onAction || handleProceedToCheckout;
   const hasTerms = Boolean(showTerms && onAgreeToTermsChange);
+  const hintId = useId();
+  const disabledReason = isActionLoading
+    ? undefined
+    : hasTerms && !agreeToTerms
+      ? 'Please agree to the Terms of Service and Privacy Policy to continue.'
+      : isActionDisabled
+        ? actionDisabledReason
+        : undefined;
 
   if (loading) {
     return (
@@ -123,25 +133,25 @@ const OrderSummary = ({
 
       {hasTerms && (
         <div className="flex gap-2 flex-col w-full pt-1">
-          <div className="flex items-center  gap-2.5 w-full text-xs">
+          <div className="flex items-start gap-2.5 w-full text-xs">
             <Checkbox
               id="orderSummaryTerms"
               checked={agreeToTerms}
               onCheckedChange={checked =>
                 onAgreeToTermsChange!(Boolean(checked))
               }
-              className="mt-0.5"
+              className="mt-0.5 shrink-0"
             />
             <Label
               htmlFor="orderSummaryTerms"
-              className="text-xs text-gray-600 cursor-pointer leading-tight"
+              className="block min-w-0 text-xs text-gray-600 cursor-pointer leading-tight"
             >
               I agree to the{' '}
               <Link
                 to="/terms"
                 className="underline underline-offset-4 text-gray-900 font-medium"
               >
-                Terms and Conditions
+                Terms of Service and Privacy Policy
               </Link>
             </Label>
           </div>
@@ -155,11 +165,23 @@ const OrderSummary = ({
       <div className="space-y-3 pt-2">
         <Button
           onClick={triggerAction}
-          disabled={isActionDisabled || isActionLoading}
+          disabled={
+            isActionDisabled || isActionLoading || (hasTerms && !agreeToTerms)
+          }
+          aria-describedby={disabledReason ? hintId : undefined}
           className="w-full py-6 text-base font-semibold"
         >
           {isActionLoading ? 'Processing...' : actionButtonText}
         </Button>
+        {disabledReason && (
+          <p
+            id={hintId}
+            role="status"
+            className="text-xs text-gray-600 leading-relaxed"
+          >
+            {disabledReason}
+          </p>
+        )}
 
         {secondaryActionText &&
           (secondaryActionLink ? (

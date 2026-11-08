@@ -18,6 +18,7 @@ import { useGetCurrentUser } from '@api/user/user.hooks';
 import { useCheckoutForm } from '@hooks/useCheckoutForm';
 import type { CheckoutFormData } from '@/schemas/checkout.schema';
 import { rateLimit } from '@/utils/rateLimit';
+import { clearCheckoutDraft } from '@/utils/checkoutDraft';
 import {
   PICKUP_LOCATIONS,
   SUBMIT_RATE_LIMIT_MS,
@@ -48,6 +49,7 @@ const Checkout = () => {
     formState: { errors: formErrors, isValid },
     watch,
     setValue,
+    getValues,
     trigger,
   } = useCheckoutForm();
 
@@ -56,29 +58,30 @@ const Checkout = () => {
 
   useEffect(() => {
     if (currentUser && !isPreFilledRef.current) {
-      if (currentUser.name)
+      if (currentUser.name && !getValues('name'))
         setValue('name', currentUser.name, { shouldValidate: true });
-      if (currentUser.email)
+      if (currentUser.email && !getValues('email'))
         setValue('email', currentUser.email, { shouldValidate: true });
-      if (currentUser.phone)
+      if (currentUser.phone && !getValues('phone'))
         setValue('phone', currentUser.phone, { shouldValidate: true });
       isPreFilledRef.current = true;
     }
-  }, [currentUser, setValue]);
+  }, [currentUser, setValue, getValues]);
 
   const items = cart?.items || [];
   const totalPrice = cart?.totalPrice ?? 0;
   const baseShippingCost = cart?.shippingCost ?? 5.0;
   const subtotalPrice = Math.max(0, totalPrice - baseShippingCost);
 
-  const activeShippingCost = baseShippingCost;
-  const calculatedTotal = totalPrice;
+  const activeShippingCost = deliveryMethod === 'pickup' ? 0 : baseShippingCost;
+  const calculatedTotal = subtotalPrice + activeShippingCost;
 
   const onFormSubmit = async (_data: CheckoutFormData) => {
     createOrderMutation.reset();
 
     try {
       const orderData = await createOrderMutation.mutateAsync();
+      if (currentUser) clearCheckoutDraft(currentUser.id);
       navigate(`/order-result?orderId=${orderData.orderId}`);
     } catch {
       // Error is caught here to prevent Unhandled Promise Rejection in browser console.
@@ -88,7 +91,9 @@ const Checkout = () => {
 
   const handlePlaceOrderClick = () => {
     if (!agreeToTerms) {
-      setTermsError('You must agree to the Terms and Conditions');
+      setTermsError(
+        'You must agree to the Terms of Service and Privacy Policy'
+      );
       return;
     }
     setTermsError(undefined);
@@ -307,6 +312,7 @@ const Checkout = () => {
             actionButtonText="Confirm & Place Order"
             onAction={handlePlaceOrderClick}
             isActionDisabled={createOrderMutation.isPending || !isValid}
+            actionDisabledReason="Complete your contact details and delivery information to place your order."
             isActionLoading={createOrderMutation.isPending}
             secondaryActionText="Return to Cart"
             secondaryActionLink="/cart"
