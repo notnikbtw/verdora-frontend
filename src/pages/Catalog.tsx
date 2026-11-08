@@ -11,7 +11,10 @@ import CatalogToolbar, {
 } from '@components/catalog/CatalogToolbar';
 import CatalogProductList from '@components/catalog/CatalogProductList';
 import { useGetProducts } from '@api/product/product.hooks';
-import { useAllCategories } from '@api/category/category.hooks';
+import {
+  usePaginatedCategories,
+  useCategoriesByIds,
+} from '@api/category/category.hooks';
 import { useToggleFavorite } from '@hooks/useToggleFavorite';
 import { useAddProductToCart } from '@hooks/useAddProductToCart';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
@@ -115,25 +118,29 @@ const Catalog = () => {
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
 
   const {
-    data: categories = [],
+    data: categoryPages,
     isLoading: isLoadingCategories,
     isError: isCategoriesError,
     refetch: refetchCategories,
-  } = useAllCategories();
+    fetchNextPage: fetchMoreCategories,
+    hasNextPage: hasMoreCategories,
+    isFetchingNextPage: isLoadingMoreCategories,
+    isFetchNextPageError: isLoadMoreCategoriesError,
+  } = usePaginatedCategories();
+  const categories = useMemo(
+    () => [
+      ...new Map(
+        (categoryPages?.pages.flatMap(page => page.content) ?? []).map(
+          category => [category.categoryId, category]
+        )
+      ).values(),
+    ],
+    [categoryPages]
+  );
 
   const { isFavorite, isFavoritePending, toggleFavorite } = useToggleFavorite({
     onAuthRequired: () => setIsLoginPromptOpen(true),
   });
-
-  const categoryMap = useMemo(() => {
-    const map = new Map<number, string>();
-    if (Array.isArray(categories)) {
-      categories.forEach(cat => {
-        map.set(Number(cat.categoryId), cat.name);
-      });
-    }
-    return map;
-  }, [categories]);
 
   const queryParams = useMemo<GetProductsPayload>(() => {
     const params: GetProductsPayload = {
@@ -172,6 +179,31 @@ const Catalog = () => {
     isError: isProductsError,
     refetch: refetchProducts,
   } = useGetProducts(queryParams);
+
+  const missingCategoryIds = [
+    ...(productsData?.content.map(product => product.categoryId) ?? []),
+    ...(selectedCategoryId !== undefined ? [selectedCategoryId] : []),
+  ].filter(id => !categories.some(category => category.categoryId === id));
+  const categoryDetails = useCategoriesByIds(missingCategoryIds);
+  const categoryMap = new Map(
+    categories.map(category => [category.categoryId, category.name])
+  );
+  categoryDetails.forEach(({ data }) => {
+    if (data) categoryMap.set(data.categoryId, data.name);
+  });
+  const sidebarCategories =
+    selectedCategoryId !== undefined &&
+    !categories.some(category => category.categoryId === selectedCategoryId)
+      ? [
+          {
+            categoryId: selectedCategoryId,
+            name:
+              categoryMap.get(selectedCategoryId) ||
+              `Category #${selectedCategoryId}`,
+          },
+          ...categories,
+        ]
+      : categories;
 
   const { addToCart } = useAddProductToCart();
 
@@ -307,10 +339,18 @@ const Catalog = () => {
 
         <div className="flex justify-center flex-col lg:flex-row items-start gap-7 pt-2">
           <CatalogFilterSidebar
-            categories={Array.isArray(categories) ? categories : []}
+            categories={sidebarCategories}
             isLoadingCategories={isLoadingCategories}
-            isCategoriesError={isCategoriesError}
+            isCategoriesError={isCategoriesError && !categoryPages}
             onRetryCategories={() => refetchCategories()}
+            hasMoreCategories={hasMoreCategories}
+            isLoadingMoreCategories={isLoadingMoreCategories}
+            isLoadMoreCategoriesError={isLoadMoreCategoriesError}
+            totalCategories={categoryPages?.pages[0]?.totalElements}
+            onLoadMoreCategories={() => {
+              if (hasMoreCategories && !isLoadingMoreCategories)
+                void fetchMoreCategories();
+            }}
             selectedCategoryId={selectedCategoryId}
             onSelectCategory={handleSelectCategory}
             priceRange={priceRange}
