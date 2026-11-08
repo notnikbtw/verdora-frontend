@@ -96,7 +96,7 @@ const TextField = ({
           onChange={e => onChange?.(e.target.value)}
           onBlur={onBlur}
           className={cn(
-            `text-sm text-[#70826E] font-sans
+            `text-base md:text-sm text-[#70826E] font-sans
             focus:outline-none focus-visible:outline-none focus-visible:ring-0
             placeholder:text-sm
             placeholder:[font-family:var(--font-sans)]

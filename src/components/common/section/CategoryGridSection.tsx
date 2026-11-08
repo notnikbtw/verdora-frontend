@@ -30,32 +30,30 @@ const CategoryGridSection = ({
       title={title}
       viewAllLink={viewAllLink}
       viewAllText={viewAllText}
-      contentClassName="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2"
+      contentClassName="grid min-w-0 grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4"
     >
       {isLoading
         ? Array.from({ length: limit }).map((_, idx) => (
-            <Skeleton
-              key={idx}
-              className="w-full aspect-[1/0.98] rounded-3xl"
-            />
+            <Skeleton key={idx} className="min-w-0 w-full h-48 rounded-2xl" />
           ))
         : displayCategories.map(category => (
             <Link
               to={`/catalog?categoryId=${category.categoryId}`}
               key={category.categoryId}
-              className="group card-surface card-interactive flex flex-col justify-between items-center gap-3 p-4 h-48 text-center cursor-pointer"
+              className="group card-surface card-interactive flex min-w-0 flex-col items-center gap-3 p-3 sm:p-4 h-48 text-center cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
-              <p className="text-sm sm:text-base font-semibold leading-tight text-link-text group-hover:text-[#1E331B] transition-colors truncate">
+              <p
+                title={category.name}
+                className="w-full min-w-0 shrink-0 truncate text-sm sm:text-base font-semibold leading-5 text-link-text group-hover:text-[#1E331B] transition-colors"
+              >
                 {category.name}
               </p>
-              <div className="h-28 w-full flex items-center justify-center overflow-hidden">
-                <ImageWithPlaceholder
-                  src={category.imageUrl}
-                  alt={category.name}
-                  className="rounded-xl"
-                  imageClassName="object-contain transition-transform duration-300 group-hover:scale-110"
-                />
-              </div>
+              <ImageWithPlaceholder
+                src={category.imageUrl}
+                alt={category.name}
+                className="h-auto min-h-0 flex-1 rounded-xl"
+                zoomOnHover
+              />
             </Link>
           ))}
     </SectionLayout>

@@ -9,6 +9,7 @@ import {
   DialogFooter,
 } from '@components/ui/dialog';
 import type React from 'react';
+import { cn } from '@/lib/utils';
 
 type Props = {
   triggerText?: string;
@@ -59,7 +60,12 @@ export const DialogComponent = ({
         </DialogTrigger>
       )}
 
-      <DialogContent className={contentClassName ?? 'sm:max-w-md'}>
+      <DialogContent
+        className={cn(
+          'max-h-[calc(100dvh-2rem)] overflow-y-auto',
+          contentClassName ?? 'sm:max-w-md'
+        )}
+      >
         <DialogHeader className="p-3">
           <DialogTitle>{headerTitle}</DialogTitle>
 
@@ -70,7 +76,7 @@ export const DialogComponent = ({
 
         {children}
 
-        <DialogFooter className="flex w-full flex-row items-center justify-between sm:justify-between">
+        <DialogFooter className="flex w-full flex-row flex-wrap items-center justify-between gap-3 sm:justify-between">
           {thirdActionText ? (
             <>
               <Button
@@ -82,7 +88,7 @@ export const DialogComponent = ({
                 {thirdActionText}
               </Button>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
                   onClick={() => onOpenChange?.(false)}

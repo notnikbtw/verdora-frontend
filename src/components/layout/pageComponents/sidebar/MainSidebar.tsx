@@ -87,7 +87,7 @@ const MainSidebar = ({ username, email, loading }: Props) => {
 
   return (
     <>
-      <Sidebar side="right">
+      <Sidebar>
         <SidebarHeaderComponent />
         <SidebarContent className="px-2">
           <form onSubmit={handleSearchSubmit} className="p-2">

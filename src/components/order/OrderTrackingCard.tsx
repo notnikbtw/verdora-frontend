@@ -44,7 +44,7 @@ export const OrderTrackingCard: FC<Props> = ({ order }) => {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-3">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">

@@ -11,9 +11,10 @@ import ErrorSection from '@components/common/section/ErrorSection';
 import AlertComponent from '@components/common/dialog/AlertComponent';
 import NoticeAlert from '@components/common/NoticeAlert';
 import { sortOrdersNewestFirst } from '@/utils/order.utils';
-import { ShoppingBag, Package, RefreshCw } from 'lucide-react';
+import { Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ORDERS_PER_PAGE } from '@/config/orders.config';
+import CartHeader from '@components/layout/pageComponents/CartHeader';
 
 const Orders = () => {
   const {
@@ -22,7 +23,6 @@ const Orders = () => {
     isError,
     error,
     refetch,
-    isRefetching,
   } = useAllOrders();
 
   const cancelMutation = useCancelOrder();
@@ -78,45 +78,10 @@ const Orders = () => {
   return (
     <LayoutPage>
       <div className="page-stack">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-border/60">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <ShoppingBag className="size-5" />
-              </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                  Order History
-                </h1>
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  Track, review, and manage all your past and current purchases.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 self-start sm:self-auto">
-            {sortedOrders.length > 0 && (
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                {sortedOrders.length}{' '}
-                {sortedOrders.length === 1 ? 'order' : 'orders'}
-              </span>
-            )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => refetch()}
-              disabled={isRefetching || isLoading}
-              className="cursor-pointer gap-2 text-xs"
-              title="Refresh order history"
-            >
-              <RefreshCw
-                className={`size-3.5 ${isRefetching ? 'animate-spin' : ''}`}
-              />
-              <span>Refresh</span>
-            </Button>
-          </div>
-        </div>
+        <CartHeader
+          title="Order History"
+          subtitle="Track all your purchases."
+        />
 
         {successNotice && (
           <NoticeAlert

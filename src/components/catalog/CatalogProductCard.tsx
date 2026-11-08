@@ -8,11 +8,6 @@ import type { ViewMode } from './CatalogToolbar';
 import type { Product } from '@/types/product';
 import { Spinner } from '@components/ui/spinner';
 import { getApiErrorMessage } from '@/utils/error.utils';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@components/ui/tooltip';
 
 export type CatalogProduct = Product;
 
@@ -150,7 +145,7 @@ export const CatalogProductCard = ({
       )}
     >
       <div
-        className={`flex items-start justify-between gap-3 w-full ${
+        className={`flex min-w-0 items-start justify-between gap-3 w-full ${
           !isGrid ? 'order-2 flex-1' : ''
         }`}
       >
@@ -160,16 +155,12 @@ export const CatalogProductCard = ({
               {categoryName}
             </span>
           )}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <h3 className="font-heading font-medium text-[16px] leading-[1.3] text-[#0C0C0C] tracking-tight group-hover:text-primary transition-colors truncate">
-                {product.name}
-              </h3>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs break-words">
-              {product.name}
-            </TooltipContent>
-          </Tooltip>
+          <h3
+            title={product.name}
+            className="font-heading font-medium text-[16px] leading-[1.3] text-[#0C0C0C] tracking-tight group-hover:text-primary transition-colors truncate"
+          >
+            {product.name}
+          </h3>
           {!isGrid && product.description && (
             <p className="text-xs text-text mt-1.5 line-clamp-2">
               {product.description}
@@ -252,7 +243,7 @@ export const CatalogProductCard = ({
 
       <div
         className={`relative w-full rounded-[14px] overflow-hidden bg-[#F2F3F0] flex items-center justify-center shrink-0 ${
-          isGrid ? 'h-52 sm:h-56' : 'h-48 sm:w-64 sm:h-44 order-1'
+          isGrid ? 'h-52 sm:h-56' : 'h-48 sm:w-40 xl:w-56 sm:h-44 order-1'
         }`}
       >
         <ImageWithPlaceholder

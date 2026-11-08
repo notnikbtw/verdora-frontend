@@ -185,11 +185,11 @@ const Checkout = () => {
         )}
 
         <div className="flex flex-col lg:flex-row gap-8 items-start">
-          <div className="lg:col-span-2 space-y-6 w-full">
+          <div className="min-w-0 flex-1 space-y-6 w-full">
             <Card>
               <CardHeader className="pb-3 border-b">
-                <CardTitle className="text-lg flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <CardTitle className="text-lg flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2">
                     <User className="size-5 text-gray-700" />
                     Contact Information
                   </div>
@@ -316,7 +316,7 @@ const Checkout = () => {
             isActionLoading={createOrderMutation.isPending}
             secondaryActionText="Return to Cart"
             secondaryActionLink="/cart"
-            className="sticky top-6"
+            className="lg:top-28"
           >
             <div className="space-y-2.5">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -328,7 +328,7 @@ const Checkout = () => {
                     key={item.cartItemId}
                     className="py-2 flex justify-between items-center text-sm"
                   >
-                    <div className="truncate">
+                    <div className="min-w-0 flex-1 pr-3">
                       <p className="font-medium text-gray-900 text-xs truncate">
                         {item.productName}
                       </p>
@@ -336,7 +336,7 @@ const Checkout = () => {
                         Qty: {item.quantity}
                       </p>
                     </div>
-                    <span className="font-semibold text-gray-900 text-xs">
+                    <span className="shrink-0 font-semibold text-gray-900 text-xs">
                       {formatCurrency(
                         (item.discountPrice && item.discountPrice < item.price
                           ? item.discountPrice

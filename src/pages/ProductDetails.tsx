@@ -135,7 +135,7 @@ const ProductDetails = () => {
           <div className="space-y-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
               <ProductGallery
-                key={product.productId}
+                key={`gallery-${product.productId}`}
                 images={product.imageUrl ? [product.imageUrl] : undefined}
                 productName={product.name}
                 hasDiscount={Boolean(
@@ -153,7 +153,7 @@ const ProductDetails = () => {
               />
 
               <ProductInfo
-                key={product.productId}
+                key={`info-${product.productId}`}
                 product={product}
                 categoryName={categoryName}
                 isLoadingCategory={isLoadingCategory}

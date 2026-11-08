@@ -4,6 +4,7 @@ import {
   Package,
   Tag,
   ShoppingBag,
+  ShoppingCart,
   Percent,
   FileText,
   Home,
@@ -37,13 +38,18 @@ export const MAIN_MENU: SidebarSection[] = [
   {
     label: 'Personal',
     items: [
-      { title: 'Shopping Cart', path: '/cart', icon: ShoppingBag },
       {
         title: 'Favorites',
         path: '/favorites',
         icon: Heart,
         iconClassName: 'text-red-500',
         authAction: 'favorite',
+      },
+      { title: 'Shopping Cart', path: '/cart', icon: ShoppingCart },
+      {
+        title: 'Orders',
+        path: '/orders',
+        icon: ShoppingBag,
       },
     ],
   },

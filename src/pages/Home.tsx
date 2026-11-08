@@ -324,7 +324,7 @@ export const Home = () => {
                         'Verdora Plant'
                       }
                       className="h-auto aspect-square max-h-72 w-full rounded-2xl"
-                      imageClassName="h-auto max-h-72 w-full object-contain"
+                      fit="contain"
                     />
 
                     <span className="absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-2xl bg-[#0C0C0C] px-7 py-3 text-2xl font-bold leading-none text-white shadow-lg lg:text-3xl">

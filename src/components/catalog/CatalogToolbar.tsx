@@ -1,4 +1,5 @@
 import { LayoutGrid, List } from 'lucide-react';
+import { useId } from 'react';
 
 export type ViewMode = 'grid' | 'list';
 
@@ -24,11 +25,32 @@ const CatalogToolbar = ({
   selectedSort = 'rating',
   onSortChange,
 }: Props) => {
+  const sortId = useId();
   return (
     <div className="bg-[#fcfdfb] border border-border rounded-xl p-3 sm:p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
       <div className="flex items-center gap-2.5 flex-wrap">
-        <span className="text-sm font-medium text-text shrink-0">Sort by</span>
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <label
+          htmlFor={sortId}
+          className="text-sm font-medium text-text shrink-0 sm:hidden"
+        >
+          Sort by
+        </label>
+        <span className="hidden sm:inline text-sm font-medium text-text shrink-0">
+          Sort by
+        </span>
+        <select
+          id={sortId}
+          value={selectedSort}
+          onChange={event => onSortChange?.(event.target.value)}
+          className="min-h-11 min-w-0 flex-1 rounded-md border border-border bg-background px-3 text-base text-text sm:hidden"
+        >
+          {SORT_OPTIONS.map(sort => (
+            <option key={sort.id} value={sort.id}>
+              {sort.label}
+            </option>
+          ))}
+        </select>
+        <div className="hidden sm:flex items-center gap-1.5 flex-wrap">
           {SORT_OPTIONS.map(sort => {
             const isActive = selectedSort === sort.id;
             return (

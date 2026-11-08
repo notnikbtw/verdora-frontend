@@ -65,7 +65,6 @@ const CartItem = ({
             src={productImage}
             alt=""
             className="rounded-lg"
-            imageClassName="object-contain"
             iconClassName="size-7 sm:size-8"
           />
         </Link>
@@ -80,7 +79,7 @@ const CartItem = ({
             </Link>
           </h3>
 
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
             <span className="font-semibold text-sm sm:text-base text-[#1A1A1A]">
               {formatOrderPrice(currentPrice)}
             </span>
@@ -99,13 +98,14 @@ const CartItem = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 w-full sm:w-auto">
+      <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 sm:gap-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 w-full sm:w-auto sm:shrink-0">
         <div className="flex items-center gap-2 sm:gap-3 rounded-full border border-gray-200 px-2 py-1 bg-white">
           <Button
             size="sm"
             onClick={onDecrease}
             disabled={quantity <= 1 || isUpdating || isRemoving}
-            className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+            className="size-10 p-0"
+            aria-label={`Decrease quantity of ${productName}`}
           >
             -
           </Button>
@@ -118,7 +118,8 @@ const CartItem = ({
             size="sm"
             onClick={onIncrease}
             disabled={isUpdating || isRemoving}
-            className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+            className="size-10 p-0"
+            aria-label={`Increase quantity of ${productName}`}
           >
             +
           </Button>
