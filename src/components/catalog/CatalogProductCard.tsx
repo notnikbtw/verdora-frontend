@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import type { ViewMode } from './CatalogToolbar';
 import type { Product } from '@/types/product';
 import { Spinner } from '@components/ui/spinner';
+import { getApiErrorMessage } from '@/utils/error.utils';
 import {
   Tooltip,
   TooltipContent,
@@ -22,7 +23,7 @@ type Props = {
   isFavorite?: boolean;
   isFavoritePending?: boolean;
   onToggleFavorite?: (id: number) => void;
-  onAddToCart?: (id: number) => void;
+  onAddToCart?: (id: number) => void | Promise<unknown>;
   onAuthRequired?: () => void;
   isAuthenticated?: boolean;
   onProductClick?: (productId: number) => void;
@@ -48,6 +49,9 @@ export const CatalogProductCard = ({
     isAuthenticated !== undefined ? isAuthenticated : Boolean(user);
 
   const [added, setAdded] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
+  const addingRef = useRef(false);
   const isGrid = viewMode === 'grid';
 
   const addTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -106,17 +110,27 @@ export const CatalogProductCard = ({
     onToggleFavorite?.(productId);
   };
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    onAddToCart?.(productId);
-    setAdded(true);
-    if (addTimerRef.current) {
-      clearTimeout(addTimerRef.current);
+    if (!onAddToCart || addingRef.current) return;
+    addingRef.current = true;
+    setIsAdding(true);
+    setAdded(false);
+    setAddError(null);
+    if (addTimerRef.current) clearTimeout(addTimerRef.current);
+    try {
+      await onAddToCart(productId);
+      setAdded(true);
+      addTimerRef.current = setTimeout(() => {
+        setAdded(false);
+        addTimerRef.current = null;
+      }, 1500);
+    } catch (error) {
+      setAddError(getApiErrorMessage(error));
+    } finally {
+      addingRef.current = false;
+      setIsAdding(false);
     }
-    addTimerRef.current = setTimeout(() => {
-      setAdded(false);
-      addTimerRef.current = null;
-    }, 1500);
   };
 
   return (
@@ -140,7 +154,7 @@ export const CatalogProductCard = ({
           !isGrid ? 'order-2 flex-1' : ''
         }`}
       >
-        <div className="flex-1 truncate">
+        <div className="min-w-0 flex-1">
           {categoryName && (
             <span className="text-[11px] font-semibold tracking-wider uppercase text-text-muted mb-0.5 block truncate">
               {categoryName}
@@ -148,7 +162,7 @@ export const CatalogProductCard = ({
           )}
           <Tooltip>
             <TooltipTrigger asChild>
-              <h3 className="font-heading font-medium text-[16px] leading-[1.3] text-[#0C0C0C] tracking-tight line-clamp-2 group-hover:text-primary transition-colors truncate">
+              <h3 className="font-heading font-medium text-[16px] leading-[1.3] text-[#0C0C0C] tracking-tight group-hover:text-primary transition-colors truncate">
                 {product.name}
               </h3>
             </TooltipTrigger>
@@ -163,7 +177,7 @@ export const CatalogProductCard = ({
           )}
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex shrink-0 items-center gap-2.5">
           <button
             type="button"
             onClick={handleToggleFavorite}
@@ -196,15 +210,25 @@ export const CatalogProductCard = ({
           <button
             type="button"
             onClick={handleAddToCart}
+            disabled={isAdding || !onAddToCart}
+            aria-busy={isAdding}
             className={`size-9 rounded-full flex items-center justify-center cursor-pointer transition-all shadow-xs text-white ${
               added
                 ? 'bg-emerald-600 scale-105'
                 : 'bg-[#3E8D35] hover:bg-[#34782c]'
             }`}
             aria-label="Add to cart"
-            title={added ? 'Added to cart' : 'Add to cart'}
+            title={
+              isAdding
+                ? 'Adding to cart...'
+                : added
+                  ? 'Added to cart'
+                  : 'Add to cart'
+            }
           >
-            {added ? (
+            {isAdding ? (
+              <Spinner className="size-4" />
+            ) : added ? (
               <Check className="size-4 stroke-[2.5]" />
             ) : (
               <svg
@@ -255,6 +279,11 @@ export const CatalogProductCard = ({
           )}
         </div>
       </div>
+      {addError && (
+        <p role="alert" className="text-xs text-red-600">
+          {addError} Please try adding the item again.
+        </p>
+      )}
     </div>
   );
 };

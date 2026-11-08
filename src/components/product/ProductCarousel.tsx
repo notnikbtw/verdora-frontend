@@ -23,7 +23,7 @@ export type ProductCarouselProps = {
   viewAllLabel?: string;
   categoryMap?: Map<number, string>;
   isLoading?: boolean;
-  onAddToCart?: (productId: number) => void;
+  onAddToCart?: (productId: number) => void | Promise<unknown>;
   onToggleFavorite?: (productId: number) => void;
   isFavorite?: (productId: number) => boolean;
   isFavoritePending?: (productId: number) => boolean;
@@ -64,9 +64,9 @@ export const ProductCarousel = ({
   const handleAddToCart = useCallback(
     (productId: number) => {
       if (onAddToCart) {
-        onAddToCart(productId);
+        return onAddToCart(productId);
       } else {
-        addToCart(productId);
+        return addToCart(productId);
       }
     },
     [onAddToCart, addToCart]

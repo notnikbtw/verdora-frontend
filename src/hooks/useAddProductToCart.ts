@@ -1,17 +1,17 @@
 import { useCallback } from 'react';
 import { useAddItemToCart } from '@api/cart/cart.hooks';
 
-type AddItemMutate = ReturnType<typeof useAddItemToCart>['mutate'];
+type AddItemMutate = ReturnType<typeof useAddItemToCart>['mutateAsync'];
 type AddItemMutateOptions = Parameters<AddItemMutate>[1];
 
 export const useAddProductToCart = () => {
-  const { mutate, isPending: isAddingToCart } = useAddItemToCart();
+  const { mutateAsync, isPending: isAddingToCart } = useAddItemToCart();
 
   const addToCart = useCallback(
     (productId: number, quantity = 1, options?: AddItemMutateOptions) => {
-      mutate({ productId, quantity }, options);
+      return mutateAsync({ productId, quantity }, options);
     },
-    [mutate]
+    [mutateAsync]
   );
 
   return { addToCart, isAddingToCart };

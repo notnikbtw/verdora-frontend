@@ -14,7 +14,7 @@ type Props = {
   isFavorite?: (id: number) => boolean;
   isFavoritePending?: (id: number) => boolean;
   onToggleFavorite?: (id: number) => void;
-  onAddToCart?: (id: number) => void;
+  onAddToCart?: (id: number) => void | Promise<unknown>;
   onAuthRequired?: () => void;
   onResetAll?: () => void;
   searchQuery?: string;
