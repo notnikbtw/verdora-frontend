@@ -13,6 +13,7 @@ type Props = {
   selectedCategoryId?: number;
   onSelectCategory: (id?: number) => void;
   priceRange: [number, number];
+  maximumPrice: number;
   onPriceRangeChange: (range: [number, number]) => void;
   onSaleOnly: boolean;
   onToggleOnSaleOnly: () => void;
@@ -27,6 +28,7 @@ const CatalogFilterSidebar = ({
   selectedCategoryId,
   onSelectCategory,
   priceRange,
+  maximumPrice,
   onPriceRangeChange,
   onSaleOnly,
   onToggleOnSaleOnly,
@@ -36,7 +38,7 @@ const CatalogFilterSidebar = ({
   const activeFiltersCount =
     (selectedCategoryId !== undefined ? 1 : 0) +
     (onSaleOnly ? 1 : 0) +
-    (priceRange[0] > 0 || priceRange[1] < 9000 ? 1 : 0);
+    (priceRange[0] > 0 || priceRange[1] < maximumPrice ? 1 : 0);
 
   return (
     <aside className="w-full lg:w-72 shrink-0 lg:sticky lg:top-24">
@@ -85,9 +87,9 @@ const CatalogFilterSidebar = ({
             <input
               type="number"
               autoComplete="off"
-              placeholder="9000"
+              placeholder={String(maximumPrice)}
               value={priceRange[1]}
-              max={99999}
+              min={0}
               aria-invalid={isPriceRangeInvalid}
               onChange={e => {
                 const val = Math.max(0, Number(e.target.value) || 0);
@@ -107,8 +109,8 @@ const CatalogFilterSidebar = ({
               }
             }}
             min={0}
-            max={9000}
-            step={50}
+            max={Math.max(1, maximumPrice, ...priceRange)}
+            step={1}
             className="mx-auto w-full cursor-pointer"
           />
           <div className="flex items-center justify-between text-xs text-text">

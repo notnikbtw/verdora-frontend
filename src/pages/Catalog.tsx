@@ -70,6 +70,24 @@ const Catalog = () => {
     searchParams.get('discount') === 'true' ||
     searchParams.get('onSale') === 'true';
 
+  const { data: highestPricedProducts } = useGetProducts({
+    categoryId: selectedCategoryId,
+    search: searchQuery || undefined,
+    discount: onSaleOnly || undefined,
+    page: 0,
+    size: 1,
+    sort: 'price,desc',
+  });
+  const highestPricedProduct = highestPricedProducts?.content[0];
+  const maximumPrice = highestPricedProduct
+    ? highestPricedProduct.discountPrice &&
+      highestPricedProduct.discountPrice < highestPricedProduct.price
+      ? highestPricedProduct.discountPrice
+      : highestPricedProduct.price
+    : highestPricedProducts
+      ? 0
+      : DEFAULT_MAX_PRICE;
+
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [currentPage, setCurrentPage] = useState(0);
   const minPriceParam = readPriceParam(
@@ -77,17 +95,23 @@ const Catalog = () => {
     'minPrice',
     DEFAULT_MIN_PRICE
   );
-  const maxPriceParam = readPriceParam(
-    searchParams,
-    'maxPrice',
-    DEFAULT_MAX_PRICE
-  );
+  const maxPriceParam = readPriceParam(searchParams, 'maxPrice', maximumPrice);
   const priceRange = useMemo<[number, number]>(
     () => [minPriceParam, maxPriceParam],
     [minPriceParam, maxPriceParam]
   );
   const [debouncedPriceRange] = useDebounce(priceRange, 400);
-  const [selectedSort, setSelectedSort] = useState<string>('rating');
+  const sortParamFromUrl = searchParams.get('sort') || 'rating';
+  const selectedSort = [
+    'rating',
+    'price-asc',
+    'price-desc',
+    'date',
+    'az',
+    'za',
+  ].includes(sortParamFromUrl)
+    ? sortParamFromUrl
+    : 'rating';
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
 
   const {
@@ -123,7 +147,7 @@ const Catalog = () => {
     const isPriceRangeValid = debouncedPriceRange[0] <= debouncedPriceRange[1];
     if (isPriceRangeValid && debouncedPriceRange[0] > DEFAULT_MIN_PRICE)
       params.minPrice = debouncedPriceRange[0];
-    if (isPriceRangeValid && debouncedPriceRange[1] < DEFAULT_MAX_PRICE)
+    if (isPriceRangeValid && searchParams.has('maxPrice'))
       params.maxPrice = debouncedPriceRange[1];
     if (onSaleOnly) params.discount = true;
     if (searchQuery) params.search = searchQuery;
@@ -139,6 +163,7 @@ const Catalog = () => {
     onSaleOnly,
     searchQuery,
     selectedSort,
+    searchParams,
   ]);
 
   const {
@@ -191,7 +216,7 @@ const Catalog = () => {
         } else {
           next.delete('minPrice');
         }
-        if (range[1] < DEFAULT_MAX_PRICE) {
+        if (range[1] < maximumPrice) {
           next.set('maxPrice', String(range[1]));
         } else {
           next.delete('maxPrice');
@@ -218,12 +243,10 @@ const Catalog = () => {
   };
 
   const handleSortChange = (sortId: string) => {
-    setSelectedSort(sortId);
-    setCurrentPage(0);
+    updateParam('sort', sortId === 'rating' ? null : sortId);
   };
 
   const handleResetAll = () => {
-    setSelectedSort('rating');
     setCurrentPage(0);
     setSearchParams({});
   };
@@ -236,7 +259,7 @@ const Catalog = () => {
     selectedCategoryId !== undefined ||
     onSaleOnly ||
     priceRange[0] > DEFAULT_MIN_PRICE ||
-    priceRange[1] < DEFAULT_MAX_PRICE ||
+    searchParams.has('maxPrice') ||
     searchQuery.length > 0
   );
 
@@ -291,6 +314,7 @@ const Catalog = () => {
             selectedCategoryId={selectedCategoryId}
             onSelectCategory={handleSelectCategory}
             priceRange={priceRange}
+            maximumPrice={maximumPrice}
             onPriceRangeChange={handlePriceRangeChange}
             onSaleOnly={onSaleOnly}
             onToggleOnSaleOnly={handleToggleOnSaleOnly}
