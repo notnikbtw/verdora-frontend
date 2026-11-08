@@ -25,10 +25,8 @@ type AuthFormProps = {
 };
 
 const defaultGoogleAuth = () => {
-  const returnTo = encodeURIComponent(
-    window.location.origin + import.meta.env.BASE_URL
-  );
-  window.location.href = `${import.meta.env.VITE_API_URL}/auth/google?return_to=${returnTo}`;
+  const apiUrl = import.meta.env.VITE_API_URL.replace(/\/$/, '');
+  window.location.href = `${apiUrl}/oauth2/authorization/google`;
 };
 
 const AuthForm = ({
