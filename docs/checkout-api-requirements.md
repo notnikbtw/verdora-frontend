@@ -3,10 +3,15 @@
 Verified against the deployed `/v3/api-docs` on 2026-11-08.
 
 `POST /orders` currently has no request body or delivery parameters. It creates
-an order from the current cart. The frontend can show free pickup, but cannot
+an order from the current cart. The frontend cannot
 communicate that selection, the pickup location, or a courier address to the
-server through the documented API. Server and checkout totals therefore cannot
-yet be guaranteed to match for pickup.
+server through the documented API.
+
+Until this API is extended, Checkout displays `cart.totalPrice` and
+`cart.shippingCost` for both delivery methods. Selecting pickup does not deduct
+shipping or advertise free pickup. The UI explicitly says the displayed shipping
+charge still applies to pickup. A delivery-specific quote cannot be offered
+until the backend supports it.
 
 Required backend support:
 

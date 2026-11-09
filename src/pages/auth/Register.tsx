@@ -16,6 +16,7 @@ import PhoneIcon from '@assets/icons/call.svg?react';
 import MailIcon from '@assets/icons/message.svg?react';
 import LockIcon from '@assets/icons/lock.svg?react';
 import { useGuestCartSyncStatus } from '@hooks/useGuestCartSyncStatus';
+import { clearOAuthReturnTo } from '@/utils/oauthReturnTo';
 
 const Register = () => {
   const isSyncingCart = useGuestCartSyncStatus();
@@ -46,6 +47,7 @@ const Register = () => {
         password: data.password,
       })
     ).unwrap();
+    clearOAuthReturnTo();
     navigate(from, { replace: true });
   };
 

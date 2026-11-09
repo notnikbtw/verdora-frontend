@@ -1,5 +1,4 @@
 import { Store } from 'lucide-react';
-import { Badge } from '@components/ui/badge';
 import { cn } from '@/lib/utils';
 
 export type PickupLocation = {
@@ -50,12 +49,6 @@ const PickupLocationSelector = ({
                 <p className="text-xs text-gray-500">{loc.address}</p>
               </div>
             </div>
-            <Badge
-              variant="outline"
-              className="shrink-0 text-xs text-emerald-700 border-emerald-300 bg-emerald-50"
-            >
-              Free
-            </Badge>
           </label>
         ))}
       </div>

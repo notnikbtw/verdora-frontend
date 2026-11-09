@@ -11,7 +11,7 @@ import ErrorSection from '@components/common/section/ErrorSection';
 import AlertComponent from '@components/common/dialog/AlertComponent';
 import NoticeAlert from '@components/common/NoticeAlert';
 import { sortOrdersNewestFirst } from '@/utils/order.utils';
-import { Package } from 'lucide-react';
+import { Package, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ORDERS_PER_PAGE } from '@/config/orders.config';
 import CartHeader from '@components/layout/pageComponents/CartHeader';
@@ -23,6 +23,7 @@ const Orders = () => {
     isError,
     error,
     refetch,
+    isRefetching,
   } = useAllOrders();
 
   const cancelMutation = useCancelOrder();
@@ -82,6 +83,31 @@ const Orders = () => {
           title="Order History"
           subtitle="Track all your purchases."
         />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {!isLoading && apiOrders && (
+            <span
+              className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
+              role="status"
+            >
+              {sortedOrders.length}{' '}
+              {sortedOrders.length === 1 ? 'order' : 'orders'}
+            </span>
+          )}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => void refetch()}
+            disabled={isLoading || isRefetching}
+            className="ml-auto min-h-11 gap-2"
+          >
+            <RefreshCw
+              aria-hidden="true"
+              className={`size-4 ${isRefetching ? 'animate-spin' : ''}`}
+            />
+            {isRefetching ? 'Refreshing...' : 'Refresh'}
+          </Button>
+        </div>
 
         {successNotice && (
           <NoticeAlert

@@ -16,6 +16,7 @@ import MailIcon from '@assets/icons/message.svg?react';
 import LockIcon from '@assets/icons/lock.svg?react';
 import { RefreshCw } from 'lucide-react';
 import { useGuestCartSyncStatus } from '@hooks/useGuestCartSyncStatus';
+import { clearOAuthReturnTo } from '@/utils/oauthReturnTo';
 
 const Login = () => {
   const isSyncingCart = useGuestCartSyncStatus();
@@ -56,6 +57,7 @@ const Login = () => {
       await dispatch(
         login({ email: data.email, password: data.password })
       ).unwrap();
+      clearOAuthReturnTo();
       navigate(from, { replace: true });
     } catch {
       // Error handled by auth slice and displayed in UI

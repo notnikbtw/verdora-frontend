@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/utils/order.utils';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Check } from 'lucide-react';
@@ -7,7 +8,6 @@ import { cn } from '@/lib/utils';
 import type { ViewMode } from './CatalogToolbar';
 import type { Product } from '@/types/product';
 import { Spinner } from '@components/ui/spinner';
-import { getApiErrorMessage } from '@/utils/error.utils';
 
 export type CatalogProduct = Product;
 
@@ -45,7 +45,6 @@ export const CatalogProductCard = ({
 
   const [added, setAdded] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [addError, setAddError] = useState<string | null>(null);
   const addingRef = useRef(false);
   const isGrid = viewMode === 'grid';
 
@@ -111,7 +110,6 @@ export const CatalogProductCard = ({
     addingRef.current = true;
     setIsAdding(true);
     setAdded(false);
-    setAddError(null);
     if (addTimerRef.current) clearTimeout(addTimerRef.current);
     try {
       await onAddToCart(productId);
@@ -120,8 +118,8 @@ export const CatalogProductCard = ({
         setAdded(false);
         addTimerRef.current = null;
       }, 1500);
-    } catch (error) {
-      setAddError(getApiErrorMessage(error));
+    } catch {
+      // MutationCache.onError displays the error toast.
     } finally {
       addingRef.current = false;
       setIsAdding(false);
@@ -260,21 +258,16 @@ export const CatalogProductCard = ({
                 : 'bg-[#D9DEDB] text-[#0C0C0C]'
             }`}
           >
-            {currentPrice}₴
+            {formatCurrency(currentPrice)}
           </span>
 
           {hasDiscount && originalPrice !== undefined && (
             <span className="font-heading text-[12px] font-medium px-2.5 py-1 rounded-[7px] line-through leading-tight text-white bg-[#4C5C4A] shadow-xs">
-              {originalPrice}₴
+              {formatCurrency(originalPrice)}
             </span>
           )}
         </div>
       </div>
-      {addError && (
-        <p role="alert" className="text-xs text-red-600">
-          {addError} Please try adding the item again.
-        </p>
-      )}
     </div>
   );
 };

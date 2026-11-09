@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/utils/order.utils';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import HeroImage from '@assets/images/hero-plants.webp';
 import ProductOfTheDayImage from '@assets/images/plant.png';
@@ -221,15 +222,15 @@ export const Home = () => {
                             productOfTheDay.price ? (
                             <>
                               <span className="rounded-xl bg-red-600 px-3.5 py-1.5 text-xl sm:text-2xl font-bold text-white">
-                                {productOfTheDay.discountPrice}₴
+                                {formatCurrency(productOfTheDay.discountPrice)}
                               </span>
                               <span className="rounded-lg bg-link-text/70 backdrop-blur-xs px-2.5 py-1 text-sm sm:text-base text-white line-through">
-                                {productOfTheDay.price}₴
+                                {formatCurrency(productOfTheDay.price)}
                               </span>
                             </>
                           ) : (
                             <span className="rounded-xl bg-link-text px-5 py-2 text-xl sm:text-2xl font-bold text-white">
-                              {productOfTheDay.price}₴
+                              {formatCurrency(productOfTheDay.price)}
                             </span>
                           )}
                         </div>
@@ -328,7 +329,7 @@ export const Home = () => {
                     />
 
                     <span className="absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-2xl bg-[#0C0C0C] px-7 py-3 text-2xl font-bold leading-none text-white shadow-lg lg:text-3xl">
-                      {selectedProductPrice}₴
+                      {formatCurrency(selectedProductPrice)}
                     </span>
                   </div>
 

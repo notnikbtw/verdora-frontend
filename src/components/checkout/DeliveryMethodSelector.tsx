@@ -75,7 +75,9 @@ const DeliveryMethodSelector = ({
             <span className="font-semibold text-sm text-gray-900">
               Store Pickup
             </span>
-            <span className="text-xs font-semibold text-emerald-700">Free</span>
+            <span className="text-xs font-semibold text-emerald-700">
+              {formatOrderPrice(baseShippingCost)}
+            </span>
           </div>
           <p className="text-xs text-gray-500 mt-1">
             Pick up directly from one of our locations

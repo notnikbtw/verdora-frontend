@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/utils/order.utils';
 import { ChevronDown, RotateCcw } from 'lucide-react';
 import { useId, useState } from 'react';
 import { Slider } from '@components/ui/slider';
@@ -143,8 +144,8 @@ const CatalogFilterSidebar = ({
               className="mx-auto w-full cursor-pointer"
             />
             <div className="flex items-center justify-between text-xs text-text">
-              <span>{priceRange[0]} ₴</span>
-              <span>{priceRange[1]} ₴</span>
+              <span>{formatCurrency(priceRange[0])}</span>
+              <span>{formatCurrency(priceRange[1])}</span>
             </div>
             {isPriceRangeInvalid && (
               <p role="alert" className="text-xs text-red-600">

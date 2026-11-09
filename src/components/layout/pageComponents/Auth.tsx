@@ -11,6 +11,8 @@ import LinkComponent from '@components/common/Link';
 import AuthImg from '@assets/images/frame1.png';
 import Logo from '@components/common/Logo';
 import NoiseBackground from '@components/layout/pageComponents/NoiseBackground';
+import { useLocation } from 'react-router-dom';
+import { getOAuthReturnTo, saveOAuthReturnTo } from '@/utils/oauthReturnTo';
 
 type AuthFormProps = {
   title?: string;
@@ -40,6 +42,11 @@ const AuthForm = ({
   onGoogleAuth = defaultGoogleAuth,
   continueWithGoogle = true,
 }: AuthFormProps) => {
+  const location = useLocation();
+  const handleGoogleAuth = () => {
+    saveOAuthReturnTo(getOAuthReturnTo(location.state));
+    onGoogleAuth?.();
+  };
   return (
     <div className="relative flex min-h-screen w-full page-background dark:bg-zinc-950 overflow-hidden">
       <NoiseBackground />
@@ -73,7 +80,7 @@ const AuthForm = ({
               )}
               <CardContent className="px-0 py-0">{children}</CardContent>
               <CardFooter className="flex flex-col gap-3 px-0 pt-2">
-                {continueWithGoogle && onGoogleAuth && (
+                {continueWithGoogle && (
                   <div className="flex flex-col gap-3 w-full">
                     <div className="w-full flex gap-3 items-center my-1">
                       <div className="h-px flex-1 bg-zinc-300 dark:bg-zinc-700" />
@@ -83,7 +90,7 @@ const AuthForm = ({
                       <div className="h-px flex-1 bg-zinc-300 dark:bg-zinc-700" />
                     </div>
                     <Button
-                      onClick={onGoogleAuth}
+                      onClick={handleGoogleAuth}
                       type="button"
                       variant="outline"
                       className="w-full rounded-xl py-5 text-[16px] font-medium border-zinc-200 dark:border-zinc-700"

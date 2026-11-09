@@ -40,7 +40,6 @@ const Checkout = () => {
   const createOrderMutation = useCreateOrder();
 
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [termsError, setTermsError] = useState<string | undefined>(undefined);
   const isPreFilledRef = useRef(false);
   const canSubmit = useMemo(() => rateLimit(SUBMIT_RATE_LIMIT_MS), []);
 
@@ -70,11 +69,8 @@ const Checkout = () => {
 
   const items = cart?.items || [];
   const totalPrice = cart?.totalPrice ?? 0;
-  const baseShippingCost = cart?.shippingCost ?? 5.0;
-  const subtotalPrice = Math.max(0, totalPrice - baseShippingCost);
-
-  const activeShippingCost = deliveryMethod === 'pickup' ? 0 : baseShippingCost;
-  const calculatedTotal = subtotalPrice + activeShippingCost;
+  const shippingCost = cart?.shippingCost ?? 0;
+  const subtotalPrice = Math.max(0, totalPrice - shippingCost);
 
   const onFormSubmit = async (_data: CheckoutFormData) => {
     createOrderMutation.reset();
@@ -90,13 +86,6 @@ const Checkout = () => {
   };
 
   const handlePlaceOrderClick = () => {
-    if (!agreeToTerms) {
-      setTermsError(
-        'You must agree to the Terms of Service and Privacy Policy'
-      );
-      return;
-    }
-    setTermsError(undefined);
     if (!canSubmit() || createOrderMutation.isPending) return;
     handleSubmit(onFormSubmit)();
   };
@@ -166,7 +155,9 @@ const Checkout = () => {
                   size="sm"
                   className="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold"
                   onClick={handlePlaceOrderClick}
-                  disabled={createOrderMutation.isPending}
+                  disabled={
+                    createOrderMutation.isPending || !isValid || !agreeToTerms
+                  }
                 >
                   <RotateCcw className="size-3.5 mr-1.5" />
                   {createOrderMutation.isPending ? 'Retrying...' : 'Try Again'}
@@ -269,7 +260,7 @@ const Checkout = () => {
                       'pickupLocationId',
                     ]);
                   }}
-                  baseShippingCost={baseShippingCost}
+                  baseShippingCost={shippingCost}
                 />
 
                 {deliveryMethod === 'delivery' && (
@@ -289,11 +280,17 @@ const Checkout = () => {
                 )}
 
                 {deliveryMethod === 'pickup' && (
-                  <PickupLocationSelector
-                    locations={PICKUP_LOCATIONS}
-                    selectedLocationId={selectedPickup}
-                    onSelectLocation={id => setValue('pickupLocationId', id)}
-                  />
+                  <>
+                    <p role="status" className="text-sm text-gray-600">
+                      The shipping charge shown in Order Summary also applies to
+                      pickup.
+                    </p>
+                    <PickupLocationSelector
+                      locations={PICKUP_LOCATIONS}
+                      selectedLocationId={selectedPickup}
+                      onSelectLocation={id => setValue('pickupLocationId', id)}
+                    />
+                  </>
                 )}
               </CardContent>
             </Card>
@@ -301,14 +298,10 @@ const Checkout = () => {
 
           <OrderSummary
             subtotal={subtotalPrice}
-            shippingCost={activeShippingCost}
-            totalCost={calculatedTotal}
+            shippingCost={shippingCost}
+            totalCost={totalPrice}
             agreeToTerms={agreeToTerms}
-            agreeToTermsError={termsError}
-            onAgreeToTermsChange={val => {
-              setAgreeToTerms(val);
-              if (val) setTermsError(undefined);
-            }}
+            onAgreeToTermsChange={setAgreeToTerms}
             actionButtonText="Confirm & Place Order"
             onAction={handlePlaceOrderClick}
             isActionDisabled={createOrderMutation.isPending || !isValid}

@@ -30,6 +30,7 @@ import ProductDetails from '@pages/ProductDetails';
 import Favorites from '@pages/Favorites';
 import ScrollToTop from '@components/common/ScrollToTop';
 import UserScopedCacheReset from '@components/common/UserScopedCacheReset';
+import OAuthReturnHandler from '@components/common/OAuthReturnHandler';
 import { fetchMe } from '@api/auth/auth.actions';
 import Profile from '@pages/Profile';
 import { Spinner } from '@components/ui/spinner';
@@ -48,7 +49,22 @@ createRoot(document.getElementById('root')!).render(
           <UserScopedCacheReset />
           <ToastContainer position="top-right" autoClose={4000} newestOnTop />
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route
+              path="/oauth/callback"
+              element={
+                <OAuthReturnHandler>
+                  <Navigate to="/" replace />
+                </OAuthReturnHandler>
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <OAuthReturnHandler>
+                  <Home />
+                </OAuthReturnHandler>
+              }
+            />
             <Route path="/catalog" element={<Catalog />} />
             <Route
               path="/categories"

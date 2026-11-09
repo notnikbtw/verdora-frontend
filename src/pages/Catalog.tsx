@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/utils/order.utils';
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router';
 import { useDebounce } from 'use-debounce';
@@ -85,10 +86,7 @@ const Catalog = () => {
   });
   const highestPricedProduct = highestPricedProducts?.content[0];
   const maximumPrice = highestPricedProduct
-    ? highestPricedProduct.discountPrice &&
-      highestPricedProduct.discountPrice < highestPricedProduct.price
-      ? highestPricedProduct.discountPrice
-      : highestPricedProduct.price
+    ? highestPricedProduct.price
     : highestPricedProducts
       ? 0
       : DEFAULT_MAX_PRICE;
@@ -379,13 +377,13 @@ const Catalog = () => {
   if (minPriceParam > DEFAULT_MIN_PRICE)
     activeFilters.push({
       id: 'minPrice',
-      label: `Min price: ${minPriceParam} ₴`,
+      label: `Min price: ${formatCurrency(minPriceParam)}`,
       remove: () => updateParam('minPrice', null),
     });
   if (searchParams.has('maxPrice'))
     activeFilters.push({
       id: 'maxPrice',
-      label: `Max price: ${maxPriceParam} ₴`,
+      label: `Max price: ${formatCurrency(maxPriceParam)}`,
       remove: () => updateParam('maxPrice', null),
     });
   if (onSaleOnly)

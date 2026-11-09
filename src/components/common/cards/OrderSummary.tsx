@@ -6,6 +6,7 @@ import { Skeleton } from '@components/ui/skeleton';
 import { Checkbox } from '@components/ui/checkbox';
 import { Label } from '@components/ui/label';
 import { formatOrderPrice } from '@/utils/order.utils';
+import { cn } from '@/lib/utils';
 
 type Props = {
   totalItems?: number;
@@ -71,7 +72,10 @@ const OrderSummary = ({
   if (loading) {
     return (
       <div
-        className={`bg-white p-4 sm:p-6 md:p-8 flex flex-col rounded-2xl border shadow-sm w-full lg:w-80 shrink-0 gap-4 lg:sticky lg:top-24 ${className}`}
+        className={cn(
+          'bg-white p-4 sm:p-6 md:p-8 flex flex-col rounded-2xl border shadow-sm w-full lg:w-80 shrink-0 gap-4 lg:sticky lg:top-24',
+          className
+        )}
       >
         <Skeleton className="h-10 w-40" />
 
@@ -90,7 +94,10 @@ const OrderSummary = ({
 
   return (
     <div
-      className={`bg-white p-4 sm:p-6 flex flex-col rounded-2xl border shadow-sm w-full lg:w-80 shrink-0 gap-4 lg:sticky lg:top-24 ${className}`}
+      className={cn(
+        'bg-white p-4 sm:p-6 flex flex-col rounded-2xl border shadow-sm w-full lg:w-80 shrink-0 gap-4 lg:sticky lg:top-24',
+        className
+      )}
     >
       <h2 className="text-lg font-bold text-gray-900 border-b pb-3">
         Order Summary

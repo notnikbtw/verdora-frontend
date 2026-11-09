@@ -81,6 +81,26 @@ export const handleAuthError = (
   };
 };
 
+const completeAuthentication = async (
+  authResponse: ApiResponse<UserType>,
+  flow: 'login' | 'register'
+): Promise<ApiResponse<UserType>> => {
+  let response = authResponse;
+  try {
+    response = (await authService.fetchMe()).data;
+  } catch (error) {
+    // The session already exists. A profile refresh must not undo successful auth.
+    console.warn(`Failed to refresh profile after ${flow}`, error);
+  }
+
+  await queryClient.cancelQueries({ queryKey: ['profile'] });
+  queryClient.setQueryData(['profile'], response.data);
+  await syncGuestCartToBackend().catch(error => {
+    console.warn(`Failed to sync guest cart on ${flow}`, error);
+  });
+  return response;
+};
+
 export const register = createAsyncThunk<
   ApiResponse<UserType>,
   RegisterPayload,
@@ -93,18 +113,13 @@ export const register = createAsyncThunk<
       message: NO_INTERNET_MESSAGE,
     });
   }
+  let response: ApiResponse<UserType>;
   try {
-    await authService.register(userData);
-    const response = await authService.fetchMe();
-    await queryClient.cancelQueries({ queryKey: ['profile'] });
-    queryClient.setQueryData(['profile'], response.data.data);
-    await syncGuestCartToBackend().catch(e => {
-      console.warn('Failed to sync guest cart on register', e);
-    });
-    return response.data;
+    response = (await authService.register(userData)).data;
   } catch (error) {
     return rejectWithValue(handleAuthError(error, 'Registration failed'));
   }
+  return completeAuthentication(response, 'register');
 });
 
 export const login = createAsyncThunk<
@@ -124,18 +139,13 @@ export const login = createAsyncThunk<
         message: NO_INTERNET_MESSAGE,
       });
     }
+    let response: ApiResponse<UserType>;
     try {
-      await authService.login(userData);
-      const response = await authService.fetchMe();
-      await queryClient.cancelQueries({ queryKey: ['profile'] });
-      queryClient.setQueryData(['profile'], response.data.data);
-      await syncGuestCartToBackend().catch(e => {
-        console.warn('Failed to sync guest cart on login', e);
-      });
-      return response.data;
+      response = (await authService.login(userData)).data;
     } catch (error) {
       return rejectWithValue(handleAuthError(error, 'Login failed'));
     }
+    return completeAuthentication(response, 'login');
   }
 );
 
