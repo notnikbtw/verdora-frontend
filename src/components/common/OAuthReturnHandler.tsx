@@ -18,13 +18,26 @@ const OAuthReturnHandler = ({ children }: { children: ReactNode }) => {
   const isReturnPage = pathname === '/' || pathname === '/oauth/callback';
 
   useEffect(() => {
-    if (!isReturnPage || !returnTo || !user || hydrating || isSyncingCart)
+    if (!isReturnPage || !returnTo || hydrating) return;
+    if (!user) {
+      if (pathname === '/') clearOAuthReturnTo();
       return;
+    }
+    if (isSyncingCart) return;
     clearOAuthReturnTo();
     navigate(returnTo, { replace: true });
-  }, [isReturnPage, returnTo, user, hydrating, isSyncingCart, navigate]);
+  }, [
+    isReturnPage,
+    pathname,
+    returnTo,
+    user,
+    hydrating,
+    isSyncingCart,
+    navigate,
+  ]);
 
   if (!isReturnPage || !returnTo) return children;
+  if (pathname === '/' && !hydrating && !user) return children;
 
   if (hydrating || isSyncingCart || user) {
     return (

@@ -46,9 +46,14 @@ export const getOAuthReturnTo = (state: unknown): string => {
 
 export const saveOAuthReturnTo = (to: string): void => {
   try {
+    const destination = safePath(to);
+    if (!destination || destination === '/') {
+      sessionStorage.removeItem(STORAGE_KEY);
+      return;
+    }
     sessionStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ to: safePath(to) ?? '/', createdAt: Date.now() })
+      JSON.stringify({ to: destination, createdAt: Date.now() })
     );
   } catch {
     // OAuth can still proceed when browser storage is disabled.

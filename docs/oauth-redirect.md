@@ -24,12 +24,16 @@ The frontend therefore keeps the Google authorization URL unchanged and saves
 the intended in-app destination in session storage before leaving the page.
 Only local paths are accepted, including their search parameters and hash.
 Login, registration and OAuth callback destinations are excluded to prevent
-redirect loops. Records expire after ten minutes.
+redirect loops. The default `/` destination is not saved, and a new OAuth
+attempt with that destination clears any previous return path. Records expire
+after ten minutes.
 
 On the frontend root or `/oauth/callback`, `OAuthReturnHandler` waits for session
 hydration and guest-cart synchronization, then consumes the saved destination
-and navigates with `replace`. If session hydration fails, it offers retry or a
-return to password login while preserving the intended destination.
+and navigates with `replace`. If hydration completes without a user on `/`,
+it clears the saved destination and renders Home normally, including when the
+user abandoned Google consent. Only `/oauth/callback` shows recovery controls
+for a failed session restore, preserving the destination for retry.
 
 ## Backend configuration to confirm
 
