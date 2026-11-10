@@ -50,7 +50,7 @@ export const getOrderStatusLabel = (status?: string | null): string => {
 
 export const formatCurrency = (val?: number | null, fallback = '—'): string => {
   if (val === undefined || val === null || isNaN(val)) return fallback;
-  return `$${val.toFixed(2)}`;
+  return `₴${val.toFixed(2)}`;
 };
 
 export const formatOrderDate = (
@@ -75,7 +75,7 @@ export const formatOrderDate = (
 };
 
 export const formatOrderPrice = (price?: number | null): string => {
-  return formatCurrency(price, '$0.00');
+  return formatCurrency(price, '₴0.00');
 };
 
 export const sortOrdersNewestFirst = (orders: Order[]): Order[] => {

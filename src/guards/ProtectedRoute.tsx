@@ -1,6 +1,6 @@
 import type { Roles } from '@/types/user';
 import { Spinner } from '@components/ui/spinner';
-import { useGetCurrentUser } from '@api/user/user.hooks';
+import { useAppSelector } from '@api/hooks';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import React from 'react';
 
@@ -18,9 +18,9 @@ const ProtectedRoute: React.FC<Props> = ({
   children,
 }) => {
   const location = useLocation();
-  const { data: user, isFetched, isError } = useGetCurrentUser();
+  const { user, hydrating, loading } = useAppSelector(state => state.auth);
 
-  if (!isFetched) {
+  if (hydrating || (requireAuth && (loading.login || loading.register))) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Spinner className="size-8 text-primary" />
@@ -29,13 +29,15 @@ const ProtectedRoute: React.FC<Props> = ({
   }
 
   if (!requireAuth) {
-    if (user && !isError) {
-      return <Navigate to="/" replace />;
+    if (user) {
+      const from = (location.state as { from?: { pathname?: string } } | null)
+        ?.from?.pathname;
+      return <Navigate to={from || '/'} replace />;
     }
     return children ? <>{children}</> : <Outlet />;
   }
 
-  if (isError || !user) {
+  if (!user) {
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 

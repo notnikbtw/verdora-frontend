@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import { Button } from '@components/ui/button';
-import OrderStatusBadge from '@components/common/Badge/OrderStatusBadge';
+import OrderStatusBadge from '@/components/common/badge/OrderStatusBadge';
 import AlertComponent from '@components/common/dialog/AlertComponent';
 import NoticeAlert from '@components/common/NoticeAlert';
 import ErrorSection from '@components/common/section/ErrorSection';

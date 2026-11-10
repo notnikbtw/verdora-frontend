@@ -19,8 +19,8 @@ export const OrderJourneyTimeline: FC<Props> = ({ order }) => {
 
   return (
     <Card className="border-border">
-      <CardContent className="p-6">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+      <CardContent className="p-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
           Order Journey
         </h2>
 

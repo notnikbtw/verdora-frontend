@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import AdminLayout from '@components/layout/pageLayout/AdminLayout';
 import AdminSectionHeader from '@components/common/section/AdminSectionHeader';
 import { Button } from '@components/ui/button';
-import OrderStatusBadge from '@components/common/Badge/OrderStatusBadge';
+import OrderStatusBadge from '@/components/common/badge/OrderStatusBadge';
 import { formatOrderDate, formatOrderPrice } from '@/utils/order.utils';
 import {
   Card,

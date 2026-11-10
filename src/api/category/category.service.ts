@@ -7,6 +7,7 @@ import type {
   UpdateCategoryPayload,
   DeleteCategoryPayload,
   GetCategoryByIdPayload,
+  GetCategoriesPayload,
 } from '@/types/category';
 
 type RawCategory = {
@@ -23,6 +24,15 @@ const normalizeCategory = (cat: RawCategory): Category => ({
 });
 
 export const categoryService = {
+  getCategories: async (
+    params: GetCategoriesPayload = {}
+  ): Promise<PaginatedData<Category>> => {
+    const response = await instance.get<
+      ApiResponse<PaginatedData<RawCategory>>
+    >('/categories', { params });
+    const page = response.data.data;
+    return { ...page, content: page.content.map(normalizeCategory) };
+  },
   createCategory: async (data: CreateCategoryPayload): Promise<Category> => {
     const response = await instance.post<ApiResponse<RawCategory>>(
       '/categories',
@@ -56,11 +66,10 @@ export const categoryService = {
   // GET /categories is paginated; load every page so the UI gets the full list.
   getAllCategories: async (): Promise<Category[]> => {
     const fetchPage = async (page: number) => {
-      const response = await instance.get<
-        ApiResponse<PaginatedData<RawCategory>>
-      >('/categories', { params: { page, size: CATEGORIES_PAGE_SIZE } });
-
-      return response.data.data;
+      return categoryService.getCategories({
+        page,
+        size: CATEGORIES_PAGE_SIZE,
+      });
     };
 
     const first = await fetchPage(0);
@@ -70,8 +79,6 @@ export const categoryService = {
       )
     );
 
-    return [first, ...rest]
-      .flatMap(page => page.content)
-      .map(normalizeCategory);
+    return [first, ...rest].flatMap(page => page.content);
   },
 };

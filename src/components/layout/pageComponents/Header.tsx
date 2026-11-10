@@ -67,12 +67,28 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
 
   return (
     <>
-      <header className="sticky top-0 sm:top-6 flex justify-between items-center h-16 px-6 z-50 w-full sm:page-container bg-[#E6EAE5]/80 sm:bg-transparent backdrop-blur border border-white/80 shadow-xs sm:px-8 sm:rounded-full">
+      <header className="sticky top-0 lg:top-6 flex justify-between items-center h-16 gap-3 px-4 z-50 w-full lg:page-container bg-[#E6EAE5]/80 lg:bg-transparent backdrop-blur border border-white/80 shadow-xs sm:px-8 lg:rounded-full">
+        <div className="flex xl:hidden items-center">
+          {onOpenMenu ? (
+            <button
+              type="button"
+              onClick={onOpenMenu}
+              aria-label="Open mobile menu"
+              className="flex size-11 items-center justify-center"
+            >
+              <MenuIcon className="size-6 text-link-text" />
+            </button>
+          ) : (
+            <SidebarTrigger className="size-11">
+              <MenuIcon className="size-6 text-link-text" />
+            </SidebarTrigger>
+          )}
+        </div>
         <div className="flex items-center">
           <Logo fontSize="text-2xl" className="text-[#25531F]" />
         </div>
 
-        <nav className="hidden lg:flex items-center gap-6 text-[16px] text-link-text">
+        <nav className="hidden xl:flex items-center gap-6 text-[16px] text-link-text">
           <LinkComponent text="Home" to="/" />
           <LinkComponent
             text="Catalog"
@@ -86,7 +102,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
           />
         </nav>
 
-        <div className="hidden lg:flex items-center gap-6">
+        <div className="hidden xl:flex items-center gap-6">
           <form onSubmit={handleSearchSubmit} className="flex">
             <TextField
               type="text"
@@ -162,23 +178,18 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
             )}
           </div>
         </div>
-
-        <div className="flex lg:hidden items-center">
-          {onOpenMenu ? (
-            <button
-              type="button"
-              onClick={onOpenMenu}
-              aria-label="Open mobile menu"
-              className="p-1"
-            >
-              <MenuIcon className="size-6 text-link-text" />
-            </button>
-          ) : (
-            <SidebarTrigger>
-              <MenuIcon className="size-6 text-link-text" />
-            </SidebarTrigger>
+        <Link
+          to="/cart"
+          className="relative flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-black/5 xl:hidden"
+          aria-label={`Shopping cart (${cartItemCount} items)`}
+        >
+          <CartIcon className="size-5 text-[#2C332D]" />
+          {cartItemCount > 0 && (
+            <span className="count-badge bg-primary">
+              {cartItemCount > 99 ? '99+' : cartItemCount}
+            </span>
           )}
-        </div>
+        </Link>
       </header>
 
       <LoginPromptDialog

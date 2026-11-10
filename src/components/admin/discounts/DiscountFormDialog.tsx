@@ -122,7 +122,7 @@ export const DiscountFormDialog: React.FC<DiscountFormDialogProps> = ({
 
           <TextField
             type="number"
-            label="Regular price ($)"
+            label="Regular price (₴)"
             id="discount-price"
             disabled={mode === 'set'}
             description={
@@ -137,7 +137,7 @@ export const DiscountFormDialog: React.FC<DiscountFormDialogProps> = ({
 
           <TextField
             type="number"
-            label="Discount price ($)"
+            label="Discount price (₴)"
             id="discount-discount-price"
             placeholder={
               mode === 'set' ? 'e.g. 19.99' : 'Leave empty for no discount'

@@ -18,6 +18,7 @@ import { useGetCurrentUser } from '@api/user/user.hooks';
 import { useCheckoutForm } from '@hooks/useCheckoutForm';
 import type { CheckoutFormData } from '@/schemas/checkout.schema';
 import { rateLimit } from '@/utils/rateLimit';
+import { clearCheckoutDraft } from '@/utils/checkoutDraft';
 import {
   PICKUP_LOCATIONS,
   SUBMIT_RATE_LIMIT_MS,
@@ -39,7 +40,6 @@ const Checkout = () => {
   const createOrderMutation = useCreateOrder();
 
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [termsError, setTermsError] = useState<string | undefined>(undefined);
   const isPreFilledRef = useRef(false);
   const canSubmit = useMemo(() => rateLimit(SUBMIT_RATE_LIMIT_MS), []);
 
@@ -48,6 +48,7 @@ const Checkout = () => {
     formState: { errors: formErrors, isValid },
     watch,
     setValue,
+    getValues,
     trigger,
   } = useCheckoutForm();
 
@@ -56,29 +57,27 @@ const Checkout = () => {
 
   useEffect(() => {
     if (currentUser && !isPreFilledRef.current) {
-      if (currentUser.name)
+      if (currentUser.name && !getValues('name'))
         setValue('name', currentUser.name, { shouldValidate: true });
-      if (currentUser.email)
+      if (currentUser.email && !getValues('email'))
         setValue('email', currentUser.email, { shouldValidate: true });
-      if (currentUser.phone)
+      if (currentUser.phone && !getValues('phone'))
         setValue('phone', currentUser.phone, { shouldValidate: true });
       isPreFilledRef.current = true;
     }
-  }, [currentUser, setValue]);
+  }, [currentUser, setValue, getValues]);
 
   const items = cart?.items || [];
   const totalPrice = cart?.totalPrice ?? 0;
-  const baseShippingCost = cart?.shippingCost ?? 5.0;
-  const subtotalPrice = Math.max(0, totalPrice - baseShippingCost);
-
-  const activeShippingCost = baseShippingCost;
-  const calculatedTotal = totalPrice;
+  const shippingCost = cart?.shippingCost ?? 0;
+  const subtotalPrice = Math.max(0, totalPrice - shippingCost);
 
   const onFormSubmit = async (_data: CheckoutFormData) => {
     createOrderMutation.reset();
 
     try {
       const orderData = await createOrderMutation.mutateAsync();
+      if (currentUser) clearCheckoutDraft(currentUser.id);
       navigate(`/order-result?orderId=${orderData.orderId}`);
     } catch {
       // Error is caught here to prevent Unhandled Promise Rejection in browser console.
@@ -87,11 +86,6 @@ const Checkout = () => {
   };
 
   const handlePlaceOrderClick = () => {
-    if (!agreeToTerms) {
-      setTermsError('You must agree to the Terms and Conditions');
-      return;
-    }
-    setTermsError(undefined);
     if (!canSubmit() || createOrderMutation.isPending) return;
     handleSubmit(onFormSubmit)();
   };
@@ -161,7 +155,9 @@ const Checkout = () => {
                   size="sm"
                   className="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold"
                   onClick={handlePlaceOrderClick}
-                  disabled={createOrderMutation.isPending}
+                  disabled={
+                    createOrderMutation.isPending || !isValid || !agreeToTerms
+                  }
                 >
                   <RotateCcw className="size-3.5 mr-1.5" />
                   {createOrderMutation.isPending ? 'Retrying...' : 'Try Again'}
@@ -180,11 +176,11 @@ const Checkout = () => {
         )}
 
         <div className="flex flex-col lg:flex-row gap-8 items-start">
-          <div className="lg:col-span-2 space-y-6 w-full">
+          <div className="min-w-0 flex-1 space-y-6 w-full">
             <Card>
               <CardHeader className="pb-3 border-b">
-                <CardTitle className="text-lg flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <CardTitle className="text-lg flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2">
                     <User className="size-5 text-gray-700" />
                     Contact Information
                   </div>
@@ -264,7 +260,7 @@ const Checkout = () => {
                       'pickupLocationId',
                     ]);
                   }}
-                  baseShippingCost={baseShippingCost}
+                  baseShippingCost={shippingCost}
                 />
 
                 {deliveryMethod === 'delivery' && (
@@ -284,11 +280,17 @@ const Checkout = () => {
                 )}
 
                 {deliveryMethod === 'pickup' && (
-                  <PickupLocationSelector
-                    locations={PICKUP_LOCATIONS}
-                    selectedLocationId={selectedPickup}
-                    onSelectLocation={id => setValue('pickupLocationId', id)}
-                  />
+                  <>
+                    <p role="status" className="text-sm text-gray-600">
+                      The shipping charge shown in Order Summary also applies to
+                      pickup.
+                    </p>
+                    <PickupLocationSelector
+                      locations={PICKUP_LOCATIONS}
+                      selectedLocationId={selectedPickup}
+                      onSelectLocation={id => setValue('pickupLocationId', id)}
+                    />
+                  </>
                 )}
               </CardContent>
             </Card>
@@ -296,21 +298,18 @@ const Checkout = () => {
 
           <OrderSummary
             subtotal={subtotalPrice}
-            shippingCost={activeShippingCost}
-            totalCost={calculatedTotal}
+            shippingCost={shippingCost}
+            totalCost={totalPrice}
             agreeToTerms={agreeToTerms}
-            agreeToTermsError={termsError}
-            onAgreeToTermsChange={val => {
-              setAgreeToTerms(val);
-              if (val) setTermsError(undefined);
-            }}
+            onAgreeToTermsChange={setAgreeToTerms}
             actionButtonText="Confirm & Place Order"
             onAction={handlePlaceOrderClick}
             isActionDisabled={createOrderMutation.isPending || !isValid}
+            actionDisabledReason="Complete your contact details and delivery information to place your order."
             isActionLoading={createOrderMutation.isPending}
             secondaryActionText="Return to Cart"
             secondaryActionLink="/cart"
-            className="sticky top-6"
+            className="lg:top-28"
           >
             <div className="space-y-2.5">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -322,7 +321,7 @@ const Checkout = () => {
                     key={item.cartItemId}
                     className="py-2 flex justify-between items-center text-sm"
                   >
-                    <div className="truncate">
+                    <div className="min-w-0 flex-1 pr-3">
                       <p className="font-medium text-gray-900 text-xs truncate">
                         {item.productName}
                       </p>
@@ -330,7 +329,7 @@ const Checkout = () => {
                         Qty: {item.quantity}
                       </p>
                     </div>
-                    <span className="font-semibold text-gray-900 text-xs">
+                    <span className="shrink-0 font-semibold text-gray-900 text-xs">
                       {formatCurrency(
                         (item.discountPrice && item.discountPrice < item.price
                           ? item.discountPrice

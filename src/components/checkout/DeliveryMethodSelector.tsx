@@ -14,7 +14,7 @@ const DeliveryMethodSelector = ({
   baseShippingCost,
 }: Props) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
       <button
         type="button"
         onClick={() => onSelectMethod('delivery')}
@@ -35,8 +35,8 @@ const DeliveryMethodSelector = ({
         >
           <Truck className="size-5" />
         </div>
-        <div>
-          <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="font-semibold text-sm text-gray-900">
               Courier Delivery
             </span>
@@ -70,12 +70,14 @@ const DeliveryMethodSelector = ({
         >
           <Store className="size-5" />
         </div>
-        <div>
-          <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="font-semibold text-sm text-gray-900">
               Store Pickup
             </span>
-            <span className="text-xs font-semibold text-emerald-700">Free</span>
+            <span className="text-xs font-semibold text-emerald-700">
+              {formatOrderPrice(baseShippingCost)}
+            </span>
           </div>
           <p className="text-xs text-gray-500 mt-1">
             Pick up directly from one of our locations

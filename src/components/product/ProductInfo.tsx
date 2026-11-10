@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/utils/order.utils';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Check } from 'lucide-react';
@@ -207,7 +208,7 @@ export const ProductInfo = ({
           <div className="min-w-0">
             <h1
               title={product.name}
-              className="truncate text-3xl sm:text-[40px] font-heading font-bold text-[#0C0C0C] leading-[1.1] tracking-tight"
+              className="text-3xl sm:text-[40px] font-heading font-bold text-[#0C0C0C] leading-[1.1] tracking-tight"
             >
               {product.name}
             </h1>
@@ -226,7 +227,7 @@ export const ProductInfo = ({
                 : 'bg-[#D9DEDB] text-[#0C0C0C]'
             )}
           >
-            {currentPrice}₴
+            {formatCurrency(currentPrice)}
           </span>
 
           {hasDiscount && originalPrice !== undefined && (
@@ -234,12 +235,12 @@ export const ProductInfo = ({
               <span className="flex items-baseline gap-1.5 text-lg sm:text-xl font-medium tracking-tight text-[#0C0C0C]">
                 <span className="text-xs text-[#586455] font-normal">Was</span>
                 <span className="line-through decoration-2">
-                  {originalPrice}₴
+                  {formatCurrency(originalPrice)}
                 </span>
               </span>
 
               <span className="text-sm font-semibold text-[#0C0C0C] border border-[#0C0C0C] rounded-[7px] px-2.5 py-0.5">
-                −{discountPercent}% · save {savings}₴
+                −{discountPercent}% · save {formatCurrency(savings)}
               </span>
             </>
           )}

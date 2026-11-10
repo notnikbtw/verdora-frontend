@@ -9,7 +9,7 @@ import {
 import { Button } from '@components/ui/button';
 import { Package, XCircle, Eye, Loader2, ArrowRight } from 'lucide-react';
 import type { Order } from '@/types/order';
-import OrderStatusBadge from '@components/common/Badge/OrderStatusBadge';
+import OrderStatusBadge from '@/components/common/badge/OrderStatusBadge';
 import {
   formatOrderDate,
   formatOrderPrice,

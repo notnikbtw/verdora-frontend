@@ -68,7 +68,7 @@ export const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
       <div className="grid grid-cols-2 gap-3">
         <TextField
           type="number"
-          label="Price ($)"
+          label="Price (₴)"
           id={`${idPrefix}-price`}
           placeholder="29.99"
           value={form.watch('price') || ''}
@@ -80,7 +80,7 @@ export const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 
         <TextField
           type="number"
-          label="Discount Price ($)"
+          label="Discount Price (₴)"
           id={`${idPrefix}-discount`}
           placeholder="19.99 (Optional)"
           value={form.watch('discountPrice') || ''}

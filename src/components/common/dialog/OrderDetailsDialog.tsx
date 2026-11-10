@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type { Order } from '@/types/order';
 import DialogComponent from '@components/common/dialog/DialogComponent';
-import OrderStatusBadge from '@/components/common/Badge/OrderStatusBadge';
+import OrderStatusBadge from '@/components/common/badge/OrderStatusBadge';
 import { Button } from '@components/ui/button';
 import { ExternalLink, Download, Pencil } from 'lucide-react';
 import {

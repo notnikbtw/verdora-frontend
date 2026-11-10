@@ -1,6 +1,6 @@
 import { Button } from '@components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import ArrowIcon from '@assets/icons/black-arrow.svg?react';
+import { ArrowLeft } from 'lucide-react';
 
 type Props = {
   title?: string;
@@ -26,9 +26,9 @@ const CartHeader = ({
   };
 
   return (
-    <div className="flex items-center gap-3 m-7">
+    <div className="flex items-center gap-3 mt-6">
       <Button variant="default" onClick={handleBack} aria-label="Go back">
-        <ArrowIcon className="size-4" />
+        <ArrowLeft />
       </Button>
       <div>
         <div className="flex items-center gap-2">

@@ -16,7 +16,7 @@ export const OrderInfoCards: FC<Props> = ({ order }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <Card className="border-border">
-        <CardHeader className="pb-3 flex flex-row items-center gap-2">
+        <CardHeader className="flex flex-row items-center gap-2">
           <MapPin className="size-4 text-primary" />
           <CardTitle className="text-sm font-semibold">
             Shipping Address

@@ -4,6 +4,12 @@ export type Category = {
   imageUrl?: string | null;
 };
 
+export type GetCategoriesPayload = {
+  page?: number;
+  size?: number;
+  sort?: string | string[];
+};
+
 export type CreateCategoryPayload = {
   name: string;
   imageUrl?: string;

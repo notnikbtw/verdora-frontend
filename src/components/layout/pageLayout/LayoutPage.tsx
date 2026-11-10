@@ -52,7 +52,12 @@ const LayoutPage = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <SidebarProvider defaultOpen={false}>
-      <SidebarInset className="bg-transparent">
+      <MainSidebar
+        username={user?.name}
+        email={user?.email}
+        loading={hydrating}
+      />
+      <SidebarInset className="min-w-0 bg-transparent">
         <div className="relative flex min-h-screen flex-col page-background">
           <NoiseBackground />
 
@@ -74,11 +79,6 @@ const LayoutPage = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
       </SidebarInset>
-      <MainSidebar
-        username={user?.name}
-        email={user?.email}
-        loading={hydrating}
-      />
     </SidebarProvider>
   );
 };

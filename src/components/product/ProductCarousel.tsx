@@ -23,7 +23,7 @@ export type ProductCarouselProps = {
   viewAllLabel?: string;
   categoryMap?: Map<number, string>;
   isLoading?: boolean;
-  onAddToCart?: (productId: number) => void;
+  onAddToCart?: (productId: number) => void | Promise<unknown>;
   onToggleFavorite?: (productId: number) => void;
   isFavorite?: (productId: number) => boolean;
   isFavoritePending?: (productId: number) => boolean;
@@ -64,9 +64,9 @@ export const ProductCarousel = ({
   const handleAddToCart = useCallback(
     (productId: number) => {
       if (onAddToCart) {
-        onAddToCart(productId);
+        return onAddToCart(productId);
       } else {
-        addToCart(productId);
+        return addToCart(productId);
       }
     },
     [onAddToCart, addToCart]
@@ -101,16 +101,16 @@ export const ProductCarousel = ({
         }}
         className="w-full"
       >
-        <div className="flex items-center justify-between gap-4 mb-6">
-          <h2 className="text-2xl sm:text-[28px] font-heading font-bold tracking-tight text-[#0C0C0C]">
+        <div className="flex flex-col items-start gap-3 mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
+          <h2 className="min-w-0 text-2xl sm:text-[28px] font-heading font-bold tracking-tight text-[#0C0C0C]">
             {title}
           </h2>
 
-          <div className="flex items-center gap-3">
+          <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:shrink-0">
             {showViewAll && (
               <Link
                 to={viewAllHref}
-                className="inline-flex items-center gap-1.5 text-[15px] font-medium text-[#3E8D35] hover:text-[#34782c] transition-colors group mr-1"
+                className="inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap text-[15px] font-medium text-[#3E8D35] hover:text-[#34782c] transition-colors group mr-1"
               >
                 <span>{viewAllLabel}</span>
                 <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
@@ -119,8 +119,8 @@ export const ProductCarousel = ({
 
             {showNavigation && (
               <div className="flex items-center gap-2">
-                <CarouselPrevious className="static translate-y-0 translate-x-0 size-9 rounded-full border border-border bg-white text-[#0C0C0C] hover:bg-[#F2F3F0] hover:border-zinc-400 disabled:opacity-40 transition-colors cursor-pointer" />
-                <CarouselNext className="static translate-y-0 translate-x-0 size-9 rounded-full border border-border bg-white text-[#0C0C0C] hover:bg-[#F2F3F0] hover:border-zinc-400 disabled:opacity-40 transition-colors cursor-pointer" />
+                <CarouselPrevious className="static translate-y-0 translate-x-0 size-11 rounded-full border border-border bg-white text-[#0C0C0C] hover:bg-[#F2F3F0] hover:border-zinc-400 disabled:opacity-40 transition-colors cursor-pointer" />
+                <CarouselNext className="static translate-y-0 translate-x-0 size-11 rounded-full border border-border bg-white text-[#0C0C0C] hover:bg-[#F2F3F0] hover:border-zinc-400 disabled:opacity-40 transition-colors cursor-pointer" />
               </div>
             )}
           </div>

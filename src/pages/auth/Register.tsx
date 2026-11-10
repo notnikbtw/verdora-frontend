@@ -15,8 +15,11 @@ import UserIcon from '@assets/icons/user.svg?react';
 import PhoneIcon from '@assets/icons/call.svg?react';
 import MailIcon from '@assets/icons/message.svg?react';
 import LockIcon from '@assets/icons/lock.svg?react';
+import { useGuestCartSyncStatus } from '@hooks/useGuestCartSyncStatus';
+import { clearOAuthReturnTo } from '@/utils/oauthReturnTo';
 
 const Register = () => {
+  const isSyncingCart = useGuestCartSyncStatus();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,6 +47,7 @@ const Register = () => {
         password: data.password,
       })
     ).unwrap();
+    clearOAuthReturnTo();
     navigate(from, { replace: true });
   };
 
@@ -143,7 +147,11 @@ const Register = () => {
             type="submit"
             disabled={!isValid || !accepted || loading.register}
           >
-            {loading.register ? 'Creating...' : 'Log in'}
+            {isSyncingCart
+              ? 'Transferring your cart...'
+              : loading.register
+                ? 'Creating...'
+                : 'Create account'}
           </Button>
         </div>
       </form>

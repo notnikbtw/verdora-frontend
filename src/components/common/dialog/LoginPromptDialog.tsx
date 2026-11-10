@@ -77,10 +77,12 @@ export const LoginPromptDialog = ({
 }: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const returnLocation =
+    action === 'checkout' ? { pathname: '/checkout' } : location;
 
   const handleLoginClick = () => {
     onOpenChange(false);
-    navigate('/login', { state: { from: location } });
+    navigate('/login', { state: { from: returnLocation } });
   };
 
   const { defaultDescription, icon } = getActionDetails(action);
@@ -124,7 +126,7 @@ export const LoginPromptDialog = ({
             Don't have an account?{' '}
             <Link
               to="/register"
-              state={{ from: location }}
+              state={{ from: returnLocation }}
               onClick={() => onOpenChange(false)}
               className="font-medium text-primary hover:underline cursor-pointer"
             >

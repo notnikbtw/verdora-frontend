@@ -8,6 +8,8 @@ type ImageWithPlaceholderProps = {
   alt: string;
   placeholderLabel?: string;
   loading?: 'lazy' | 'eager';
+  fit?: 'cover' | 'contain';
+  zoomOnHover?: boolean;
   className?: string;
   imageClassName?: string;
   iconClassName?: string;
@@ -18,6 +20,8 @@ export const ImageWithPlaceholder = ({
   alt,
   placeholderLabel,
   loading = 'lazy',
+  fit = 'cover',
+  zoomOnHover = false,
   className,
   imageClassName,
   iconClassName,
@@ -29,7 +33,12 @@ export const ImageWithPlaceholder = ({
   const isLoaded = showImage && loadedSrc === src;
 
   return (
-    <div className={cn('relative size-full overflow-hidden', className)}>
+    <div
+      className={cn(
+        'relative size-full min-w-0 overflow-hidden bg-[#F2F3F0]',
+        className
+      )}
+    >
       {showImage ? (
         <>
           {!isLoaded && (
@@ -39,10 +48,14 @@ export const ImageWithPlaceholder = ({
             src={src!}
             alt={alt}
             loading={loading}
+            decoding="async"
             onLoad={() => setLoadedSrc(src!)}
             onError={() => setFailedSrc(src!)}
             className={cn(
-              'size-full object-cover transition-opacity duration-300',
+              'block size-full object-center transition-[opacity,transform] duration-300',
+              fit === 'contain' ? 'object-contain' : 'object-cover',
+              zoomOnHover &&
+                'motion-safe:group-hover:scale-105 motion-safe:hover:scale-105',
               isLoaded ? 'opacity-100' : 'opacity-0',
               imageClassName
             )}
