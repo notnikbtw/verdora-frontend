@@ -11,6 +11,7 @@ import type { ApiErrorResponse } from '@/types/api';
 import type { PaginatedData } from '@/types/pagination';
 import type {
   AdminOrderSummary,
+  AdminOrderDetails,
   AdminOrdersParams,
   Order,
   OrderStatus,
@@ -114,11 +115,20 @@ export const useAdminOrders = (params: AdminOrdersParams) => {
   });
 };
 
+export const useAdminOrderDetails = (orderId: number | null) => {
+  return useQuery<AdminOrderDetails, OrderAxiosError>({
+    queryKey: ['orders', 'admin', 'details', orderId],
+    queryFn: () => orderService.getAdminOrderDetails(orderId!),
+    enabled: orderId !== null,
+    retry: 1,
+  });
+};
+
 // Counts orders in the given statuses by asking the backend for one row per
 // status and reading totalElements, instead of downloading the orders.
 export const useOrderCount = (
   statuses: readonly OrderStatus[],
-  range: { dateFrom: string; dateTo: string }
+  range: { dateFrom?: string; dateTo?: string } = {}
 ) => {
   return useQueries({
     queries: statuses.map(status => {

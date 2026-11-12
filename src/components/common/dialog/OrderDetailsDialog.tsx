@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import type { Order } from '@/types/order';
+import type { Order, OrderCustomer } from '@/types/order';
 import DialogComponent from '@components/common/dialog/DialogComponent';
 import OrderStatusBadge from '@/components/common/badge/OrderStatusBadge';
+import ErrorSection from '@components/common/section/ErrorSection';
+import { Skeleton } from '@components/ui/skeleton';
 import { Button } from '@components/ui/button';
 import { ExternalLink, Download, Pencil } from 'lucide-react';
 import {
@@ -29,6 +31,10 @@ type OrderDetailsDialogProps = {
   showInvoice?: boolean;
   showFullPageLink?: boolean;
   isCancelling?: boolean;
+  isLoading?: boolean;
+  errorMessage?: string;
+  onRetry?: () => void;
+  customer?: OrderCustomer;
 };
 
 export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
@@ -40,8 +46,41 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
   showInvoice = true,
   showFullPageLink = true,
   isCancelling = false,
+  isLoading = false,
+  errorMessage,
+  onRetry,
+  customer,
 }) => {
-  if (!order) return null;
+  if (!order) {
+    if (!open) return null;
+    return (
+      <DialogComponent
+        open={open}
+        onOpenChange={onOpenChange}
+        headerTitle="Order details"
+        cancelText="Close"
+        contentClassName="sm:max-w-xl"
+      >
+        {isLoading ? (
+          <div
+            role="status"
+            aria-label="Loading order details"
+            className="space-y-3 py-2"
+          >
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+        ) : (
+          <ErrorSection
+            title="Unable to load order details"
+            message={errorMessage || 'Order details are unavailable.'}
+            onRetry={onRetry}
+            retryText="Try again"
+          />
+        )}
+      </DialogComponent>
+    );
+  }
 
   const cancellable = isOrderCancellable(order.status);
   const items = order.items ?? [];
@@ -63,6 +102,15 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
       }}
     >
       <div className="space-y-4 py-2">
+        {customer && (
+          <div className="rounded-lg border border-border p-3 text-sm wrap-anywhere">
+            <p className="font-semibold">{customer.name}</p>
+            <p className="text-muted-foreground">{customer.email}</p>
+            {customer.phone && (
+              <p className="text-muted-foreground">{customer.phone}</p>
+            )}
+          </div>
+        )}
         <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Order Status:</span>
