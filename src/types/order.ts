@@ -43,7 +43,16 @@ export type UpdateOrderPayload = {
 export type AdminOrderSummary = Pick<
   Order,
   'orderId' | 'status' | 'totalPrice' | 'createdAt'
->;
+> & { customer: OrderCustomer };
+
+export type OrderCustomer = {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string | null;
+};
+
+export type AdminOrderDetails = AdminOrderSummary & { items: OrderItems[] };
 
 export type AdminOrdersParams = {
   status?: OrderStatus;
