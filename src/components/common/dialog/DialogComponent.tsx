@@ -62,7 +62,7 @@ export const DialogComponent = ({
 
       <DialogContent
         className={cn(
-          'max-h-[calc(100dvh-2rem)] overflow-y-auto',
+          'min-w-0 grid-cols-[minmax(0,1fr)] max-h-[calc(100dvh-2rem)] overflow-y-auto',
           contentClassName ?? 'sm:max-w-md'
         )}
       >
