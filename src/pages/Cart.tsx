@@ -102,7 +102,6 @@ const Cart = () => {
   // and no sync error was recorded yet, automatically trigger background sync
   useEffect(() => {
     if (user && guestCartCount > 0 && !isGuestCartSyncing() && !syncError) {
-      setIsSyncingGuestCart(true);
       syncGuestCartToBackend()
         .then(() => {
           setGuestCartCount(0);
