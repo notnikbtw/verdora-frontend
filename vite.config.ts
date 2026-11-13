@@ -15,13 +15,13 @@ export default defineConfig(({ mode }) => {
     plugins: [react(), tailwindcss(), svgr()],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, './src'),
-        '@components': path.resolve(__dirname, './src/components'),
-        '@hooks': path.resolve(__dirname, './src/hooks'),
-        '@pages': path.resolve(__dirname, './src/pages'),
-        '@api': path.resolve(__dirname, './src/api'),
-        '@fixtures': path.resolve(__dirname, './src/fixtures'),
-        '@assets': path.resolve(__dirname, './src/assets'),
+        '@': path.resolve(import.meta.dirname, './src'),
+        '@components': path.resolve(import.meta.dirname, './src/components'),
+        '@hooks': path.resolve(import.meta.dirname, './src/hooks'),
+        '@pages': path.resolve(import.meta.dirname, './src/pages'),
+        '@api': path.resolve(import.meta.dirname, './src/api'),
+        '@fixtures': path.resolve(import.meta.dirname, './src/fixtures'),
+        '@assets': path.resolve(import.meta.dirname, './src/assets'),
       },
     },
   };

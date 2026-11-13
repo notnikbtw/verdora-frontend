@@ -16,11 +16,7 @@ import {
 } from 'lucide-react';
 
 export type AuthPromptAction =
-  | 'favorite'
-  | 'checkout'
-  | 'orders'
-  | 'profile'
-  | 'general';
+  'favorite' | 'checkout' | 'orders' | 'profile' | 'general';
 
 type Props = {
   open: boolean;
