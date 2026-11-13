@@ -158,11 +158,11 @@ const Login = () => {
             disabled={!isValid || loading.login}
             variant={'outline'}
           >
-            {isSyncingCart
-              ? 'Transferring your cart...'
-              : loading.login
-                ? 'Signing in...'
-                : 'Log in'}
+            {loading.login
+              ? isSyncingCart
+                ? 'Transferring your cart...'
+                : 'Signing in...'
+              : 'Log in'}
           </Button>
         </div>
       </form>

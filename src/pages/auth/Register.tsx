@@ -39,16 +39,20 @@ const Register = () => {
 
   const onSubmit = async (data: RegisterFormData) => {
     if (!canSubmit()) return;
-    await dispatch(
-      register({
-        name: data.username,
-        email: data.email,
-        phone: data.phoneNumber,
-        password: data.password,
-      })
-    ).unwrap();
-    clearOAuthReturnTo();
-    navigate(from, { replace: true });
+    try {
+      await dispatch(
+        register({
+          name: data.username,
+          email: data.email,
+          phone: data.phoneNumber,
+          password: data.password,
+        })
+      ).unwrap();
+      clearOAuthReturnTo();
+      navigate(from, { replace: true });
+    } catch {
+      // The auth slice exposes the registration error in the form.
+    }
   };
 
   return (
@@ -146,12 +150,13 @@ const Register = () => {
           <Button
             type="submit"
             disabled={!isValid || !accepted || loading.register}
+            aria-busy={loading.register}
           >
-            {isSyncingCart
-              ? 'Transferring your cart...'
-              : loading.register
-                ? 'Creating...'
-                : 'Create account'}
+            {loading.register
+              ? isSyncingCart
+                ? 'Transferring your cart...'
+                : 'Creating account...'
+              : 'Create account'}
           </Button>
         </div>
       </form>
