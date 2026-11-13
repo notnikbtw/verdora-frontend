@@ -6,6 +6,7 @@ import type {
   UpdateUserPayload,
   GetAllUsersPayload,
   UserType,
+  UserProfile,
 } from '@/types/user';
 import type { PaginatedData } from '@/types/pagination';
 
@@ -14,14 +15,13 @@ type CartAxiosError = AxiosError<ApiErrorResponse>;
 export const useUpdateUserProfile = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<
-    UserType,
-    CartAxiosError,
-    { id: number; payload: UpdateUserPayload }
-  >({
-    mutationFn: ({ id, payload }) => userService.updateUserProfile(payload, id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
+  return useMutation<UserProfile, CartAxiosError, UpdateUserPayload>({
+    mutationFn: payload => userService.updateUserProfile(payload),
+    onSuccess: profile => {
+      queryClient.setQueryData<UserType>(['profile'], current =>
+        current ? { ...current, ...profile } : undefined
+      );
+      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 };
@@ -43,16 +43,7 @@ export const useGetCurrentUser = () => {
 };
 
 export const useDeleteUser = () => {
-  const queryClient = useQueryClient();
-  return useMutation<
-    null,
-    CartAxiosError,
-    { id: number; data: { password: string } }
-  >({
-    mutationFn: ({ id, data }) => userService.deleteUser(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-    },
+  return useMutation<null, CartAxiosError, { password: string }>({
+    mutationFn: data => userService.deleteUser(data),
   });
 };

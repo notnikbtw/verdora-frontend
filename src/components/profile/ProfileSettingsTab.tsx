@@ -12,42 +12,42 @@ type Props = {
 export const ProfileSettingsTab = ({ user, onOpenDelete }: Props) => {
   return (
     <div className="flex flex-col gap-6">
-      <div className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="flex size-11 items-center justify-center rounded-xl bg-[#EDF5E9] text-[#2F6B29]">
+      <div className="rounded-2xl border border-zinc-200/80 bg-white p-4 sm:p-6 shadow-xs">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#EDF5E9] text-[#2F6B29]">
             <Settings className="size-5" />
           </div>
-          <div>
+          <div className="min-w-0">
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
               Account Settings
             </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground">
+            <p className="wrap-anywhere text-xs sm:text-sm text-muted-foreground">
               Manage your preferences, security settings, and notifications.
             </p>
           </div>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-zinc-200/80 bg-white p-6 sm:p-8 shadow-xs space-y-6">
+      <div className="rounded-2xl border border-zinc-200/80 bg-white p-4 sm:p-8 shadow-xs space-y-6">
         <div className="flex items-center gap-2.5 pb-4 border-b border-zinc-100">
           <ShieldCheck className="size-5 text-[#2F6B29]" />
-          <div>
+          <div className="min-w-0">
             <h3 className="text-base sm:text-lg font-bold text-zinc-900">
               Security & Login
             </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground">
+            <p className="wrap-anywhere text-xs sm:text-sm text-muted-foreground">
               Review authentication settings for {user.email}.
             </p>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-zinc-50 border border-zinc-200/60">
-          <div className="flex items-center gap-3">
-            <div className="size-10 rounded-lg bg-white border border-zinc-200 flex items-center justify-center text-zinc-700">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="size-10 shrink-0 rounded-lg bg-white border border-zinc-200 flex items-center justify-center text-zinc-700">
               <KeyRound className="size-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-semibold text-zinc-900">
                   Account Password
                 </span>
@@ -65,14 +65,14 @@ export const ProfileSettingsTab = ({ user, onOpenDelete }: Props) => {
             variant="outline"
             size="sm"
             asChild
-            className="rounded-xl cursor-pointer self-start sm:self-auto"
+            className="w-full sm:w-auto min-h-11 rounded-xl cursor-pointer self-start sm:self-auto"
           >
             <Link to="/forgot-password">Reset Password</Link>
           </Button>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-red-200/70 bg-white p-6 sm:p-8 shadow-xs">
+      <div className="rounded-2xl border border-red-200/70 bg-white p-4 sm:p-8 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h3 className="text-base font-bold text-red-600">Danger Zone</h3>
@@ -86,7 +86,7 @@ export const ProfileSettingsTab = ({ user, onOpenDelete }: Props) => {
             type="button"
             variant="outline"
             onClick={onOpenDelete}
-            className="border-red-300 text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer gap-2 self-start sm:self-auto rounded-xl"
+            className="w-full sm:w-auto min-h-11 shrink-0 border-red-300 text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer gap-2 self-start sm:self-auto rounded-xl"
           >
             <Trash2 className="size-4" />
             <span>Delete Account</span>
