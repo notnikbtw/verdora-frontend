@@ -190,7 +190,9 @@ createRoot(document.getElementById('root')!).render(
                     <ProductManagement />
                   </ProtectedRoute>
                 }
-              />
+              >
+                <Route path="new" />
+              </Route>
               <Route
                 path="discounts"
                 element={

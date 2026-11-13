@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pencil } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@components/ui/button';
 import type { Category } from '@/types/category';
 import DialogComponent from '@components/common/dialog/DialogComponent';
@@ -10,13 +10,16 @@ import {
   useDeleteCategory,
 } from '@api/category/category.hooks';
 import AlertComponent from '@components/common/dialog/AlertComponent';
+import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder';
+import { TableCell, TableRow } from '@components/ui/table';
 
 type Props = {
   category: Category;
   categoryMaxLength: number;
+  onDeleted?: () => void;
 };
 
-const CategoryRow = ({ category, categoryMaxLength }: Props) => {
+const CategoryRow = ({ category, categoryMaxLength, onDeleted }: Props) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -42,19 +45,54 @@ const CategoryRow = ({ category, categoryMaxLength }: Props) => {
   const errorDelete = deleteMutation.error?.response?.data?.message;
 
   return (
-    <li className="flex items-center justify-between gap-3 px-4 py-3.5">
-      <span className="min-w-0 flex-1 truncate font-medium">
-        {category.name}
-      </span>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleOpenEdit}
-        aria-label={`Edit ${category.name}`}
-      >
-        <Pencil aria-hidden="true" />
-        <span className="hidden sm:inline">Edit</span>
-      </Button>
+    <TableRow>
+      <TableCell className="pl-6">
+        <div className="flex min-w-0 items-center gap-3">
+          <ImageWithPlaceholder
+            src={category.imageUrl}
+            alt=""
+            className="size-11 shrink-0 rounded-md border border-border"
+            iconClassName="size-5"
+          />
+          <span
+            title={category.name}
+            className="min-w-0 max-w-48 sm:max-w-96 truncate font-medium"
+          >
+            {category.name}
+          </span>
+        </div>
+      </TableCell>
+      <TableCell className="text-muted-foreground">
+        #{category.categoryId}
+      </TableCell>
+      <TableCell className="pr-6 text-right">
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleOpenEdit}
+            aria-label={`Edit ${category.name}`}
+            disabled={updateMutation.isPending || deleteMutation.isPending}
+          >
+            <Pencil aria-hidden="true" className="size-4" />
+            Edit
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              deleteMutation.reset();
+              setIsDeleteDialogOpen(true);
+            }}
+            aria-label={`Delete ${category.name}`}
+            disabled={updateMutation.isPending || deleteMutation.isPending}
+            className="text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 aria-hidden="true" className="size-4" />
+            Delete
+          </Button>
+        </div>
+      </TableCell>
 
       <DialogComponent
         open={isEditOpen}
@@ -83,14 +121,6 @@ const CategoryRow = ({ category, categoryMaxLength }: Props) => {
         submitDisabled={!isEditValid || updateMutation.isPending}
         autoCloseOnSubmit={false}
         loading={updateMutation.isPending}
-        thirdActionText="Delete"
-        onThirdAction={() => {
-          deleteMutation.reset();
-          setIsDeleteDialogOpen(true);
-        }}
-        thirdActionDisabled={
-          updateMutation.isPending || deleteMutation.isPending
-        }
       >
         <div className="space-y-4">
           <TextField
@@ -149,13 +179,14 @@ const CategoryRow = ({ category, categoryMaxLength }: Props) => {
               onSuccess: () => {
                 setIsDeleteDialogOpen(false);
                 setIsEditOpen(false);
+                onDeleted?.();
               },
             }
           );
         }}
         isDeleting={deleteMutation.isPending}
       />
-    </li>
+    </TableRow>
   );
 };
 

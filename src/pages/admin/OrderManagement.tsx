@@ -1,3 +1,4 @@
+import { scrollToTop } from '@/utils/scroll.utils';
 import { useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '@components/layout/pageLayout/AdminLayout';
@@ -70,6 +71,10 @@ const FILTER_STATUSES: OrderStatus[] = [
 
 const OrderManagement = () => {
   const [page, setPage] = useState(0);
+  const handlePageChange = (nextPage: number) => {
+    scrollToTop();
+    setPage(nextPage);
+  };
   const [statusFilter, setStatusFilter] = useState<OrderStatus | undefined>();
   const {
     data: ordersPage,
@@ -381,7 +386,7 @@ const OrderManagement = () => {
             <PaginationComponent
               currentPage={page}
               totalPages={ordersPage.totalPages}
-              onPageChange={setPage}
+              onPageChange={handlePageChange}
             />
           </div>
         )}

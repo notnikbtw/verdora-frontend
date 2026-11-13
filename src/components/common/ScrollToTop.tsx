@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
+import { scrollToTop } from '@/utils/scroll.utils';
 
 export const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -23,7 +24,7 @@ export const ScrollToTop = () => {
       (pathname === '/catalog' || pathname === '/sales')
     )
       return;
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    scrollToTop();
   }, [pathname, navigationType]);
 
   return null;

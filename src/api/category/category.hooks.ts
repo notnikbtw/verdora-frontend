@@ -8,13 +8,21 @@ import {
 import { categoryService } from '@api/category/category.service';
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/types/api';
+import type { PaginatedData } from '@/types/pagination';
 import type {
   Category,
   CreateCategoryPayload,
   UpdateCategoryPayload,
+  GetCategoriesPayload,
 } from '@/types/category';
 
 type CategoryAxiosError = AxiosError<ApiErrorResponse>;
+
+export const useGetCategories = (params: GetCategoriesPayload) =>
+  useQuery<PaginatedData<Category>, CategoryAxiosError>({
+    queryKey: ['categories', 'page', params],
+    queryFn: () => categoryService.getCategories(params),
+  });
 
 export const usePaginatedCategories = () =>
   useInfiniteQuery({

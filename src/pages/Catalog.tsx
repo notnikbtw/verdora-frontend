@@ -1,4 +1,5 @@
 import { formatCurrency } from '@/utils/order.utils';
+import { scrollToTop } from '@/utils/scroll.utils';
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router';
 import { useDebounce } from 'use-debounce';
@@ -255,7 +256,7 @@ const Catalog = () => {
   };
 
   const handlePageChange = (page: number) => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    scrollToTop();
     setSearchParams(prev => {
       const next = new URLSearchParams(prev);
       if (page === 0) next.delete('page');
