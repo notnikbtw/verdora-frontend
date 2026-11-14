@@ -26,6 +26,7 @@ const DiscountManagement = lazy(
   () => import('@pages/admin/DiscountManagement')
 );
 const ReportManagement = lazy(() => import('@pages/admin/ReportManagement'));
+const NotFound = lazy(() => import('@pages/NotFound'));
 
 const AppRoutes = () => (
   <Suspense fallback={<PageLoading />}>
@@ -185,6 +186,7 @@ const AppRoutes = () => (
           }
         />
       </Route>
+      <Route path="*" element={<NotFound />} />
     </Routes>
   </Suspense>
 );
