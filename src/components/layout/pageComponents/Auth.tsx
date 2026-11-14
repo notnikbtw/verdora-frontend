@@ -8,7 +8,7 @@ import {
 } from '@components/ui/card';
 import { Button } from '@components/ui/button';
 import LinkComponent from '@components/common/Link';
-import AuthImg from '@assets/images/frame1.png';
+import AuthImg from '@assets/images/auth-plants.webp';
 import Logo from '@components/common/Logo';
 import NoiseBackground from '@components/layout/pageComponents/NoiseBackground';
 import { useLocation } from 'react-router-dom';
@@ -52,11 +52,18 @@ const AuthForm = ({
       <NoiseBackground />
       <div className="relative z-10 flex w-full min-h-screen">
         <div className="hidden lg:block lg:w-1/2 relative min-h-screen overflow-hidden">
-          <img
-            src={AuthImg}
-            alt="Authentication visual"
-            className="w-full h-full object-cover absolute inset-0"
-          />
+          <picture>
+            <source media="(min-width: 1024px)" srcSet={AuthImg} />
+            <img
+              src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+              alt=""
+              width={944}
+              height={1024}
+              decoding="async"
+              fetchPriority="low"
+              className="w-full h-full object-cover absolute inset-0"
+            />
+          </picture>
         </div>
 
         <div className="flex flex-col flex-1 w-full lg:w-1/2 justify-between items-center p-0 sm:p-8 lg:p-10 min-h-screen">
