@@ -14,6 +14,7 @@ import {
 } from '@components/ui/sidebar';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { MAIN_MENU } from '@fixtures/sidebar.fixture';
+import { isSalesLocation } from '@/utils/navigation.utils';
 import { Button } from '@components/ui/button';
 import { LogIn, Search } from 'lucide-react';
 import TextField from '@components/common/forms/TextField';
@@ -37,6 +38,7 @@ const MENU_BADGE_TEXT =
 const MainSidebar = ({ username, email, loading }: Props) => {
   const menuItems = MAIN_MENU;
   const location = useLocation();
+  const isSalesPage = isSalesLocation(location);
   const navigate = useNavigate();
   const { setOpenMobile, setOpen } = useSidebar();
   const [search, setSearch] = useState('');
@@ -106,9 +108,13 @@ const MainSidebar = ({ username, email, loading }: Props) => {
                 <SidebarMenu>
                   {section.items.map(item => {
                     const isActive =
-                      location.pathname === item.path ||
-                      (item.path !== '/' &&
-                        location.pathname.startsWith(item.path));
+                      item.path === '/catalog?discount=true'
+                        ? isSalesPage
+                        : item.path === '/catalog'
+                          ? location.pathname === '/catalog' && !isSalesPage
+                          : location.pathname === item.path ||
+                            (item.path !== '/' &&
+                              location.pathname.startsWith(`${item.path}/`));
 
                     const badge = badges[item.path];
 

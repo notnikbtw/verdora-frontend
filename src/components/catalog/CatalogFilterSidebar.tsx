@@ -26,6 +26,7 @@ type Props = {
   onSaleOnly: boolean;
   onToggleOnSaleOnly: () => void;
   onResetAll?: () => void;
+  activeFilterCount: number;
 };
 
 const CatalogFilterSidebar = ({
@@ -46,14 +47,11 @@ const CatalogFilterSidebar = ({
   onSaleOnly,
   onToggleOnSaleOnly,
   onResetAll,
+  activeFilterCount,
 }: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const filtersId = useId();
   const isPriceRangeInvalid = priceRange[0] > priceRange[1];
-  const activeFiltersCount =
-    (selectedCategoryId !== undefined ? 1 : 0) +
-    (onSaleOnly ? 1 : 0) +
-    (priceRange[0] > 0 || priceRange[1] < maximumPrice ? 1 : 0);
 
   return (
     <aside className="w-full lg:w-72 shrink-0 lg:sticky lg:top-24">
@@ -77,13 +75,13 @@ const CatalogFilterSidebar = ({
             <span className="hidden lg:inline font-heading font-semibold text-text-h text-base">
               Filters
             </span>
-            {activeFiltersCount > 0 && (
+            {activeFilterCount > 0 && (
               <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-primary/10 text-primary">
-                {activeFiltersCount}
+                {activeFilterCount}
               </span>
             )}
           </div>
-          {activeFiltersCount > 0 && (
+          {activeFilterCount > 0 && (
             <Button
               type="button"
               variant="soft"
