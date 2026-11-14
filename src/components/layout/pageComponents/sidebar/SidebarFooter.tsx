@@ -42,7 +42,7 @@ const SidebarFooterComponent = ({ username, email, loading }: Props) => {
                     {username.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{username}</span>
                   <span className="truncate text-xs text-muted-foreground">
                     {email}
