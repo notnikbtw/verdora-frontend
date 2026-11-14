@@ -1,7 +1,7 @@
+import { ShoppingBasket } from 'lucide-react';
 import { useState } from 'react';
 import { EmptySection } from '@components/common/section/EmptySection';
 import { Button } from '@components/ui/button';
-import CartIcon from '@assets/icons/cart.svg?react';
 import { Link } from 'react-router-dom';
 import type { Product } from '@/types/product';
 import SectionLayout from '@components/common/section/SectionLayout';
@@ -82,7 +82,7 @@ const ProductGridSection = ({
           title={emptyTitle}
           description={emptyDescription}
           className="flex-1 p-4 col-span-full"
-          icon={<CartIcon className="size-4" />}
+          icon={<ShoppingBasket aria-hidden="true" className="size-4" />}
           action={
             <Button variant="default" asChild>
               <Link to="/catalog">View products</Link>

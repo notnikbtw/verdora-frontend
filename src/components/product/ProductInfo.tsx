@@ -1,7 +1,7 @@
 import { formatCurrency } from '@/utils/order.utils';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Check } from 'lucide-react';
+import { Heart, Check, ShoppingBasket } from 'lucide-react';
 import { useAppSelector } from '@api/hooks';
 import { useAddItemToCart } from '@api/cart/cart.hooks';
 import LoginPromptDialog, {
@@ -238,21 +238,7 @@ export const ProductInfo = ({
               <span>Adding...</span>
             ) : (
               <>
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="shrink-0"
-                >
-                  <path d="M9 8V6.5A3 3 0 0 1 15 6.5V8" />
-                  <path d="M4 8h16l-1.3 10.2a2 2 0 0 1-2 1.8H7.3a2 2 0 0 1-2-1.8L4 8Z" />
-                  <path d="M10 12v3M14 12v3" />
-                </svg>
+                <ShoppingBasket aria-hidden="true" className="size-5" />
                 <span>Add to cart</span>
               </>
             )}

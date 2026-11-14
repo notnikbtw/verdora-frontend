@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import TextField from '@components/common/forms/TextField';
-import EyeOpenIcon from '@assets/icons/eye-open.svg?react';
-import EyeClosedIcon from '@assets/icons/eye-close.svg?react';
+import { Eye, EyeOff } from 'lucide-react';
 
 type Props = Omit<
   React.ComponentProps<typeof TextField>,
@@ -19,9 +18,9 @@ const PasswordField = (props: Props) => {
       type={show ? 'text' : 'password'}
       rightIcon={
         show ? (
-          <EyeOpenIcon className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" />
+          <EyeOff aria-hidden="true" className="size-5 text-zinc-400" />
         ) : (
-          <EyeClosedIcon className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" />
+          <Eye aria-hidden="true" className="size-5 text-zinc-400" />
         )
       }
       onRightIconClick={() => setShow(prev => !prev)}

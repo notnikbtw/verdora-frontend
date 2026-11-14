@@ -1,7 +1,8 @@
+import { Mail, LockKeyhole } from 'lucide-react';
 import { Button } from '@components/ui/button';
 import PasswordField from '@components/common/forms/PasswordField';
 import TextField from '@components/common/forms/TextField';
-import { useNavigate, useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useLoginForm, type LoginFormData } from '@hooks/useLoginForm';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { login, NO_INTERNET_MESSAGE } from '@api/auth/auth.actions';
@@ -12,8 +13,6 @@ import { useMemo, useEffect } from 'react';
 import AuthForm from '@components/layout/pageComponents/Auth';
 import LinkComponent from '@components/common/Link';
 import NoticeAlert from '@components/common/NoticeAlert';
-import MailIcon from '@assets/icons/message.svg?react';
-import LockIcon from '@assets/icons/lock.svg?react';
 import { toast } from 'react-toastify';
 import { focusFirstInvalidField, notifyFormError } from '@/utils/form.utils';
 import { useGuestCartSyncStatus } from '@hooks/useGuestCartSyncStatus';
@@ -121,7 +120,7 @@ const Login = () => {
           onChange={value => handleFieldChange('email', value)}
           onBlur={() => trigger('email')}
           error={formErrors.email?.message}
-          leftIcon={<MailIcon />}
+          leftIcon={<Mail aria-hidden="true" className="size-4" />}
         />
         <PasswordField
           required
@@ -132,7 +131,7 @@ const Login = () => {
           onChange={value => handleFieldChange('password', value)}
           onBlur={() => trigger('password')}
           error={formErrors.password?.message}
-          leftIcon={<LockIcon />}
+          leftIcon={<LockKeyhole aria-hidden="true" className="size-4" />}
         />
 
         <div className="flex flex-col gap-2">

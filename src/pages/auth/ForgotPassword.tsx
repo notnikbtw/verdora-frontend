@@ -1,3 +1,4 @@
+import { Mail } from 'lucide-react';
 import AuthForm from '@/components/layout/pageComponents/Auth';
 import TextField from '@components/common/forms/TextField';
 import { Button } from '@components/ui/button';
@@ -9,7 +10,6 @@ import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { forgotPassword } from '@api/auth/auth.actions';
 import { useMemo, useState } from 'react';
 import { rateLimit } from '@/utils/rateLimit';
-import MailIcon from '@assets/icons/message.svg?react';
 import { toast } from 'react-toastify';
 import { focusFirstInvalidField, notifyFormError } from '@/utils/form.utils';
 
@@ -80,7 +80,7 @@ const ForgotPassword = () => {
           value={watch('email')}
           onChange={handleEmailChange}
           error={formErrors.email?.message}
-          leftIcon={<MailIcon />}
+          leftIcon={<Mail aria-hidden="true" className="size-4" />}
         />
         <Button
           className="w-full"

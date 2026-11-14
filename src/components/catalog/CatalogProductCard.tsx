@@ -1,7 +1,7 @@
 import { formatCurrency } from '@/utils/order.utils';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Check } from 'lucide-react';
+import { Heart, Check, ShoppingBasket } from 'lucide-react';
 import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder';
 import { useAppSelector } from '@api/hooks';
 import { cn } from '@/lib/utils';
@@ -220,20 +220,7 @@ export const CatalogProductCard = ({
             ) : added ? (
               <Check className="size-4 stroke-[2.5]" />
             ) : (
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M9 8V6.5A3 3 0 0 1 15 6.5V8" />
-                <path d="M4 8h16l-1.3 10.2a2 2 0 0 1-2 1.8H7.3a2 2 0 0 1-2-1.8L4 8Z" />
-                <path d="M10 12v3M14 12v3" />
-              </svg>
+              <ShoppingBasket aria-hidden="true" className="size-4.5" />
             )}
           </button>
         </div>

@@ -1,3 +1,4 @@
+import { LockKeyhole } from 'lucide-react';
 import AuthForm from '@/components/layout/pageComponents/Auth';
 import PasswordField from '@components/common/forms/PasswordField';
 import PasswordStrength from '@components/common/forms/PasswordStrength';
@@ -8,10 +9,9 @@ import {
 } from '@hooks/useResetPassword';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { resetPassword } from '@api/auth/auth.actions';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { rateLimit } from '@/utils/rateLimit';
-import LockIcon from '@assets/icons/lock.svg?react';
 import { toast } from 'react-toastify';
 import { focusFirstInvalidField, notifyFormError } from '@/utils/form.utils';
 
@@ -93,7 +93,7 @@ const ResetPassword = () => {
                 setValue('password', value, { shouldValidate: true })
               }
               error={formErrors.password?.message}
-              leftIcon={<LockIcon />}
+              leftIcon={<LockKeyhole aria-hidden="true" className="size-4" />}
             />
             <PasswordStrength password={watch('password')} />
           </div>
@@ -108,7 +108,7 @@ const ResetPassword = () => {
               setValue('confirmPassword', value, { shouldValidate: true })
             }
             error={formErrors.confirmPassword?.message}
-            leftIcon={<LockIcon />}
+            leftIcon={<LockKeyhole aria-hidden="true" className="size-4" />}
           />
           <Button
             type="submit"
