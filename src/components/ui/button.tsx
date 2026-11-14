@@ -14,6 +14,8 @@ const buttonVariants = cva(
           "border-border text-secondary-foreground hover:bg-secondary hover:border-text-secondary-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-input/30 disabled:text-secondary-disabled-foreground disabled:border-border",
         secondary:
           "text-secondary-foreground hover:bg-secondary aria-expanded:bg-secondary aria-expanded:text-secondary-foreground disabled:text-secondary-disabled-foreground",
+        soft:
+          "rounded-xl border-primary/25 bg-primary/5 text-primary hover:bg-primary/10 cursor-pointer",
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         ghost:
@@ -25,6 +27,7 @@ const buttonVariants = cva(
           "bg-transparent text-secondary-foreground hover:bg-[#F0F0F0DE] disabled:text-[#0C0C0C8F] disabled:opacity-100",
       },
       size: {
+        touch: "min-h-11 gap-2 px-4 py-2 text-base",
         default:
           "h-9 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
         xs: "h-6 gap-1 px-2.5 text-xs has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3",

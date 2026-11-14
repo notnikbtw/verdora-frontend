@@ -2,6 +2,7 @@ import { formatCurrency } from '@/utils/order.utils';
 import { ChevronDown, RotateCcw } from 'lucide-react';
 import { useId, useState } from 'react';
 import { Slider } from '@components/ui/slider';
+import { Button } from '@components/ui/button';
 import { Checkbox } from '@components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@components/ui/skeleton';
@@ -81,14 +82,15 @@ const CatalogFilterSidebar = ({
             )}
           </div>
           {activeFiltersCount > 0 && (
-            <button
+            <Button
               type="button"
+              variant="soft"
+              size="touch"
               onClick={onResetAll}
-              className="text-xs text-primary hover:underline flex items-center gap-1 cursor-pointer transition-colors font-medium"
             >
-              <RotateCcw className="size-3" />
+              <RotateCcw aria-hidden="true" className="size-4" />
               <span>Reset all</span>
-            </button>
+            </Button>
           )}
         </div>
         <div
