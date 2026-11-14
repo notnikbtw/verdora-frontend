@@ -5,17 +5,15 @@ import type { ProfileFormData } from '@/schemas/profile.schema';
 import TextField from '@components/common/forms/TextField';
 import { Button } from '@components/ui/button';
 import { Spinner } from '@components/ui/spinner';
-import NoticeAlert from '@components/common/NoticeAlert';
-import { User, Phone, Mail, Check } from 'lucide-react';
+import { User, Phone, Mail } from 'lucide-react';
 import { getInitials } from '@/utils/user.utils';
+import { focusFirstInvalidField } from '@/utils/form.utils';
 
 type Props = {
   user: UserType;
   onCancel: () => void;
   onSubmit: (data: ProfileFormData) => Promise<void>;
   isPending: boolean;
-  isSuccess?: boolean;
-  errorText?: string | null;
 };
 
 export const ProfileEditCard = ({
@@ -23,15 +21,13 @@ export const ProfileEditCard = ({
   onCancel,
   onSubmit,
   isPending,
-  isSuccess = false,
-  errorText,
 }: Props) => {
   const {
     watch,
     setValue,
     handleSubmit,
     reset,
-    formState: { errors, isValid, isDirty },
+    formState: { errors, isDirty },
   } = useProfileForm({
     name: user.name ?? '',
     phone: user.phone ?? '',
@@ -42,11 +38,11 @@ export const ProfileEditCard = ({
       name: user.name ?? '',
       phone: user.phone ?? '',
     });
-  }, [user, reset]);
+  }, [user.name, user.phone, reset]);
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="rounded-2xl border border-zinc-200/80 bg-white p-6 sm:p-8 shadow-xs flex flex-col gap-6">
+      <div className="rounded-2xl border border-zinc-200/80 bg-white p-4 sm:p-8 shadow-xs flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-zinc-100">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">
@@ -58,24 +54,20 @@ export const ProfileEditCard = ({
           </div>
         </div>
 
-        {errorText && (
-          <NoticeAlert
-            variant="error"
-            title="Failed to save profile"
-            message={errorText}
-          />
-        )}
-
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          id="profile-form"
+          onSubmit={handleSubmit(onSubmit, () =>
+            focusFirstInvalidField('profile-form')
+          )}
+          aria-busy={isPending}
           className="flex flex-col gap-6"
           noValidate
         >
           <div className="flex items-center gap-4">
-            <div className="size-20 shrink-0 rounded-full bg-[#3E8D35] border-2 border-white shadow-sm flex items-center justify-center text-2xl font-bold text-white">
+            <div className="size-14 sm:size-20 shrink-0 rounded-full bg-[#3E8D35] border-2 border-white shadow-sm flex items-center justify-center text-xl sm:text-2xl font-bold text-white">
               {getInitials(watch('name') || user.name)}
             </div>
-            <div className="space-y-0.5">
+            <div className="min-w-0 space-y-0.5">
               <span className="text-sm font-semibold text-zinc-900 block">
                 Profile Avatar
               </span>
@@ -90,6 +82,10 @@ export const ProfileEditCard = ({
               type="text"
               id="name"
               label="Full name"
+              required
+              autoComplete="name"
+              disabled={isPending}
+              containerClassName="min-h-11"
               placeholder="Your full name"
               value={watch('name')}
               onChange={val =>
@@ -106,8 +102,11 @@ export const ProfileEditCard = ({
               type="tel"
               id="phone"
               label="Phone number"
+              autoComplete="tel"
+              disabled={isPending}
+              containerClassName="min-h-11"
               placeholder="+380984769000"
-              description="e.g. +380984769000"
+              description="Optional. Use international format, e.g. +380984769000"
               value={watch('phone')}
               onChange={val =>
                 setValue('phone', val, {
@@ -132,21 +131,17 @@ export const ProfileEditCard = ({
             </div>
           </div>
 
-          <div className="pt-4 border-t border-zinc-100 flex flex-wrap items-center gap-3">
+          <div className="pt-4 border-t border-zinc-100 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
             <Button
               type="submit"
-              disabled={isPending || !isValid || !isDirty}
-              className="h-11 px-6 rounded-xl bg-[#3E8D35] hover:bg-[#2F6B29] text-white font-medium cursor-pointer transition-colors gap-2 min-w-36"
+              disabled={isPending || !isDirty}
+              aria-busy={isPending}
+              className="w-full sm:w-auto h-11 px-6 rounded-xl bg-[#3E8D35] hover:bg-[#2F6B29] text-white font-medium cursor-pointer transition-colors gap-2 min-w-36"
             >
               {isPending ? (
                 <>
                   <Spinner className="size-4 text-white" />
                   <span>Saving…</span>
-                </>
-              ) : isSuccess ? (
-                <>
-                  <Check className="size-4 text-white" />
-                  <span>Saved</span>
                 </>
               ) : (
                 <span>Save changes</span>
@@ -158,7 +153,7 @@ export const ProfileEditCard = ({
               variant="outline"
               onClick={onCancel}
               disabled={isPending}
-              className="h-11 px-5 rounded-xl border-zinc-300 text-zinc-700 hover:bg-zinc-50 cursor-pointer transition-colors"
+              className="w-full sm:w-auto h-11 px-5 rounded-xl border-zinc-300 text-zinc-700 hover:bg-zinc-50 cursor-pointer transition-colors"
             >
               Cancel
             </Button>

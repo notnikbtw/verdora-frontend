@@ -2,7 +2,7 @@ import { Button } from '@components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { formatOrderPrice } from '@/utils/order.utils';
 import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 type Props = {
   productId: number;

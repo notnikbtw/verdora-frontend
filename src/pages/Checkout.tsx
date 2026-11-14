@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
-import { Button } from '@components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/ui/card';
 import { Badge } from '@components/ui/badge';
 import { Separator } from '@components/ui/separator';
@@ -10,7 +9,6 @@ import ErrorSection from '@components/common/section/ErrorSection';
 import CartHeader from '@components/layout/pageComponents/CartHeader';
 import TextField from '@components/common/forms/TextField';
 import OrderSummary from '@components/common/cards/OrderSummary';
-import NoticeAlert from '@components/common/NoticeAlert';
 import { formatCurrency } from '@/utils/order.utils';
 import { useGetCart } from '@api/cart/cart.hooks';
 import { useCreateOrder } from '@api/order/order.hooks';
@@ -23,7 +21,8 @@ import {
   PICKUP_LOCATIONS,
   SUBMIT_RATE_LIMIT_MS,
 } from '@/config/checkout.config';
-import { Truck, User, Mail, Phone, RotateCcw } from 'lucide-react';
+import { Truck, User, Mail, Phone } from 'lucide-react';
+import { focusFirstInvalidField } from '@/utils/form.utils';
 import DeliveryMethodSelector from '@components/checkout/DeliveryMethodSelector';
 import DeliveryAddressForm from '@components/checkout/DeliveryAddressForm';
 import PickupLocationSelector from '@components/checkout/PickupLocationSelector';
@@ -45,11 +44,10 @@ const Checkout = () => {
 
   const {
     handleSubmit,
-    formState: { errors: formErrors, isValid },
+    formState: { errors: formErrors, isValid, isValidating },
     watch,
     setValue,
     getValues,
-    trigger,
   } = useCheckoutForm();
 
   const deliveryMethod = watch('deliveryMethod');
@@ -73,6 +71,7 @@ const Checkout = () => {
   const subtotalPrice = Math.max(0, totalPrice - shippingCost);
 
   const onFormSubmit = async (_data: CheckoutFormData) => {
+    if (!agreeToTerms || createOrderMutation.isPending || !canSubmit()) return;
     createOrderMutation.reset();
 
     try {
@@ -81,13 +80,19 @@ const Checkout = () => {
       navigate(`/order-result?orderId=${orderData.orderId}`);
     } catch {
       // Error is caught here to prevent Unhandled Promise Rejection in browser console.
-      // createOrderMutation.error is managed by React Query and displayed in the UI banner.
+      // MutationCache displays one error toast; preserve the form for retry.
     }
   };
 
   const handlePlaceOrderClick = () => {
-    if (!canSubmit() || createOrderMutation.isPending) return;
-    handleSubmit(onFormSubmit)();
+    if (createOrderMutation.isPending) return;
+    if (!agreeToTerms) {
+      document.querySelector<HTMLElement>('[data-order-terms]')?.focus();
+      return;
+    }
+    void handleSubmit(onFormSubmit, () =>
+      focusFirstInvalidField('checkout-form')
+    )();
   };
 
   if (isCartLoading) {
@@ -130,10 +135,6 @@ const Checkout = () => {
     return <Navigate to="/cart" replace />;
   }
 
-  const serverErrorMsg =
-    createOrderMutation.error?.response?.data?.message ||
-    createOrderMutation.error?.message;
-
   return (
     <LayoutPage>
       <div className="page-stack">
@@ -142,161 +143,148 @@ const Checkout = () => {
           subtitle="Review your order details and confirm purchase"
         />
 
-        {serverErrorMsg && (
-          <NoticeAlert
-            variant="error"
-            title="Order Placement Failed"
-            message={serverErrorMsg}
-            className="mb-6"
-            action={
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold"
-                  onClick={handlePlaceOrderClick}
-                  disabled={
-                    createOrderMutation.isPending || !isValid || !agreeToTerms
-                  }
-                >
-                  <RotateCcw className="size-3.5 mr-1.5" />
-                  {createOrderMutation.isPending ? 'Retrying...' : 'Try Again'}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-red-300 text-red-700 hover:bg-red-100 text-xs"
-                  onClick={() => createOrderMutation.reset()}
-                >
-                  Dismiss
-                </Button>
-              </div>
-            }
-          />
-        )}
-
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
+        <form
+          id="checkout-form"
+          noValidate
+          aria-busy={createOrderMutation.isPending}
+          onSubmit={event => {
+            event.preventDefault();
+            handlePlaceOrderClick();
+          }}
+          className="flex flex-col lg:flex-row gap-8 items-start"
+        >
           <div className="min-w-0 flex-1 space-y-6 w-full">
-            <Card>
-              <CardHeader className="pb-3 border-b">
-                <CardTitle className="text-lg flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <User className="size-5 text-gray-700" />
-                    Contact Information
-                  </div>
-                  {currentUser && (
-                    <Badge
-                      variant="outline"
-                      className="text-xs border-emerald-300 text-emerald-700 bg-emerald-50"
-                    >
-                      Pre-filled from account
-                    </Badge>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="sm:col-span-2">
+            <fieldset
+              disabled={createOrderMutation.isPending}
+              className="min-w-0 space-y-6"
+            >
+              <Card>
+                <CardHeader className="pb-3 border-b">
+                  <CardTitle className="text-lg flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <User className="size-5 text-gray-700" />
+                      Contact Information
+                    </div>
+                    {currentUser && (
+                      <Badge
+                        variant="outline"
+                        className="text-xs border-emerald-300 text-emerald-700 bg-emerald-50"
+                      >
+                        Pre-filled from account
+                      </Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="sm:col-span-2">
+                      <TextField
+                        type="text"
+                        label="Full Name"
+                        required
+                        autoComplete="name"
+                        id="name"
+                        placeholder="e.g. John Doe"
+                        value={watch('name')}
+                        onChange={val =>
+                          setValue('name', val, { shouldValidate: true })
+                        }
+                        error={formErrors.name?.message}
+                        leftIcon={<User className="size-4" />}
+                      />
+                    </div>
+
                     <TextField
-                      type="text"
-                      label="Full Name"
-                      id="name"
-                      placeholder="e.g. John Doe"
-                      value={watch('name')}
+                      type="email"
+                      label="Email"
+                      required
+                      autoComplete="email"
+                      id="email"
+                      placeholder="e.g. john@example.com"
+                      value={watch('email')}
                       onChange={val =>
-                        setValue('name', val, { shouldValidate: true })
+                        setValue('email', val, { shouldValidate: true })
                       }
-                      error={formErrors.name?.message}
-                      leftIcon={<User className="size-4" />}
+                      error={formErrors.email?.message}
+                      leftIcon={<Mail className="size-4" />}
+                    />
+
+                    <TextField
+                      type="tel"
+                      label="Phone Number"
+                      required
+                      autoComplete="tel"
+                      id="phone"
+                      placeholder="e.g. +380991234567"
+                      value={watch('phone')}
+                      onChange={val =>
+                        setValue('phone', val, { shouldValidate: true })
+                      }
+                      error={formErrors.phone?.message}
+                      leftIcon={<Phone className="size-4" />}
                     />
                   </div>
+                </CardContent>
+              </Card>
 
-                  <TextField
-                    type="email"
-                    label="Email"
-                    id="email"
-                    placeholder="e.g. john@example.com"
-                    value={watch('email')}
-                    onChange={val =>
-                      setValue('email', val, { shouldValidate: true })
-                    }
-                    error={formErrors.email?.message}
-                    leftIcon={<Mail className="size-4" />}
-                  />
-
-                  <TextField
-                    type="tel"
-                    label="Phone Number"
-                    id="phone"
-                    placeholder="e.g. +380991234567"
-                    value={watch('phone')}
-                    onChange={val =>
-                      setValue('phone', val, { shouldValidate: true })
-                    }
-                    error={formErrors.phone?.message}
-                    leftIcon={<Phone className="size-4" />}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3 border-b">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Truck className="size-5 text-gray-700" />
-                  Delivery Method
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6 pt-4">
-                <DeliveryMethodSelector
-                  selectedMethod={deliveryMethod}
-                  onSelectMethod={method => {
-                    setValue('deliveryMethod', method);
-                    trigger([
-                      'deliveryMethod',
-                      'street',
-                      'building',
-                      'apartment',
-                      'pickupLocationId',
-                    ]);
-                  }}
-                  baseShippingCost={shippingCost}
-                />
-
-                {deliveryMethod === 'delivery' && (
-                  <DeliveryAddressForm
-                    street={watch('street') || ''}
-                    building={watch('building') || ''}
-                    apartment={watch('apartment') || ''}
-                    errors={{
-                      street: formErrors.street?.message,
-                      building: formErrors.building?.message,
-                      apartment: formErrors.apartment?.message,
+              <Card>
+                <CardHeader className="pb-3 border-b">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Truck className="size-5 text-gray-700" />
+                    Delivery Method
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-4">
+                  <DeliveryMethodSelector
+                    selectedMethod={deliveryMethod}
+                    onSelectMethod={method => {
+                      setValue('deliveryMethod', method, {
+                        shouldValidate: true,
+                      });
                     }}
-                    onChangeField={(field, val) =>
-                      setValue(field, val, { shouldValidate: true })
-                    }
+                    baseShippingCost={shippingCost}
                   />
-                )}
 
-                {deliveryMethod === 'pickup' && (
-                  <>
-                    <p role="status" className="text-sm text-gray-600">
-                      The shipping charge shown in Order Summary also applies to
-                      pickup.
-                    </p>
-                    <PickupLocationSelector
-                      locations={PICKUP_LOCATIONS}
-                      selectedLocationId={selectedPickup}
-                      onSelectLocation={id => setValue('pickupLocationId', id)}
+                  {deliveryMethod === 'delivery' && (
+                    <DeliveryAddressForm
+                      street={watch('street') || ''}
+                      building={watch('building') || ''}
+                      apartment={watch('apartment') || ''}
+                      errors={{
+                        street: formErrors.street?.message,
+                        building: formErrors.building?.message,
+                        apartment: formErrors.apartment?.message,
+                      }}
+                      onChangeField={(field, val) =>
+                        setValue(field, val, { shouldValidate: true })
+                      }
                     />
-                  </>
-                )}
-              </CardContent>
-            </Card>
+                  )}
+
+                  {deliveryMethod === 'pickup' && (
+                    <>
+                      <p role="status" className="text-sm text-gray-600">
+                        The shipping charge shown in Order Summary also applies
+                        to pickup.
+                      </p>
+                      <PickupLocationSelector
+                        locations={PICKUP_LOCATIONS}
+                        selectedLocationId={selectedPickup}
+                        onSelectLocation={id =>
+                          setValue('pickupLocationId', id, {
+                            shouldValidate: true,
+                          })
+                        }
+                      />
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </fieldset>
           </div>
 
           <OrderSummary
+            mobileActions
             subtotal={subtotalPrice}
             shippingCost={shippingCost}
             totalCost={totalPrice}
@@ -304,8 +292,10 @@ const Checkout = () => {
             onAgreeToTermsChange={setAgreeToTerms}
             actionButtonText="Confirm & Place Order"
             onAction={handlePlaceOrderClick}
-            isActionDisabled={createOrderMutation.isPending || !isValid}
-            actionDisabledReason="Complete your contact details and delivery information to place your order."
+            isActionDisabled={
+              !isValid || isValidating || createOrderMutation.isPending
+            }
+            actionDisabledReason="Complete all required contact and delivery fields with valid details to continue."
             isActionLoading={createOrderMutation.isPending}
             secondaryActionText="Return to Cart"
             secondaryActionLink="/cart"
@@ -342,7 +332,7 @@ const Checkout = () => {
             </div>
             <Separator />
           </OrderSummary>
-        </div>
+        </form>
       </div>
     </LayoutPage>
   );

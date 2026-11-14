@@ -7,6 +7,7 @@ import { Checkbox } from '@components/ui/checkbox';
 import { Label } from '@components/ui/label';
 import { formatOrderPrice } from '@/utils/order.utils';
 import { cn } from '@/lib/utils';
+import MobileActionBar from '@components/common/MobileActionBar';
 
 type Props = {
   totalItems?: number;
@@ -31,6 +32,7 @@ type Props = {
   loading?: boolean;
   className?: string;
   children?: ReactNode;
+  mobileActions?: boolean;
 };
 
 const OrderSummary = ({
@@ -56,11 +58,20 @@ const OrderSummary = ({
   loading = false,
   className = '',
   children,
+  mobileActions = false,
 }: Props) => {
   const displaySubtotal = subtotal !== undefined ? subtotal : totalItemsPrice;
   const triggerAction = onAction || handleProceedToCheckout;
   const hasTerms = Boolean(showTerms && onAgreeToTermsChange);
   const hintId = useId();
+  const summaryId = useId();
+  const termsId = useId();
+  const mobileHintId = useId();
+  const actionDisabled =
+    loading ||
+    isActionDisabled ||
+    isActionLoading ||
+    (hasTerms && !agreeToTerms);
   const disabledReason = isActionLoading
     ? undefined
     : hasTerms && !agreeToTerms
@@ -68,144 +79,197 @@ const OrderSummary = ({
       : isActionDisabled
         ? actionDisabledReason
         : undefined;
+  const mobilePanel = mobileActions && (
+    <MobileActionBar>
+      <div className="flex items-center justify-between gap-3">
+        <div className="shrink-0">
+          <p className="text-xs text-muted-foreground">Total</p>
+          <p className="text-lg font-bold text-primary">
+            {formatOrderPrice(totalCost)}
+          </p>
+        </div>
+        <Button
+          type="button"
+          onClick={triggerAction}
+          disabled={actionDisabled}
+          aria-busy={loading || isActionLoading}
+          aria-describedby={disabledReason ? mobileHintId : undefined}
+          className="min-h-11 min-w-0 flex-1 whitespace-normal text-sm leading-tight"
+        >
+          {loading || isActionLoading ? 'Processing...' : actionButtonText}
+        </Button>
+      </div>
+      <div
+        id={mobileHintId}
+        className="text-center text-xs text-muted-foreground"
+      >
+        <button
+          type="button"
+          className="min-h-7 underline underline-offset-4"
+          onClick={() => {
+            const target = document.getElementById(
+              hasTerms && !agreeToTerms ? termsId : summaryId
+            );
+            target?.scrollIntoView({ block: 'center', behavior: 'instant' });
+            if (hasTerms && !agreeToTerms)
+              target?.focus({ preventScroll: true });
+          }}
+        >
+          {hasTerms && !agreeToTerms
+            ? 'Review and accept the terms to continue'
+            : 'Review order summary'}
+        </button>
+      </div>
+    </MobileActionBar>
+  );
 
   if (loading) {
     return (
-      <div
-        className={cn(
-          'bg-white p-4 sm:p-6 md:p-8 flex flex-col rounded-2xl border shadow-sm w-full lg:w-80 shrink-0 gap-4 lg:sticky lg:top-24',
-          className
-        )}
-      >
-        <Skeleton className="h-10 w-40" />
+      <>
+        <div
+          className={cn(
+            'bg-white p-4 sm:p-6 md:p-8 flex flex-col rounded-2xl border shadow-sm w-full lg:w-80 shrink-0 gap-4 lg:sticky lg:top-24',
+            className
+          )}
+        >
+          <Skeleton className="h-10 w-40" />
 
-        <div className="flex flex-col gap-3">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-2/3" />
+          <div className="flex flex-col gap-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-2/3" />
+          </div>
+
+          <Skeleton className="h-px w-full" />
+          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-12 w-full" />
         </div>
-
-        <Skeleton className="h-px w-full" />
-        <Skeleton className="h-11 w-full" />
-        <Skeleton className="h-16 w-full" />
-        <Skeleton className="h-12 w-full" />
-      </div>
+        {mobilePanel}
+      </>
     );
   }
 
   return (
-    <div
-      className={cn(
-        'bg-white p-4 sm:p-6 flex flex-col rounded-2xl border shadow-sm w-full lg:w-80 shrink-0 gap-4 lg:sticky lg:top-24',
-        className
-      )}
-    >
-      <h2 className="text-lg font-bold text-gray-900 border-b pb-3">
-        Order Summary
-      </h2>
-
-      {children}
-
-      <div className="space-y-3 pt-1">
-        {displaySubtotal !== undefined && (
-          <div className="flex justify-between text-sm text-gray-600 gap-2">
-            <span>
-              Subtotal {totalItems !== undefined ? `(${totalItems} items)` : ''}
-            </span>
-            <span className="font-medium text-gray-900 shrink-0">
-              {formatOrderPrice(displaySubtotal)}
-            </span>
-          </div>
+    <>
+      <div
+        id={summaryId}
+        className={cn(
+          'bg-white p-4 sm:p-6 flex flex-col rounded-2xl border shadow-sm w-full lg:w-80 shrink-0 gap-4 lg:sticky lg:top-24',
+          className
         )}
+      >
+        <h2 className="text-lg font-bold text-gray-900 border-b pb-3">
+          Order Summary
+        </h2>
 
-        <div className="flex justify-between items-center text-sm text-gray-600 gap-2">
-          <span>Shipping</span>
-          {shippingText !== undefined ? (
-            shippingText
-          ) : (
-            <span className="font-medium text-gray-900 shrink-0">
-              {formatOrderPrice(shippingCost ?? 0)}
-            </span>
+        {children}
+
+        <div className="space-y-3 pt-1">
+          {displaySubtotal !== undefined && (
+            <div className="flex justify-between text-sm text-gray-600 gap-2">
+              <span>
+                Subtotal{' '}
+                {totalItems !== undefined ? `(${totalItems} items)` : ''}
+              </span>
+              <span className="font-medium text-gray-900 shrink-0">
+                {formatOrderPrice(displaySubtotal)}
+              </span>
+            </div>
           )}
+
+          <div className="flex justify-between items-center text-sm text-gray-600 gap-2">
+            <span>Shipping</span>
+            {shippingText !== undefined ? (
+              shippingText
+            ) : (
+              <span className="font-medium text-gray-900 shrink-0">
+                {formatOrderPrice(shippingCost ?? 0)}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
 
-      <Separator />
+        <Separator />
 
-      <div className="flex items-center justify-between font-bold text-gray-900 gap-2">
-        <span className="text-base">Total</span>
-        <span className="text-xl text-emerald-700 shrink-0">
-          {formatOrderPrice(totalCost ?? 0)}
-        </span>
-      </div>
+        <div className="flex items-center justify-between font-bold text-gray-900 gap-2">
+          <span className="text-base">Total</span>
+          <span className="text-xl text-emerald-700 shrink-0">
+            {formatOrderPrice(totalCost ?? 0)}
+          </span>
+        </div>
 
-      {hasTerms && (
-        <div className="flex gap-2 flex-col w-full pt-1">
-          <div className="flex items-start gap-2.5 w-full text-xs">
-            <Checkbox
-              id="orderSummaryTerms"
-              checked={agreeToTerms}
-              onCheckedChange={checked =>
-                onAgreeToTermsChange!(Boolean(checked))
-              }
-              className="mt-0.5 shrink-0"
-            />
-            <Label
-              htmlFor="orderSummaryTerms"
-              className="block min-w-0 text-xs text-gray-600 cursor-pointer leading-tight"
-            >
-              I agree to the{' '}
-              <Link
-                to="/terms"
-                className="underline underline-offset-4 text-gray-900 font-medium"
+        {hasTerms && (
+          <div className="flex gap-2 flex-col w-full pt-1">
+            <div className="flex items-start gap-2.5 w-full text-xs">
+              <Checkbox
+                id={termsId}
+                data-order-terms
+                disabled={isActionLoading}
+                checked={agreeToTerms}
+                onCheckedChange={checked =>
+                  onAgreeToTermsChange!(Boolean(checked))
+                }
+                className="mt-0.5 shrink-0"
+              />
+              <Label
+                htmlFor={termsId}
+                className="block min-w-0 text-xs text-gray-600 cursor-pointer leading-tight"
               >
-                Terms of Service and Privacy Policy
-              </Link>
-            </Label>
+                I agree to the{' '}
+                <Link
+                  to="/terms"
+                  className="underline underline-offset-4 text-gray-900 font-medium"
+                >
+                  Terms of Service and Privacy Policy
+                </Link>
+              </Label>
+            </div>
+
+            {agreeToTermsError && !agreeToTerms && (
+              <p className="text-red-500 text-xs">{agreeToTermsError}</p>
+            )}
           </div>
-
-          {agreeToTermsError && !agreeToTerms && (
-            <p className="text-red-500 text-xs">{agreeToTermsError}</p>
-          )}
-        </div>
-      )}
-
-      <div className="space-y-3 pt-2">
-        <Button
-          onClick={triggerAction}
-          disabled={
-            isActionDisabled || isActionLoading || (hasTerms && !agreeToTerms)
-          }
-          aria-describedby={disabledReason ? hintId : undefined}
-          className="w-full py-6 text-base font-semibold"
-        >
-          {isActionLoading ? 'Processing...' : actionButtonText}
-        </Button>
-        {disabledReason && (
-          <p
-            id={hintId}
-            role="status"
-            className="text-xs text-gray-600 leading-relaxed"
-          >
-            {disabledReason}
-          </p>
         )}
 
-        {secondaryActionText &&
-          (secondaryActionLink ? (
-            <Button variant="outline" className="w-full" asChild>
-              <Link to={secondaryActionLink}>{secondaryActionText}</Link>
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={onSecondaryAction}
+        <div className="space-y-3 pt-2">
+          <Button
+            type="button"
+            onClick={triggerAction}
+            disabled={actionDisabled}
+            aria-busy={isActionLoading}
+            aria-describedby={disabledReason ? hintId : undefined}
+            className="w-full py-6 text-base font-semibold"
+          >
+            {isActionLoading ? 'Processing...' : actionButtonText}
+          </Button>
+          {disabledReason && (
+            <p
+              id={hintId}
+              role="status"
+              className="text-xs text-gray-600 leading-relaxed"
             >
-              {secondaryActionText}
-            </Button>
-          ))}
+              {disabledReason}
+            </p>
+          )}
+
+          {secondaryActionText &&
+            (secondaryActionLink ? (
+              <Button variant="outline" className="w-full" asChild>
+                <Link to={secondaryActionLink}>{secondaryActionText}</Link>
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={onSecondaryAction}
+              >
+                {secondaryActionText}
+              </Button>
+            ))}
+        </div>
       </div>
-    </div>
+      {mobilePanel}
+    </>
   );
 };
 

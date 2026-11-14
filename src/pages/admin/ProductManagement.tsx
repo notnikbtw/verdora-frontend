@@ -1,4 +1,6 @@
+import { scrollToTop } from '@/utils/scroll.utils';
 import { useState, useMemo } from 'react';
+import { useMatch, useNavigate } from 'react-router-dom';
 import AdminLayout from '@components/layout/pageLayout/AdminLayout';
 import AdminSectionHeader from '@components/common/section/AdminSectionHeader';
 import { Button } from '@components/ui/button';
@@ -34,7 +36,18 @@ const SORT_OPTIONS = [
 const PAGE_SIZE = 12;
 
 const ProductManagement = () => {
+  const navigate = useNavigate();
+  const isCreateOpen = Boolean(useMatch('/admin/products/new'));
+  const openCreate = () => {
+    createMutation.reset();
+    navigate('/admin/products/new');
+  };
+  const closeCreate = () => navigate('/admin/products', { replace: true });
   const [page, setPage] = useState(0);
+  const handlePageChange = (nextPage: number) => {
+    scrollToTop();
+    setPage(nextPage);
+  };
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const [categoryId, setCategoryId] = useState<'ALL' | number>('ALL');
@@ -42,7 +55,6 @@ const ProductManagement = () => {
 
   const [selectedProductDetails, setSelectedProductDetails] =
     useState<Product | null>(null);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
 
@@ -99,7 +111,7 @@ const ProductManagement = () => {
       },
       {
         onSuccess: () => {
-          setIsCreateOpen(false);
+          closeCreate();
         },
       }
     );
@@ -145,9 +157,7 @@ const ProductManagement = () => {
   const totalElements = productsData?.totalElements ?? products.length;
 
   const hasActiveFilters = Boolean(
-    search.trim() ||
-    (categoryId && categoryId !== 'ALL') ||
-    sortBy !== 'createdAt,desc'
+    search.trim() || categoryId !== 'ALL' || sortBy !== 'createdAt,desc'
   );
 
   return (
@@ -170,10 +180,7 @@ const ProductManagement = () => {
             Refresh
           </Button>
           <Button
-            onClick={() => {
-              createMutation.reset();
-              setIsCreateOpen(true);
-            }}
+            onClick={openCreate}
             className="cursor-pointer gap-2 w-full sm:w-auto"
             disabled={isCategoriesLoading || isCategoriesError}
           >
@@ -195,8 +202,11 @@ const ProductManagement = () => {
           setPage(0);
         }}
         onCategoryChange={e => {
+          const nextCategoryId = Number(e.target.value);
           setCategoryId(
-            e.target.value === 'ALL' ? 'ALL' : Number(e.target.value)
+            Number.isSafeInteger(nextCategoryId) && nextCategoryId > 0
+              ? nextCategoryId
+              : 'ALL'
           );
           setPage(0);
         }}
@@ -237,7 +247,7 @@ const ProductManagement = () => {
         search={search}
         categoryId={categoryId}
         categoryIdToNameMap={categoryIdToNameMap}
-        onPageChange={setPage}
+        onPageChange={handlePageChange}
         onRefetch={refetchProducts}
         onClearAllFilters={() => {
           setSearch('');
@@ -251,10 +261,7 @@ const ProductManagement = () => {
           setEditingProduct(prod);
         }}
         onDelete={setDeletingProduct}
-        onCreateOpen={() => {
-          createMutation.reset();
-          setIsCreateOpen(true);
-        }}
+        onCreateOpen={openCreate}
       />
 
       <ProductDetailsDialog
@@ -276,7 +283,9 @@ const ProductManagement = () => {
         open={isCreateOpen}
         categoriesData={categoriesData}
         onSubmit={handleCreateSubmit}
-        onOpenChange={setIsCreateOpen}
+        onOpenChange={open => {
+          if (!open) closeCreate();
+        }}
         isPending={createMutation.isPending}
         errorMessage={createMutation.error?.response?.data?.message}
       />

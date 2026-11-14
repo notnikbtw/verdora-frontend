@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
+import { useIsMobile } from '@hooks/use-mobile';
+import { toast } from 'react-toastify';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import Breadcrumbs from '@components/common/Breadcrumbs';
-import NoticeAlert from '@components/common/NoticeAlert';
 import ErrorSection from '@components/common/section/ErrorSection';
 import { Tabs, TabsContent } from '@components/ui/tabs';
 import { ProfileNavSidebar } from '@components/profile/ProfileNavSidebar';
@@ -22,9 +23,13 @@ import type { ProfileFormData } from '@/schemas/profile.schema';
 import { useAppDispatch } from '@api/hooks';
 import { updateUser, clearAuth } from '@api/auth/auth.slice';
 import { useQueryClient } from '@tanstack/react-query';
+import { clearGuestCart } from '@/utils/guestCart';
+import { clearCheckoutDraft } from '@/utils/checkoutDraft';
+import { clearOAuthReturnTo } from '@/utils/oauthReturnTo';
 
 export const Profile = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
@@ -80,70 +85,42 @@ export const Profile = () => {
 
   const [mode, setMode] = useState<'view' | 'edit'>('view');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [successToast, setSuccessToast] = useState<string | null>(null);
-  const [updateError, setUpdateError] = useState<string | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (successToast) {
-      const timer = setTimeout(() => setSuccessToast(null), 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [successToast]);
 
   const handleSaveProfile = async (formData: ProfileFormData) => {
-    if (!user) return;
-    setUpdateError(null);
+    if (!user || updateMutation.isPending) return;
 
     try {
       const updated = await updateMutation.mutateAsync({
-        id: user.id,
-        payload: {
-          name: formData.name,
-          phone: formData.phone,
-        },
+        name: formData.name,
+        ...(formData.phone ? { phone: formData.phone } : {}),
       });
 
-      dispatch(updateUser(updated));
-      setSuccessToast('Profile updated successfully');
+      dispatch(updateUser({ ...user, ...updated }));
+      toast.success('Profile updated successfully');
       setMode('view');
-    } catch (err: unknown) {
-      const apiErr = err as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      const msg =
-        apiErr?.response?.data?.message ||
-        apiErr?.message ||
-        'Failed to save profile changes. Please try again.';
-      setUpdateError(msg);
+    } catch {
+      // MutationCache.onError displays the error toast; keep the form editable.
     }
   };
 
   const handleDeleteAccount = async (password: string) => {
-    if (!user) return;
-    setDeleteError(null);
+    if (!user || deleteMutation.isPending) return;
 
     try {
       await deleteMutation.mutateAsync({
-        id: user.id,
-        data: { password },
+        password,
       });
 
+      clearGuestCart();
+      if (user.id !== undefined) clearCheckoutDraft(user.id);
+      clearOAuthReturnTo();
       dispatch(clearAuth());
       queryClient.clear();
       setIsDeleteModalOpen(false);
       navigate('/', { replace: true });
-    } catch (err: unknown) {
-      const apiErr = err as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      const msg =
-        apiErr?.response?.data?.message ||
-        apiErr?.message ||
-        'Failed to delete account. Please verify your password.';
-      setDeleteError(msg);
+      toast.success('Your account has been deleted');
+    } catch {
+      // MutationCache.onError displays the error toast; keep the dialog open.
     }
   };
 
@@ -151,14 +128,6 @@ export const Profile = () => {
     <LayoutPage>
       <div className="page-stack sm:py-8">
         <Breadcrumbs items={breadcrumbsItems} />
-
-        {successToast && (
-          <NoticeAlert
-            variant="success"
-            message={successToast}
-            onDismiss={() => setSuccessToast(null)}
-          />
-        )}
 
         {isLoading ? (
           <ProfileSkeleton />
@@ -179,10 +148,10 @@ export const Profile = () => {
           <Tabs
             value={activeTab}
             onValueChange={handleTabChange}
-            orientation="vertical"
+            orientation={isMobile ? 'horizontal' : 'vertical'}
             className="w-full gap-0"
           >
-            <div className="flex flex-col md:flex-row gap-8 items-start w-full">
+            <div className="flex flex-col md:flex-row gap-5 md:gap-8 items-start w-full">
               <ProfileNavSidebar />
 
               <div className="flex-1 min-w-0 w-full">
@@ -190,26 +159,14 @@ export const Profile = () => {
                   {mode === 'view' ? (
                     <ProfileViewCard
                       user={user}
-                      onStartEdit={() => {
-                        setUpdateError(null);
-                        setMode('edit');
-                      }}
-                      onOpenDelete={() => {
-                        setDeleteError(null);
-                        setIsDeleteModalOpen(true);
-                      }}
+                      onStartEdit={() => setMode('edit')}
                     />
                   ) : (
                     <ProfileEditCard
                       user={user}
-                      onCancel={() => {
-                        setUpdateError(null);
-                        setMode('view');
-                      }}
+                      onCancel={() => setMode('view')}
                       onSubmit={handleSaveProfile}
                       isPending={updateMutation.isPending}
-                      isSuccess={updateMutation.isSuccess}
-                      errorText={updateError}
                     />
                   )}
                 </TabsContent>
@@ -225,10 +182,7 @@ export const Profile = () => {
                 <TabsContent value="settings" className="mt-0 outline-none">
                   <ProfileSettingsTab
                     user={user}
-                    onOpenDelete={() => {
-                      setDeleteError(null);
-                      setIsDeleteModalOpen(true);
-                    }}
+                    onOpenDelete={() => setIsDeleteModalOpen(true)}
                   />
                 </TabsContent>
               </div>
@@ -238,13 +192,9 @@ export const Profile = () => {
 
         <DeleteAccountModal
           open={isDeleteModalOpen}
-          onOpenChange={open => {
-            if (!open) setDeleteError(null);
-            setIsDeleteModalOpen(open);
-          }}
+          onOpenChange={setIsDeleteModalOpen}
           onConfirmDelete={handleDeleteAccount}
           isDeleting={deleteMutation.isPending}
-          errorText={deleteError}
         />
       </div>
     </LayoutPage>
