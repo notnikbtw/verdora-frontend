@@ -59,19 +59,21 @@ const CatalogFilterSidebar = ({
     <aside className="w-full lg:w-72 shrink-0 lg:sticky lg:top-24">
       <ScrollArea className="w-full rounded-xl border border-border bg-[#fcfdfb] shadow-xs lg:max-h-[calc(100dvh-7rem)]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-[#fcfdfb] sticky top-0 z-10">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-expanded={isExpanded}
-              aria-controls={filtersId}
-              onClick={() => setIsExpanded(value => !value)}
-              className="flex min-h-11 items-center gap-2 font-heading font-semibold text-text-h text-base lg:hidden"
-            >
+          <button
+            type="button"
+            aria-label="Filters"
+            aria-expanded={isExpanded}
+            aria-controls={filtersId}
+            onClick={() => setIsExpanded(value => !value)}
+            className="absolute inset-0 cursor-pointer rounded-t-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary lg:hidden"
+          />
+          <div className="pointer-events-none flex items-center gap-2">
+            <span className="flex min-h-11 items-center gap-2 font-heading font-semibold text-text-h text-base lg:hidden">
               Filters
               <ChevronDown
                 className={`size-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
               />
-            </button>
+            </span>
             <span className="hidden lg:inline font-heading font-semibold text-text-h text-base">
               Filters
             </span>
@@ -86,6 +88,7 @@ const CatalogFilterSidebar = ({
               type="button"
               variant="soft"
               size="touch"
+              className="relative z-10"
               onClick={onResetAll}
             >
               <RotateCcw aria-hidden="true" className="size-4" />

@@ -14,7 +14,7 @@ body {
 
 @media (max-width: 767px) {
   body:has([data-mobile-action-bar]) .Toastify__toast-container--bottom-center {
-    bottom: calc(9rem + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(var(--mobile-action-bar-height, 0px) + 0.75rem) !important;
   }
 }
 
