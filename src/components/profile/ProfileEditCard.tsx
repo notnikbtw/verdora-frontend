@@ -7,6 +7,7 @@ import { Button } from '@components/ui/button';
 import { Spinner } from '@components/ui/spinner';
 import { User, Phone, Mail } from 'lucide-react';
 import { getInitials } from '@/utils/user.utils';
+import { focusFirstInvalidField } from '@/utils/form.utils';
 
 type Props = {
   user: UserType;
@@ -26,7 +27,7 @@ export const ProfileEditCard = ({
     setValue,
     handleSubmit,
     reset,
-    formState: { errors, isValid, isDirty },
+    formState: { errors, isDirty },
   } = useProfileForm({
     name: user.name ?? '',
     phone: user.phone ?? '',
@@ -54,7 +55,10 @@ export const ProfileEditCard = ({
         </div>
 
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          id="profile-form"
+          onSubmit={handleSubmit(onSubmit, () =>
+            focusFirstInvalidField('profile-form')
+          )}
           aria-busy={isPending}
           className="flex flex-col gap-6"
           noValidate
@@ -78,6 +82,8 @@ export const ProfileEditCard = ({
               type="text"
               id="name"
               label="Full name"
+              required
+              autoComplete="name"
               disabled={isPending}
               containerClassName="min-h-11"
               placeholder="Your full name"
@@ -96,6 +102,7 @@ export const ProfileEditCard = ({
               type="tel"
               id="phone"
               label="Phone number"
+              autoComplete="tel"
               disabled={isPending}
               containerClassName="min-h-11"
               placeholder="+380984769000"
@@ -127,7 +134,7 @@ export const ProfileEditCard = ({
           <div className="pt-4 border-t border-zinc-100 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
             <Button
               type="submit"
-              disabled={isPending || !isValid || !isDirty}
+              disabled={isPending || !isDirty}
               aria-busy={isPending}
               className="w-full sm:w-auto h-11 px-6 rounded-xl bg-[#3E8D35] hover:bg-[#2F6B29] text-white font-medium cursor-pointer transition-colors gap-2 min-w-36"
             >

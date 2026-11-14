@@ -39,6 +39,12 @@ body {
   font-family: var(--sans);
 }
 
+@media (max-width: 767px) {
+  body:has([data-mobile-action-bar]) .Toastify__toast-container--bottom-center {
+    bottom: calc(9rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
 *,
 *::before,
 *::after {

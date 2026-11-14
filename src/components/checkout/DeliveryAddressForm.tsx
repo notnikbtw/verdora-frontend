@@ -34,6 +34,8 @@ const DeliveryAddressForm = ({
           <TextField
             type="text"
             label="Street Address"
+            required
+            autoComplete="address-line1"
             id="street"
             placeholder="e.g. Khreshchatyk St"
             value={street}
@@ -44,6 +46,7 @@ const DeliveryAddressForm = ({
         <TextField
           type="text"
           label="Building / House"
+          required
           id="building"
           placeholder="e.g. 15B"
           value={building}

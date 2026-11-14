@@ -17,19 +17,21 @@ import MailIcon from '@assets/icons/message.svg?react';
 import LockIcon from '@assets/icons/lock.svg?react';
 import { useGuestCartSyncStatus } from '@hooks/useGuestCartSyncStatus';
 import { clearOAuthReturnTo } from '@/utils/oauthReturnTo';
+import { toast } from 'react-toastify';
+import { focusFirstInvalidField, notifyFormError } from '@/utils/form.utils';
 
 const Register = () => {
   const isSyncingCart = useGuestCartSyncStatus();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { loading, errors } = useAppSelector(state => state.auth);
+  const { loading } = useAppSelector(state => state.auth);
 
   const from = (location.state as { from?: Location })?.from?.pathname || '/';
 
   const {
     handleSubmit,
-    formState: { errors: formErrors, isValid },
+    formState: { errors: formErrors },
     watch,
     setValue,
   } = useRegisterForm();
@@ -38,6 +40,7 @@ const Register = () => {
   const canSubmit = useMemo(() => rateLimit(2000), []);
 
   const onSubmit = async (data: RegisterFormData) => {
+    if (loading.register) return;
     if (!canSubmit()) return;
     try {
       await dispatch(
@@ -50,8 +53,9 @@ const Register = () => {
       ).unwrap();
       clearOAuthReturnTo();
       navigate(from, { replace: true });
-    } catch {
-      // The auth slice exposes the registration error in the form.
+      toast.success('Your account has been created');
+    } catch (error) {
+      notifyFormError(error);
     }
   };
 
@@ -63,13 +67,21 @@ const Register = () => {
       footerLinkText="Log in"
     >
       <form
+        id="register-form"
+        noValidate
+        aria-busy={loading.register}
         className="flex flex-col items-center justify-center gap-4 w-full"
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, () =>
+          focusFirstInvalidField('register-form')
+        )}
       >
         <TextField
           type="text"
           label="Full name"
           id="username"
+          autoComplete="name"
+          required
+          disabled={loading.register}
           placeholder="Name Surname"
           value={watch('username')}
           onChange={value =>
@@ -79,9 +91,12 @@ const Register = () => {
           leftIcon={<UserIcon />}
         />
         <TextField
-          type="text"
+          type="email"
           label="Email"
           id="email"
+          autoComplete="email"
+          required
+          disabled={loading.register}
           placeholder="yourmail@gmail.com"
           value={watch('email')}
           onChange={value => setValue('email', value, { shouldValidate: true })}
@@ -92,6 +107,9 @@ const Register = () => {
           type="tel"
           label="Phone number"
           id="phone"
+          autoComplete="tel"
+          required
+          disabled={loading.register}
           placeholder="+38066671122"
           leftIcon={<PhoneIcon />}
           value={watch('phoneNumber')}
@@ -102,6 +120,9 @@ const Register = () => {
         />
         <div className="w-full">
           <PasswordField
+            autoComplete="new-password"
+            required
+            disabled={loading.register}
             label="Password"
             placeholder="********"
             value={watch('password')}
@@ -114,6 +135,9 @@ const Register = () => {
           <PasswordStrength password={watch('password')} />
         </div>
         <PasswordField
+          autoComplete="new-password"
+          required
+          disabled={loading.register}
           label="Confirm Password"
           placeholder="********"
           value={watch('confirmPassword')}
@@ -124,10 +148,13 @@ const Register = () => {
           leftIcon={<LockIcon />}
         />
         <div className="flex flex-col gap-2 w-full">
-          <div className="flex items-center gap-1">
+          <div className="flex items-start gap-2.5">
             <Checkbox
               id="acceptedTerms"
               checked={accepted}
+              disabled={loading.register}
+              aria-invalid={Boolean(formErrors.acceptedTerms)}
+              className="mt-0.5 shrink-0"
               onCheckedChange={checked =>
                 setValue('acceptedTerms', checked === true, {
                   shouldValidate: true,
@@ -136,20 +163,18 @@ const Register = () => {
             />
             <label
               htmlFor="acceptedTerms"
-              className="text-sm text-[#888888] [font-family:var(--font-sans)] cursor-pointer"
+              className="block min-w-0 text-sm text-muted-foreground cursor-pointer"
             >
-              Agreed with
+              I agree to the{' '}
+              <LinkComponent
+                text="Terms of Service and Privacy Policy"
+                to="/terms"
+              />
             </label>
-            <LinkComponent text="Terms and Conditions" to="/terms" />
           </div>
-          {errors.register && (
-            <p className="text-red-500 text-sm mt-2 text-center">
-              {errors.register}
-            </p>
-          )}
           <Button
             type="submit"
-            disabled={!isValid || !accepted || loading.register}
+            disabled={!accepted || loading.register}
             aria-busy={loading.register}
           >
             {loading.register
