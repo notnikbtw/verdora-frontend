@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router';
 import { useDebounce } from 'use-debounce';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
+import { Button } from '@components/ui/button';
 import Breadcrumbs from '@components/common/Breadcrumbs';
 import { SectionHeader } from '@components/common/section/AdminSectionHeader';
 import { PaginationComponent } from '@components/common/pagination/Pagination';
@@ -21,7 +22,7 @@ import { useToggleFavorite } from '@hooks/useToggleFavorite';
 import { useAddProductToCart } from '@hooks/useAddProductToCart';
 import { useCatalogScrollRestoration } from '@hooks/useCatalogScrollRestoration';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
-import { X } from 'lucide-react';
+import { RotateCcw, X } from 'lucide-react';
 import type { GetProductsPayload } from '@/types/product';
 import {
   DEFAULT_MAX_PRICE,
@@ -485,13 +486,15 @@ const Catalog = () => {
                     <X aria-hidden="true" className="size-4 shrink-0" />
                   </button>
                 ))}
-                <button
+                <Button
                   type="button"
+                  variant="soft"
+                  size="touch"
                   onClick={handleResetAll}
-                  className="min-h-11 px-2 text-sm font-medium text-primary hover:underline"
                 >
+                  <RotateCcw aria-hidden="true" className="size-4 shrink-0" />
                   Clear all filters
-                </button>
+                </Button>
               </div>
             )}
 
