@@ -1,7 +1,7 @@
 import { Provider } from 'react-redux';
 import { store } from '@api/store';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router';
+import { BrowserRouter } from 'react-router-dom';
 import AppRoutes from '@/AppRoutes';
 import '@/index.css';
 import 'react-toastify/dist/ReactToastify.css';
