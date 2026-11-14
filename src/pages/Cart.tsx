@@ -1,7 +1,7 @@
+import { ShoppingBasket } from 'lucide-react';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import { Button } from '@components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
-import CartIcon from '@assets/icons/cart.svg?react';
 import CartItem from '@components/common/cards/CartItem';
 import OrderSummary from '@components/common/cards/OrderSummary';
 import { useEffect, useMemo, useState } from 'react';
@@ -285,7 +285,10 @@ const Cart = () => {
           className="rounded-xl border border-dashed border-border bg-card p-12 shadow-xs my-6"
           icon={
             <div className="flex items-center justify-center rounded-full bg-primary/10 p-4">
-              <CartIcon className="size-8 text-primary" />
+              <ShoppingBasket
+                aria-hidden="true"
+                className="size-8 text-primary"
+              />
             </div>
           }
           action={

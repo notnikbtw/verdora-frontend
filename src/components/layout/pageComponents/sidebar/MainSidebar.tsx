@@ -15,9 +15,8 @@ import {
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { MAIN_MENU } from '@fixtures/sidebar.fixture';
 import { Button } from '@components/ui/button';
-import { LogIn } from 'lucide-react';
+import { LogIn, Search } from 'lucide-react';
 import TextField from '@components/common/forms/TextField';
-import SearchIcon from '@assets/icons/search.svg?react';
 import React, { useState } from 'react';
 import { useAppSelector } from '@api/hooks';
 import { useGetFavorites } from '@api/favorites/favorites.hooks';
@@ -94,7 +93,7 @@ const MainSidebar = ({ username, email, loading }: Props) => {
             <TextField
               type="text"
               placeholder="Search plants"
-              rightIcon={<SearchIcon />}
+              rightIcon={<Search aria-hidden="true" className="size-4" />}
               value={search}
               onChange={val => setSearch(val)}
               onRightIconClick={handleSearchSubmit}

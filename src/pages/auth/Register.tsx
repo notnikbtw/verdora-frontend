@@ -1,7 +1,8 @@
+import { Mail, LockKeyhole, UserRound, Phone } from 'lucide-react';
 import { Button } from '@components/ui/button';
 import PasswordField from '@components/common/forms/PasswordField';
 import TextField from '@components/common/forms/TextField';
-import { useNavigate, useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useRegisterForm, type RegisterFormData } from '@hooks/useRegisterForm';
 import PasswordStrength from '@components/common/forms/PasswordStrength';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
@@ -11,10 +12,6 @@ import { useMemo } from 'react';
 import AuthForm from '@components/layout/pageComponents/Auth';
 import LinkComponent from '@components/common/Link';
 import { Checkbox } from '@components/ui/checkbox';
-import UserIcon from '@assets/icons/user.svg?react';
-import PhoneIcon from '@assets/icons/call.svg?react';
-import MailIcon from '@assets/icons/message.svg?react';
-import LockIcon from '@assets/icons/lock.svg?react';
 import { useGuestCartSyncStatus } from '@hooks/useGuestCartSyncStatus';
 import { clearOAuthReturnTo } from '@/utils/oauthReturnTo';
 import { toast } from 'react-toastify';
@@ -88,7 +85,7 @@ const Register = () => {
             setValue('username', value, { shouldValidate: true })
           }
           error={formErrors.username?.message}
-          leftIcon={<UserIcon />}
+          leftIcon={<UserRound aria-hidden="true" className="size-4" />}
         />
         <TextField
           type="email"
@@ -101,7 +98,7 @@ const Register = () => {
           value={watch('email')}
           onChange={value => setValue('email', value, { shouldValidate: true })}
           error={formErrors.email?.message}
-          leftIcon={<MailIcon />}
+          leftIcon={<Mail aria-hidden="true" className="size-4" />}
         />
         <TextField
           type="tel"
@@ -111,7 +108,7 @@ const Register = () => {
           required
           disabled={loading.register}
           placeholder="+38066671122"
-          leftIcon={<PhoneIcon />}
+          leftIcon={<Phone aria-hidden="true" className="size-4" />}
           value={watch('phoneNumber')}
           onChange={value =>
             setValue('phoneNumber', value, { shouldValidate: true })
@@ -130,7 +127,7 @@ const Register = () => {
               setValue('password', value, { shouldValidate: true })
             }
             error={formErrors.password?.message}
-            leftIcon={<LockIcon />}
+            leftIcon={<LockKeyhole aria-hidden="true" className="size-4" />}
           />
           <PasswordStrength password={watch('password')} />
         </div>
@@ -145,7 +142,7 @@ const Register = () => {
             setValue('confirmPassword', value, { shouldValidate: true })
           }
           error={formErrors.confirmPassword?.message}
-          leftIcon={<LockIcon />}
+          leftIcon={<LockKeyhole aria-hidden="true" className="size-4" />}
         />
         <div className="flex flex-col gap-2 w-full">
           <div className="flex items-start gap-2.5">
