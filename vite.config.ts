@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import svgr from 'vite-plugin-svgr';
 import path from 'path';
 
 export default defineConfig(({ mode }) => {
@@ -12,7 +11,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: mode === 'production' ? productionBase : '/',
-    plugins: [react(), tailwindcss(), svgr()],
+    plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
         '@': path.resolve(import.meta.dirname, './src'),

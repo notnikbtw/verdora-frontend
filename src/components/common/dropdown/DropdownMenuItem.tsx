@@ -1,9 +1,6 @@
-import {
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from '@radix-ui/react-dropdown-menu';
+import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui';
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import type { UserMenuItems } from '@/types/sidebar';
 
 type DropdownMenuSidebarProps = {
@@ -18,7 +15,7 @@ const DropdownMenuItems: React.FC<DropdownMenuSidebarProps> = ({
   return (
     <>
       {items.map(item => (
-        <DropdownMenuItem key={item.path} asChild>
+        <DropdownMenuPrimitive.Item key={item.path} asChild>
           <Link
             to={item.path}
             className="flex items-center gap-2 w-full px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
@@ -26,9 +23,9 @@ const DropdownMenuItems: React.FC<DropdownMenuSidebarProps> = ({
             {item.icon && <item.icon />}
             <span>{item.label}</span>
           </Link>
-        </DropdownMenuItem>
+        </DropdownMenuPrimitive.Item>
       ))}
-      {separator && <DropdownMenuSeparator />}
+      {separator && <DropdownMenuPrimitive.Separator />}
     </>
   );
 };

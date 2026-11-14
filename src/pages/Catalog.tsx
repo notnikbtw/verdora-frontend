@@ -1,7 +1,7 @@
 import { formatCurrency } from '@/utils/order.utils';
 import { scrollToTop } from '@/utils/scroll.utils';
 import { useState, useMemo, useEffect } from 'react';
-import { useSearchParams, useLocation, useNavigate } from 'react-router';
+import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { useDebounce } from 'use-debounce';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import { Button } from '@components/ui/button';

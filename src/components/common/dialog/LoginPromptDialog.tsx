@@ -1,4 +1,4 @@
-import { useNavigate, useLocation, Link } from 'react-router';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,

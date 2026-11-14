@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import PageLoading from '@components/common/PageLoading';
 import ProtectedRoute from '@/guards/ProtectedRoute';
 import OAuthReturnHandler from '@components/common/OAuthReturnHandler';
