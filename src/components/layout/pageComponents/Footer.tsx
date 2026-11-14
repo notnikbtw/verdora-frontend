@@ -40,7 +40,7 @@ const CONTACT_INFO = [
 
 const Footer = () => {
   return (
-    <footer className="relative w-full font-sans overflow-hidden bg-[#C3E3BD] text-foreground">
+    <footer className="relative w-full pb-[var(--mobile-action-bar-height,0px)] md:pb-0 font-sans overflow-hidden bg-[#C3E3BD] text-foreground">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-center items-start gap-12 md:gap-24 p-2">
         <div className="flex flex-col items-start gap-3 md:max-w-xs">
           <Logo fontSize="text-3xl text-foreground" />

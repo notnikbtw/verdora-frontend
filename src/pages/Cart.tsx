@@ -302,7 +302,7 @@ const Cart = () => {
   }
 
   return (
-    <LayoutPage hasMobileActions>
+    <LayoutPage>
       <div className="page-stack">
         <CartHeader itemsCount={itemsCount} />
         {showGuestCartBanner && (

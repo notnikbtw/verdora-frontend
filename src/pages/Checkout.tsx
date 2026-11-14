@@ -44,11 +44,10 @@ const Checkout = () => {
 
   const {
     handleSubmit,
-    formState: { errors: formErrors },
+    formState: { errors: formErrors, isValid, isValidating },
     watch,
     setValue,
     getValues,
-    trigger,
   } = useCheckoutForm();
 
   const deliveryMethod = watch('deliveryMethod');
@@ -137,7 +136,7 @@ const Checkout = () => {
   }
 
   return (
-    <LayoutPage hasMobileActions>
+    <LayoutPage>
       <div className="page-stack">
         <CartHeader
           title="Checkout"
@@ -239,14 +238,9 @@ const Checkout = () => {
                   <DeliveryMethodSelector
                     selectedMethod={deliveryMethod}
                     onSelectMethod={method => {
-                      setValue('deliveryMethod', method);
-                      trigger([
-                        'deliveryMethod',
-                        'street',
-                        'building',
-                        'apartment',
-                        'pickupLocationId',
-                      ]);
+                      setValue('deliveryMethod', method, {
+                        shouldValidate: true,
+                      });
                     }}
                     baseShippingCost={shippingCost}
                   />
@@ -277,7 +271,9 @@ const Checkout = () => {
                         locations={PICKUP_LOCATIONS}
                         selectedLocationId={selectedPickup}
                         onSelectLocation={id =>
-                          setValue('pickupLocationId', id)
+                          setValue('pickupLocationId', id, {
+                            shouldValidate: true,
+                          })
                         }
                       />
                     </>
@@ -296,7 +292,10 @@ const Checkout = () => {
             onAgreeToTermsChange={setAgreeToTerms}
             actionButtonText="Confirm & Place Order"
             onAction={handlePlaceOrderClick}
-            isActionDisabled={createOrderMutation.isPending}
+            isActionDisabled={
+              !isValid || isValidating || createOrderMutation.isPending
+            }
+            actionDisabledReason="Complete all required contact and delivery fields with valid details to continue."
             isActionLoading={createOrderMutation.isPending}
             secondaryActionText="Return to Cart"
             secondaryActionLink="/cart"

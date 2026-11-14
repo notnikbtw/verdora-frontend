@@ -107,7 +107,7 @@ const ProductDetails = () => {
   ]);
 
   return (
-    <LayoutPage hasMobileActions={Boolean(product && isValidId && !isError)}>
+    <LayoutPage>
       <div className="flex flex-col gap-6 py-5 sm:gap-8 sm:py-7">
         <Breadcrumbs items={breadcrumbItems} className="text-sm" />
 
