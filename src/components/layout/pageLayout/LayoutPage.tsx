@@ -13,8 +13,15 @@ import {
 import { SidebarInset, SidebarProvider } from '@components/ui/sidebar';
 import MainSidebar from '@components/layout/pageComponents/sidebar/MainSidebar';
 import NoiseBackground from '@components/layout/pageComponents/NoiseBackground';
+import { cn } from '@/lib/utils';
 
-const LayoutPage = ({ children }: { children: React.ReactNode }) => {
+const LayoutPage = ({
+  children,
+  hasMobileActions = false,
+}: {
+  children: React.ReactNode;
+  hasMobileActions?: boolean;
+}) => {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const isCartPage = location.pathname === '/cart';
@@ -61,7 +68,13 @@ const LayoutPage = ({ children }: { children: React.ReactNode }) => {
         <div className="relative flex min-h-screen flex-col page-background">
           <NoiseBackground />
 
-          <div className="relative z-10 flex min-h-screen flex-col flex-1">
+          <div
+            className={cn(
+              'relative z-10 flex min-h-screen flex-col flex-1',
+              hasMobileActions &&
+                'pb-[calc(9rem+env(safe-area-inset-bottom,0px))] md:pb-0'
+            )}
+          >
             <Header />
             <main className="flex flex-1 flex-col page-container">
               {syncError && !isCartPage && (

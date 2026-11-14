@@ -14,6 +14,8 @@ const PasswordField = (props: Props) => {
   return (
     <TextField
       {...props}
+      autoComplete={props.autoComplete ?? 'current-password'}
+      rightIconLabel={show ? 'Hide password' : 'Show password'}
       type={show ? 'text' : 'password'}
       rightIcon={
         show ? (

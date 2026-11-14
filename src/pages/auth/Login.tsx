@@ -14,7 +14,8 @@ import LinkComponent from '@components/common/Link';
 import NoticeAlert from '@components/common/NoticeAlert';
 import MailIcon from '@assets/icons/message.svg?react';
 import LockIcon from '@assets/icons/lock.svg?react';
-import { RefreshCw } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { focusFirstInvalidField, notifyFormError } from '@/utils/form.utils';
 import { useGuestCartSyncStatus } from '@hooks/useGuestCartSyncStatus';
 import { clearOAuthReturnTo } from '@/utils/oauthReturnTo';
 
@@ -30,7 +31,7 @@ const Login = () => {
 
   const {
     handleSubmit,
-    formState: { errors: formErrors, isValid },
+    formState: { errors: formErrors },
     watch,
     setValue,
     trigger,
@@ -46,10 +47,12 @@ const Login = () => {
   }, [dispatch]);
 
   const onSubmit = async (data: LoginFormData) => {
+    if (loading.login) return;
     if (!canSubmit()) return;
 
     if (!isOnline || (typeof navigator !== 'undefined' && !navigator.onLine)) {
       dispatch(setLoginError(NO_INTERNET_MESSAGE));
+      notifyFormError(NO_INTERNET_MESSAGE);
       return;
     }
 
@@ -59,8 +62,9 @@ const Login = () => {
       ).unwrap();
       clearOAuthReturnTo();
       navigate(from, { replace: true });
-    } catch {
-      // Error handled by auth slice and displayed in UI
+      toast.success('You are signed in');
+    } catch (error) {
+      notifyFormError(error);
     }
   };
 
@@ -71,10 +75,6 @@ const Login = () => {
     }
   };
 
-  const isNetworkIssue =
-    errors.login?.toLowerCase().includes('internet') ||
-    errors.login?.toLowerCase().includes('network');
-
   return (
     <AuthForm
       footerText="Don’t have an account?"
@@ -83,8 +83,13 @@ const Login = () => {
       footerLinkText="Sign up"
     >
       <form
+        id="login-form"
+        noValidate
+        aria-busy={loading.login}
         className="flex flex-col justify-center gap-4 w-full"
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, () =>
+          focusFirstInvalidField('login-form')
+        )}
       >
         {!isOnline && (
           <NoticeAlert
@@ -105,7 +110,10 @@ const Login = () => {
         )}
 
         <TextField
-          type="text"
+          type="email"
+          autoComplete="email"
+          required
+          disabled={loading.login}
           label="Email"
           id="email"
           placeholder="Enter your email address"
@@ -116,6 +124,8 @@ const Login = () => {
           leftIcon={<MailIcon />}
         />
         <PasswordField
+          required
+          disabled={loading.login}
           label="Password"
           placeholder="********"
           value={watch('password')}
@@ -125,37 +135,13 @@ const Login = () => {
           leftIcon={<LockIcon />}
         />
 
-        {errors.login && (
-          <NoticeAlert
-            variant="error"
-            title={isNetworkIssue ? 'Connection Error' : undefined}
-            message={errors.login}
-            onDismiss={() => dispatch(clearAuthErrors())}
-            action={
-              isNetworkIssue ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="xs"
-                  onClick={handleSubmit(onSubmit)}
-                  disabled={loading.login || !isValid}
-                  className="h-6 px-2 text-xs text-rose-800 hover:text-rose-950 hover:bg-rose-100"
-                >
-                  <RefreshCw className="size-3 mr-1" />
-                  Retry
-                </Button>
-              ) : undefined
-            }
-            className="w-full text-left"
-          />
-        )}
-
         <div className="flex flex-col gap-2">
           <LinkComponent to="/forgot-password" text="Forgot password?" />
           <Button
             className="w-full"
             type="submit"
-            disabled={!isValid || loading.login}
+            disabled={loading.login}
+            aria-busy={loading.login}
             variant={'outline'}
           >
             {loading.login

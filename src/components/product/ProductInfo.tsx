@@ -8,14 +8,13 @@ import LoginPromptDialog, {
   type AuthPromptAction,
 } from '@components/common/dialog/LoginPromptDialog';
 import QuantityStepper from '@components/common/forms/QuantityStepper';
-import NoticeAlert from '@components/common/NoticeAlert';
 import { Skeleton } from '@components/ui/skeleton';
 import { ProductAssuranceCards } from './ProductAssuranceCards';
 import type { Product } from '@/types/product';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Spinner } from '@components/ui/spinner';
-import { getApiErrorMessage } from '@/utils/error.utils';
+import MobileActionBar from '@components/common/MobileActionBar';
 
 export type ProductInfoProps = {
   product: Product;
@@ -49,20 +48,10 @@ export const ProductInfo = ({
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
   const [loginPromptAction, setLoginPromptAction] =
     useState<AuthPromptAction>('general');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   // Drives the button's "Added to cart" label only; the notification is a toast.
   const [justAdded, setJustAdded] = useState(false);
 
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const dismissError = useCallback(() => {
-    if (errorTimerRef.current) {
-      clearTimeout(errorTimerRef.current);
-      errorTimerRef.current = null;
-    }
-    setErrorMessage(null);
-  }, []);
 
   const markJustAdded = useCallback(() => {
     if (toastTimerRef.current) {
@@ -75,24 +64,10 @@ export const ProductInfo = ({
     }, 4500);
   }, []);
 
-  const triggerError = useCallback((msg: string) => {
-    if (errorTimerRef.current) {
-      clearTimeout(errorTimerRef.current);
-    }
-    setErrorMessage(msg);
-    errorTimerRef.current = setTimeout(() => {
-      setErrorMessage(null);
-      errorTimerRef.current = null;
-    }, 5000);
-  }, []);
-
   useEffect(() => {
     return () => {
       if (toastTimerRef.current) {
         clearTimeout(toastTimerRef.current);
-      }
-      if (errorTimerRef.current) {
-        clearTimeout(errorTimerRef.current);
       }
     };
   }, []);
@@ -117,9 +92,9 @@ export const ProductInfo = ({
   );
 
   const handleAddToCart = useCallback(() => {
+    if (addItemMutation.isPending) return;
     if (onAddToCart) {
       onAddToCart(product.productId, quantity);
-      dismissError();
       markJustAdded();
     } else {
       addItemMutation.mutate(
@@ -130,29 +105,12 @@ export const ProductInfo = ({
         },
         {
           onSuccess: () => {
-            dismissError();
             markJustAdded();
-          },
-          onError: error => {
-            triggerError(
-              getApiErrorMessage(
-                error,
-                'Failed to add item to cart. Please try again.'
-              )
-            );
           },
         }
       );
     }
-  }, [
-    onAddToCart,
-    product,
-    quantity,
-    addItemMutation,
-    dismissError,
-    markJustAdded,
-    triggerError,
-  ]);
+  }, [onAddToCart, product, quantity, addItemMutation, markJustAdded]);
 
   const handleToggleFavorite = useCallback(() => {
     if (isFavoritePending) return;
@@ -262,6 +220,7 @@ export const ProductInfo = ({
             onChange={handleQuantityChange}
             min={1}
             size="default"
+            disabled={addItemMutation.isPending}
           />
 
           <Button
@@ -325,19 +284,42 @@ export const ProductInfo = ({
           )}
           <span>{isFavorite ? 'Added to favorites' : 'Add to favorites'}</span>
         </Button>
-
-        {errorMessage && (
-          <NoticeAlert
-            variant="error"
-            className="rounded-[16px] py-3.5 px-4 shadow-xs"
-            onDismiss={dismissError}
-          >
-            <span className="text-[15px] font-medium">{errorMessage}</span>
-          </NoticeAlert>
-        )}
       </div>
 
       <ProductAssuranceCards />
+
+      <MobileActionBar>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs text-muted-foreground">
+              Total · {quantity} {quantity === 1 ? 'item' : 'items'}
+            </p>
+            <p className="text-lg font-bold text-primary">
+              {formatCurrency(currentPrice * quantity)}
+            </p>
+          </div>
+          <QuantityStepper
+            value={quantity}
+            onChange={handleQuantityChange}
+            min={1}
+            size="sm"
+            disabled={addItemMutation.isPending}
+          />
+        </div>
+        <Button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={addItemMutation.isPending}
+          aria-busy={addItemMutation.isPending}
+          className="min-h-11 w-full"
+        >
+          {addItemMutation.isPending
+            ? 'Adding...'
+            : justAdded
+              ? 'Added to cart'
+              : 'Add to cart'}
+        </Button>
+      </MobileActionBar>
 
       <LoginPromptDialog
         open={isLoginPromptOpen}
