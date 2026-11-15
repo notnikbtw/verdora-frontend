@@ -16,6 +16,7 @@ import { useGuestCartSyncStatus } from '@hooks/useGuestCartSyncStatus';
 import { clearOAuthReturnTo } from '@/utils/oauthReturnTo';
 import { toast } from 'react-toastify';
 import { focusFirstInvalidField, notifyFormError } from '@/utils/form.utils';
+import { TERMS_PAGE_TITLE } from '@/config/terms.config';
 
 const Register = () => {
   const isSyncingCart = useGuestCartSyncStatus();
@@ -163,10 +164,7 @@ const Register = () => {
               className="block min-w-0 text-sm text-muted-foreground cursor-pointer"
             >
               I agree to the{' '}
-              <LinkComponent
-                text="Terms of Service and Privacy Policy"
-                to="/terms"
-              />
+              <LinkComponent text={TERMS_PAGE_TITLE} to="/terms" />
             </label>
           </div>
           <Button
