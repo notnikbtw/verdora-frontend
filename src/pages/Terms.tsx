@@ -3,6 +3,19 @@ import { FileText } from 'lucide-react';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import Breadcrumbs from '@components/common/Breadcrumbs';
 import { Button } from '@components/ui/button';
+import {
+  TERMS_PAGE_TITLE,
+  TERMS_CONTACT_EMAIL,
+  PRIVACY_POLICY,
+  TERMS_OF_SERVICE,
+} from '@/config/terms.config';
+
+const policyUpdatedLabel = new Intl.DateTimeFormat('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'UTC',
+}).format(new Date(PRIVACY_POLICY.lastUpdated));
 
 const Terms = () => {
   const navigate = useNavigate();
@@ -20,10 +33,7 @@ const Terms = () => {
     <LayoutPage>
       <div className="page-stack">
         <Breadcrumbs
-          items={[
-            { label: 'Home', href: '/' },
-            { label: 'Terms of Service and Privacy Policy' },
-          ]}
+          items={[{ label: 'Home', href: '/' }, { label: TERMS_PAGE_TITLE }]}
         />
         <section
           aria-labelledby="terms-title"
@@ -34,24 +44,49 @@ const Terms = () => {
             id="terms-title"
             className="text-2xl font-semibold tracking-tight sm:text-3xl"
           >
-            Terms of Service and Privacy Policy
+            {TERMS_PAGE_TITLE}
           </h1>
-          <p className="mt-4 leading-relaxed text-muted-foreground">
-            The Terms of Service and Privacy Policy have not been published yet.
-            This page does not contain the documents referenced by the agreement
-            checkbox.
-          </p>
-          <p className="mt-3 leading-relaxed text-muted-foreground">
-            If you need these documents before creating an account or placing an
-            order, please contact us at{' '}
-            <a
-              href="mailto:vedora@gmail.com"
-              className="text-primary underline underline-offset-4"
-            >
-              vedora@gmail.com
-            </a>
-            .
-          </p>
+          <section aria-labelledby="privacy-policy-title" className="mt-8">
+            <h2 id="privacy-policy-title" className="text-xl font-semibold">
+              {PRIVACY_POLICY.title}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Last updated:{' '}
+              <time dateTime={PRIVACY_POLICY.lastUpdated}>
+                {policyUpdatedLabel}
+              </time>
+            </p>
+            <ul className="mt-5 list-disc space-y-4 pl-5 leading-relaxed text-muted-foreground">
+              {PRIVACY_POLICY.sections.map(section => (
+                <li key={section.id}>
+                  <strong className="font-semibold text-foreground">
+                    {section.title}:
+                  </strong>{' '}
+                  {section.text}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-5 leading-relaxed text-muted-foreground">
+              Questions:{' '}
+              <a
+                href={`mailto:${TERMS_CONTACT_EMAIL}`}
+                className="wrap-anywhere text-primary underline underline-offset-4"
+              >
+                {TERMS_CONTACT_EMAIL}
+              </a>
+            </p>
+          </section>
+          <section
+            aria-labelledby="terms-of-service-title"
+            className="mt-8 border-t border-border pt-6"
+          >
+            <h2 id="terms-of-service-title" className="text-xl font-semibold">
+              {TERMS_OF_SERVICE.title}
+            </h2>
+            <p className="mt-2 leading-relaxed text-muted-foreground">
+              {TERMS_OF_SERVICE.notice}
+            </p>
+          </section>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button type="button" size="touch" onClick={handleGoBack}>
               {canGoBack ? 'Go back' : 'Go home'}

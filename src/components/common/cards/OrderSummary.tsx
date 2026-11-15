@@ -8,6 +8,7 @@ import { Label } from '@components/ui/label';
 import { formatOrderPrice } from '@/utils/order.utils';
 import { cn } from '@/lib/utils';
 import MobileActionBar from '@components/common/MobileActionBar';
+import { TERMS_PAGE_TITLE } from '@/config/terms.config';
 
 type Props = {
   totalItems?: number;
@@ -75,7 +76,7 @@ const OrderSummary = ({
   const disabledReason = isActionLoading
     ? undefined
     : hasTerms && !agreeToTerms
-      ? 'Please agree to the Terms of Service and Privacy Policy to continue.'
+      ? `Please agree to the ${TERMS_PAGE_TITLE} to continue.`
       : isActionDisabled
         ? actionDisabledReason
         : undefined;
@@ -220,7 +221,7 @@ const OrderSummary = ({
                   to="/terms"
                   className="underline underline-offset-4 text-gray-900 font-medium"
                 >
-                  Terms of Service and Privacy Policy
+                  {TERMS_PAGE_TITLE}
                 </Link>
               </Label>
             </div>
