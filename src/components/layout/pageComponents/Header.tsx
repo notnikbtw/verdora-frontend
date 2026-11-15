@@ -10,7 +10,6 @@ import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
 import { useNetworkStatus } from '@hooks/useNetworkStatus';
 import { useLogout } from '@hooks/useLogout';
 import LinkComponent from '@components/common/Link';
-import { isSalesLocation } from '@/utils/navigation.utils';
 import { SidebarTrigger } from '@components/ui/sidebar';
 import TextField from '@components/common/forms/TextField';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -28,7 +27,11 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   const { user, hydrating } = useAppSelector(state => state.auth);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
 
-  const isSalesPage = isSalesLocation(location);
+  const isSalesPage =
+    location.pathname.includes('/sales') ||
+    (location.pathname === '/catalog' &&
+      (new URLSearchParams(location.search).get('discount') === 'true' ||
+        new URLSearchParams(location.search).get('onSale') === 'true'));
   const isSalesActive = isSalesPage;
   const isCatalogActive = location.pathname === '/catalog' && !isSalesPage;
   const [search, setSearch] = useState('');

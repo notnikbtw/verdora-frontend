@@ -28,7 +28,6 @@ const DiscountManagement = lazy(
 );
 const ReportManagement = lazy(() => import('@pages/admin/ReportManagement'));
 const NotFound = lazy(() => import('@pages/NotFound'));
-const Terms = lazy(() => import('@pages/Terms'));
 
 const AppRoutes = () => (
   <PageErrorBoundary>
@@ -51,7 +50,6 @@ const AppRoutes = () => (
           }
         />
         <Route path="/catalog" element={<Catalog />} />
-        <Route path="/terms" element={<Terms />} />
         <Route
           path="/categories"
           element={<Navigate to="/catalog" replace />}

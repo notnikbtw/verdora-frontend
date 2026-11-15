@@ -79,7 +79,7 @@ const CatalogToolbar = ({
       <div
         role="group"
         aria-label="Product display"
-        className="hidden md:flex items-center gap-1 bg-background border border-border rounded-lg p-1 shrink-0"
+        className="flex items-center gap-1 bg-background border border-border rounded-lg p-1 shrink-0"
       >
         <button
           type="button"
