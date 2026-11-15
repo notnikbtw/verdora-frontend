@@ -1,5 +1,4 @@
-import { createElement, useEffect } from 'react';
-import UndoToast from '@components/common/UndoToast';
+import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { assertOnline } from '@/utils/error.utils';
 import { cartService } from '@api/cart/cart.service';
@@ -11,7 +10,6 @@ import type { ApiErrorResponse } from '@/types/api';
 import type {
   AddItemToCartPayload,
   Cart,
-  CartItemType,
   RemoveItemFromCartPayload,
   UpdateCartItemQuantityPayload,
 } from '@/types/cart';
@@ -120,7 +118,6 @@ export const useAddItemToCart = () => {
   const { getService, updateCartCache } = useCartClient();
 
   return useMutation<Cart, CartAxiosError, AddItemToCartArgs>({
-    scope: { id: 'cart' },
     mutationFn: async data => {
       assertOnline();
       const service = await getService();
@@ -144,44 +141,9 @@ export const useAddItemToCart = () => {
   });
 };
 
-const useRestoreCartItem = () => {
-  const queryClient = useQueryClient();
-  const { getService } = useCartClient();
-  return useMutation<
-    Cart,
-    CartAxiosError,
-    { item: CartItemType; activeKey: readonly unknown[] }
-  >({
-    mutationKey: ['cart', 'restore'],
-    scope: { id: 'cart' },
-    mutationFn: async ({ item, activeKey }) => {
-      assertOnline();
-      const service = await getService();
-      if (
-        JSON.stringify(getActiveCartQueryKey()) !== JSON.stringify(activeKey)
-      ) {
-        throw new Error('Your cart session has changed.');
-      }
-      return service.addItemToCart({
-        productId: item.productId,
-        quantity: item.quantity,
-      });
-    },
-    onSuccess: (cart, { activeKey }) => {
-      if (
-        JSON.stringify(getActiveCartQueryKey()) === JSON.stringify(activeKey)
-      ) {
-        queryClient.setQueryData(activeKey, cart);
-      }
-      toast.success('Item restored to your cart');
-    },
-  });
-};
-
 export const useRemoveItemFromCart = () => {
   const queryClient = useQueryClient();
   const { getService, updateCartCache } = useCartClient();
-  const restoreMutation = useRestoreCartItem();
 
   return useMutation<
     Cart,
@@ -189,7 +151,6 @@ export const useRemoveItemFromCart = () => {
     RemoveItemFromCartPayload,
     { previousCart?: Cart; activeKey: readonly unknown[] }
   >({
-    scope: { id: 'cart' },
     mutationFn: async data => {
       const service = await getService();
       return service.removeItemFromCart(data);
@@ -228,25 +189,12 @@ export const useRemoveItemFromCart = () => {
       } else {
         updateCartCache(data);
       }
-      const removedItem = context?.previousCart?.items.find(
+      const name = context?.previousCart?.items.find(
         item => item.cartItemId === variables.cartItemId
+      )?.productName;
+      toast.success(
+        name ? `${name} removed from your cart` : 'Item removed from your cart'
       );
-      const activeKey = context?.activeKey;
-      if (removedItem && activeKey) {
-        toast.success(
-          ({ closeToast, toastProps }) =>
-            createElement(UndoToast, {
-              message: `${removedItem.productName} removed from your cart`,
-              onUndo: () =>
-                restoreMutation.mutateAsync({ item: removedItem, activeKey }),
-              closeToast,
-              toastId: toastProps.toastId,
-            }),
-          { autoClose: 8000, closeOnClick: false }
-        );
-      } else {
-        toast.success('Item removed from your cart');
-      }
     },
   });
 };
@@ -261,7 +209,6 @@ export const useUpdateCartItemQuantity = () => {
     UpdateCartItemQuantityPayload,
     { previousCart?: Cart; activeKey: readonly unknown[] }
   >({
-    scope: { id: 'cart' },
     mutationFn: async data => {
       const service = await getService();
       return service.updateCartItemQuantity(data);
@@ -324,7 +271,6 @@ export const useClearCart = () => {
   const { getService, updateCartCache } = useCartClient();
 
   return useMutation<Cart, CartAxiosError>({
-    scope: { id: 'cart' },
     mutationFn: async () => {
       const service = await getService();
       return service.clearCart();

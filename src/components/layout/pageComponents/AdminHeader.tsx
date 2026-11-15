@@ -6,10 +6,7 @@ const AdminHeader = () => {
     <header className="flex h-16 shrink-0 items-center justify-between gap-2 w-full mb-4 bg-background/50 backdrop-blur-md px-4 border border-border shadow-sm">
       <div className="flex items-center gap-4">
         <SidebarTrigger className="-ml-2" />
-        <Breadcrumbs
-          root={{ label: 'Admin', href: '/admin' }}
-          className="mt-0"
-        />
+        <Breadcrumbs root={{ label: 'Admin', href: '/admin' }} />
       </div>
     </header>
   );

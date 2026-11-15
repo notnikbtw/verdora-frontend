@@ -1,4 +1,3 @@
-import { LockKeyhole } from 'lucide-react';
 import AuthForm from '@/components/layout/pageComponents/Auth';
 import PasswordField from '@components/common/forms/PasswordField';
 import PasswordStrength from '@components/common/forms/PasswordStrength';
@@ -9,24 +8,23 @@ import {
 } from '@hooks/useResetPassword';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { resetPassword } from '@api/auth/auth.actions';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router';
 import { useEffect, useMemo, useState } from 'react';
 import { rateLimit } from '@/utils/rateLimit';
-import { toast } from 'react-toastify';
-import { focusFirstInvalidField, notifyFormError } from '@/utils/form.utils';
+import LockIcon from '@assets/icons/lock.svg?react';
 
 const ResetPassword = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  const { loading } = useAppSelector(state => state.auth);
+  const { errors, loading } = useAppSelector(state => state.auth);
   const [success, setSuccess] = useState(false);
   const canSubmit = useMemo(() => rateLimit(2000), []);
 
   const {
     handleSubmit,
-    formState: { errors: formErrors },
+    formState: { errors: formErrors, isValid },
     watch,
     setValue,
   } = useResetPasswordForm();
@@ -36,7 +34,6 @@ const ResetPassword = () => {
   }, [token, navigate]);
 
   const onSubmit = async (data: ResetPasswordFormData) => {
-    if (loading.reset) return;
     if (!canSubmit()) return;
     if (!token) return;
     try {
@@ -44,9 +41,8 @@ const ResetPassword = () => {
         resetPassword({ token, newPassword: data.password })
       ).unwrap();
       setSuccess(true);
-      toast.success('Your password has been reset');
-    } catch (error) {
-      notifyFormError(error);
+    } catch {
+      // error is already stored in state.auth.error
     }
   };
 
@@ -54,11 +50,11 @@ const ResetPassword = () => {
 
   return (
     <AuthForm
-      title={success ? 'Password reset' : 'New password'}
+      title={success ? 'Successfully reseted' : 'New password'}
       subtitle={
         success
-          ? 'Your new password was saved. You can now log in.'
-          : 'Choose a new password that you have not used before.'
+          ? 'Your new password was saved. Now you can log in with new password'
+          : 'Create new password witch you never used'
       }
       continueWithGoogle={false}
       footerText="Remember password?"
@@ -73,19 +69,11 @@ const ResetPassword = () => {
         </div>
       ) : (
         <form
-          id="reset-password-form"
-          noValidate
-          aria-busy={loading.reset}
           className="flex flex-col items-center justify-center gap-4 w-full"
-          onSubmit={handleSubmit(onSubmit, () =>
-            focusFirstInvalidField('reset-password-form')
-          )}
+          onSubmit={handleSubmit(onSubmit)}
         >
           <div className="w-full">
             <PasswordField
-              autoComplete="new-password"
-              required
-              disabled={loading.reset}
               label="New password"
               placeholder="********"
               value={watch('password')}
@@ -93,14 +81,11 @@ const ResetPassword = () => {
                 setValue('password', value, { shouldValidate: true })
               }
               error={formErrors.password?.message}
-              leftIcon={<LockKeyhole aria-hidden="true" className="size-4" />}
+              leftIcon={<LockIcon />}
             />
             <PasswordStrength password={watch('password')} />
           </div>
           <PasswordField
-            autoComplete="new-password"
-            required
-            disabled={loading.reset}
             label="Confirm password"
             placeholder="********"
             value={watch('confirmPassword')}
@@ -108,13 +93,12 @@ const ResetPassword = () => {
               setValue('confirmPassword', value, { shouldValidate: true })
             }
             error={formErrors.confirmPassword?.message}
-            leftIcon={<LockKeyhole aria-hidden="true" className="size-4" />}
+            leftIcon={<LockIcon />}
           />
-          <Button
-            type="submit"
-            disabled={loading.reset}
-            aria-busy={loading.reset}
-          >
+          {!success && errors.reset && (
+            <p className="text-red-500 text-sm">{errors.reset}</p>
+          )}
+          <Button type="submit" disabled={!isValid || loading.reset}>
             {loading.reset ? 'Resetting...' : 'Reset Password'}
           </Button>
         </form>

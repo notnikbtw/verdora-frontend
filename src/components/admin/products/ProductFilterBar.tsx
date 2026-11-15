@@ -46,7 +46,9 @@ export const ProductFilterBar: React.FC<ProductFilterBarProps> = ({
   onClearAllFilters,
 }) => {
   const hasActiveFilters = Boolean(
-    search.trim() || categoryId !== 'ALL' || sortBy !== 'createdAt,desc'
+    search.trim() ||
+    (categoryId && categoryId !== 'ALL') ||
+    sortBy !== 'createdAt,desc'
   );
 
   return (
@@ -91,7 +93,7 @@ export const ProductFilterBar: React.FC<ProductFilterBarProps> = ({
                 <option value="ALL">All Categories (Catalog)</option>
                 {categoriesData?.map(c => {
                   return (
-                    <option key={c.categoryId} value={c.categoryId}>
+                    <option key={c.categoryId} value={c.name}>
                       {c.name}
                     </option>
                   );
@@ -142,14 +144,12 @@ export const ProductFilterBar: React.FC<ProductFilterBarProps> = ({
               </Badge>
             )}
 
-            {categoryId !== 'ALL' && (
+            {categoryId && categoryId !== 'ALL' && (
               <Badge
                 variant="secondary"
                 className="gap-1 px-2.5 py-1 text-xs font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/15"
               >
-                Category:{' '}
-                {categoriesData?.find(c => c.categoryId === categoryId)?.name ??
-                  categoryId}
+                Category: {categoryId}
                 <button
                   type="button"
                   onClick={onClearCategory}

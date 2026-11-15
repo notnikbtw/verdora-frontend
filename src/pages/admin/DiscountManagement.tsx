@@ -1,4 +1,3 @@
-import { scrollToTop } from '@/utils/scroll.utils';
 import { useMemo, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
@@ -33,10 +32,6 @@ import { formatCurrency } from '@/utils/order.utils';
 
 const DiscountManagement = () => {
   const [page, setPage] = useState(0);
-  const handlePageChange = (nextPage: number) => {
-    scrollToTop();
-    setPage(nextPage);
-  };
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, DISCOUNT_SEARCH_DEBOUNCE_MS);
   const [filter, setFilter] = useState<DiscountFilter>(DEFAULT_DISCOUNT_FILTER);
@@ -210,7 +205,7 @@ const DiscountManagement = () => {
         hasSearch={Boolean(search.trim())}
         discountedOnly={filter === 'DISCOUNTED'}
         categoryIdToNameMap={categoryIdToNameMap}
-        onPageChange={handlePageChange}
+        onPageChange={setPage}
         onRefetch={refetch}
         onClearAllFilters={clearAllFilters}
         onShowAll={() => {

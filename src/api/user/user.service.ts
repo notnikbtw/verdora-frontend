@@ -4,14 +4,13 @@ import type {
   GetAllUsersPayload,
   UpdateUserPayload,
   UserType,
-  UserProfile,
 } from '@/types/user';
 import type { PaginatedData } from '@/types/pagination';
 
 export const userService = {
-  updateUserProfile: async (data: UpdateUserPayload) => {
-    const response = await instance.put<ApiResponse<UserProfile>>(
-      '/users/current-user',
+  updateUserProfile: async (data: UpdateUserPayload, id: number) => {
+    const response = await instance.put<ApiResponse<UserType>>(
+      `/users/${id}`,
       data
     );
     return response.data.data;
@@ -34,13 +33,10 @@ export const userService = {
     return response.data.data;
   },
 
-  deleteUser: async (data: { password: string }) => {
-    const response = await instance.delete<ApiResponse<null>>(
-      '/users/current-user',
-      {
-        data,
-      }
-    );
+  deleteUser: async (id: number, data: { password: string }) => {
+    const response = await instance.delete<ApiResponse<null>>(`/users/${id}`, {
+      data,
+    });
     return response.data.data;
   },
 };

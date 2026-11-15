@@ -1,4 +1,4 @@
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router';
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,11 @@ import {
 } from 'lucide-react';
 
 export type AuthPromptAction =
-  'favorite' | 'checkout' | 'orders' | 'profile' | 'general';
+  | 'favorite'
+  | 'checkout'
+  | 'orders'
+  | 'profile'
+  | 'general';
 
 type Props = {
   open: boolean;
