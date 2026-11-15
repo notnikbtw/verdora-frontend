@@ -96,10 +96,13 @@ const UserDropdownMenu = ({
             void handleLogout();
           }}
           disabled={!isOnline || isLoggingOut}
-          title={!isOnline ? 'Cannot log out while offline' : undefined}
         >
           <LogOut aria-hidden="true" className="size-4" />
-          {isLoggingOut ? 'Logging out...' : 'Logout'}
+          {isLoggingOut
+            ? 'Logging out...'
+            : !isOnline
+              ? 'Logout (offline)'
+              : 'Logout'}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
