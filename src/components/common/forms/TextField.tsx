@@ -5,7 +5,6 @@ import {
   InputGroupInput,
 } from '@components/ui/input-group';
 import type React from 'react';
-import { useId } from 'react';
 import { Field, FieldDescription, FieldLabel } from '@components/ui/field';
 import { cn } from '@/lib/utils';
 
@@ -28,18 +27,13 @@ type Props = {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   onRightIconClick?: () => void;
-  rightIconLabel?: string;
-  name?: string;
-  autoComplete?: string;
-  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
-  required?: boolean;
 };
 
 const TextField = ({
   type,
   label,
   labelRight,
-  id: providedId,
+  id,
   description,
   placeholder,
   value,
@@ -54,16 +48,7 @@ const TextField = ({
   leftIcon,
   rightIcon,
   onRightIconClick,
-  rightIconLabel = 'Toggle field visibility',
-  name,
-  autoComplete,
-  inputMode,
-  required = false,
 }: Props) => {
-  const generatedId = useId();
-  const id = providedId ?? generatedId;
-  const errorId = `${id}-error`;
-  const descriptionId = `${id}-description`;
   return (
     <Field className={className}>
       {(label || labelRight) && (
@@ -77,12 +62,6 @@ const TextField = ({
               htmlFor={id}
             >
               {label}
-              {required && (
-                <span aria-hidden="true" className="text-destructive">
-                  {' '}
-                  *
-                </span>
-              )}
             </FieldLabel>
           )}
           {labelRight}
@@ -111,17 +90,6 @@ const TextField = ({
         <InputGroupInput
           type={type}
           id={id}
-          name={name ?? id}
-          autoComplete={autoComplete}
-          inputMode={inputMode}
-          required={required}
-          aria-required={required || undefined}
-          aria-invalid={Boolean(error)}
-          aria-describedby={
-            [description && descriptionId, error && errorId]
-              .filter(Boolean)
-              .join(' ') || undefined
-          }
           placeholder={placeholder}
           value={value}
           disabled={disabled}
@@ -140,30 +108,18 @@ const TextField = ({
         />
         {leftIcon && <InputGroupAddon>{leftIcon}</InputGroupAddon>}
         {rightIcon && (
-          <InputGroupAddon align="inline-end">
-            {onRightIconClick ? (
-              <button
-                type="button"
-                onClick={onRightIconClick}
-                aria-label={rightIconLabel}
-                disabled={disabled}
-                className="relative flex size-9 items-center justify-center rounded-md focus-visible:outline-2 focus-visible:outline-primary"
-              >
-                {rightIcon}
-              </button>
-            ) : (
-              rightIcon
-            )}
+          <InputGroupAddon
+            align="inline-end"
+            onClick={onRightIconClick}
+            className={onRightIconClick ? 'cursor-pointer' : ''}
+          >
+            {rightIcon}
           </InputGroupAddon>
         )}
       </InputGroup>
-      {description && (
-        <FieldDescription id={descriptionId}>{description}</FieldDescription>
-      )}
+      {description && <FieldDescription>{description}</FieldDescription>}
       {error && (
-        <FieldDescription id={errorId} role="alert" className="text-red-500">
-          {error}
-        </FieldDescription>
+        <FieldDescription className="text-red-500">{error}</FieldDescription>
       )}
     </Field>
   );

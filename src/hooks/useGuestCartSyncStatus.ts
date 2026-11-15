@@ -1,14 +1,17 @@
-import { useSyncExternalStore } from 'react';
+import { useEffect, useState } from 'react';
 import { isGuestCartSyncing } from '@/utils/guestCart';
 
-const subscribe = (onChange: () => void) => {
-  window.addEventListener('guest-cart-sync-start', onChange);
-  window.addEventListener('guest-cart-sync-end', onChange);
-  return () => {
-    window.removeEventListener('guest-cart-sync-start', onChange);
-    window.removeEventListener('guest-cart-sync-end', onChange);
-  };
+export const useGuestCartSyncStatus = () => {
+  const [syncing, setSyncing] = useState(isGuestCartSyncing);
+  useEffect(() => {
+    const start = () => setSyncing(true);
+    const finish = () => setSyncing(false);
+    window.addEventListener('guest-cart-sync-start', start);
+    window.addEventListener('guest-cart-sync-end', finish);
+    return () => {
+      window.removeEventListener('guest-cart-sync-start', start);
+      window.removeEventListener('guest-cart-sync-end', finish);
+    };
+  }, []);
+  return syncing;
 };
-
-export const useGuestCartSyncStatus = () =>
-  useSyncExternalStore(subscribe, isGuestCartSyncing, () => false);

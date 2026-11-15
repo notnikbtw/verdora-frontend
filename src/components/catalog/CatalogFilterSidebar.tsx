@@ -2,7 +2,6 @@ import { formatCurrency } from '@/utils/order.utils';
 import { ChevronDown, RotateCcw } from 'lucide-react';
 import { useId, useState } from 'react';
 import { Slider } from '@components/ui/slider';
-import { Button } from '@components/ui/button';
 import { Checkbox } from '@components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@components/ui/skeleton';
@@ -26,7 +25,6 @@ type Props = {
   onSaleOnly: boolean;
   onToggleOnSaleOnly: () => void;
   onResetAll?: () => void;
-  activeFilterCount: number;
 };
 
 const CatalogFilterSidebar = ({
@@ -47,51 +45,50 @@ const CatalogFilterSidebar = ({
   onSaleOnly,
   onToggleOnSaleOnly,
   onResetAll,
-  activeFilterCount,
 }: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const filtersId = useId();
   const isPriceRangeInvalid = priceRange[0] > priceRange[1];
+  const activeFiltersCount =
+    (selectedCategoryId !== undefined ? 1 : 0) +
+    (onSaleOnly ? 1 : 0) +
+    (priceRange[0] > 0 || priceRange[1] < maximumPrice ? 1 : 0);
 
   return (
     <aside className="w-full lg:w-72 shrink-0 lg:sticky lg:top-24">
       <ScrollArea className="w-full rounded-xl border border-border bg-[#fcfdfb] shadow-xs lg:max-h-[calc(100dvh-7rem)]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-[#fcfdfb] sticky top-0 z-10">
-          <button
-            type="button"
-            aria-label="Filters"
-            aria-expanded={isExpanded}
-            aria-controls={filtersId}
-            onClick={() => setIsExpanded(value => !value)}
-            className="absolute inset-0 cursor-pointer rounded-t-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary lg:hidden"
-          />
-          <div className="pointer-events-none flex items-center gap-2">
-            <span className="flex min-h-11 items-center gap-2 font-heading font-semibold text-text-h text-base lg:hidden">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-expanded={isExpanded}
+              aria-controls={filtersId}
+              onClick={() => setIsExpanded(value => !value)}
+              className="flex min-h-11 items-center gap-2 font-heading font-semibold text-text-h text-base lg:hidden"
+            >
               Filters
               <ChevronDown
                 className={`size-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
               />
-            </span>
+            </button>
             <span className="hidden lg:inline font-heading font-semibold text-text-h text-base">
               Filters
             </span>
-            {activeFilterCount > 0 && (
+            {activeFiltersCount > 0 && (
               <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-primary/10 text-primary">
-                {activeFilterCount}
+                {activeFiltersCount}
               </span>
             )}
           </div>
-          {activeFilterCount > 0 && (
-            <Button
+          {activeFiltersCount > 0 && (
+            <button
               type="button"
-              variant="soft"
-              size="touch"
-              className="relative z-10"
               onClick={onResetAll}
+              className="text-xs text-primary hover:underline flex items-center gap-1 cursor-pointer transition-colors font-medium"
             >
-              <RotateCcw aria-hidden="true" className="size-4" />
+              <RotateCcw className="size-3" />
               <span>Reset all</span>
-            </Button>
+            </button>
           )}
         </div>
         <div

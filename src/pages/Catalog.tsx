@@ -1,7 +1,6 @@
 import { formatCurrency } from '@/utils/order.utils';
-import { scrollToTop } from '@/utils/scroll.utils';
 import { useState, useMemo, useEffect } from 'react';
-import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
+import { useSearchParams, useLocation, useNavigate } from 'react-router';
 import { useDebounce } from 'use-debounce';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import Breadcrumbs from '@components/common/Breadcrumbs';
@@ -22,7 +21,6 @@ import { useAddProductToCart } from '@hooks/useAddProductToCart';
 import { useCatalogScrollRestoration } from '@hooks/useCatalogScrollRestoration';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
 import { X } from 'lucide-react';
-import { useIsMobile } from '@hooks/use-mobile';
 import type { GetProductsPayload } from '@/types/product';
 import {
   DEFAULT_MAX_PRICE,
@@ -63,7 +61,6 @@ const Catalog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const isSalesPath = location.pathname.includes('/sales');
 
   const categoryParam =
@@ -95,7 +92,7 @@ const Catalog = () => {
       : DEFAULT_MAX_PRICE;
 
   const viewMode: ViewMode =
-    !isMobile && searchParams.get('view') === 'list' ? 'list' : 'grid';
+    searchParams.get('view') === 'list' ? 'list' : 'grid';
   const pageParam = Number(searchParams.get('page') ?? 1);
   const currentPage =
     Number.isSafeInteger(pageParam) && pageParam > 0 ? pageParam - 1 : 0;
@@ -258,7 +255,7 @@ const Catalog = () => {
   };
 
   const handlePageChange = (page: number) => {
-    scrollToTop();
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     setSearchParams(prev => {
       const next = new URLSearchParams(prev);
       if (page === 0) next.delete('page');
@@ -458,7 +455,6 @@ const Catalog = () => {
             onSaleOnly={onSaleOnly}
             onToggleOnSaleOnly={handleToggleOnSaleOnly}
             onResetAll={handleResetAll}
-            activeFilterCount={activeFilters.length}
           />
 
           <div className="flex-1 min-w-0 w-full flex flex-col gap-6">
@@ -488,6 +484,13 @@ const Catalog = () => {
                     <X aria-hidden="true" className="size-4 shrink-0" />
                   </button>
                 ))}
+                <button
+                  type="button"
+                  onClick={handleResetAll}
+                  className="min-h-11 px-2 text-sm font-medium text-primary hover:underline"
+                >
+                  Clear all filters
+                </button>
               </div>
             )}
 

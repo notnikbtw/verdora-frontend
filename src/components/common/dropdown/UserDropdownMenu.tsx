@@ -4,10 +4,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuItem,
 } from '@components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
-import { LogOut } from 'lucide-react';
+import { Button } from '@components/ui/button';
 import DropdownMenuItems from '@/components/common/dropdown/DropdownMenuItem';
 import { USER_MENU } from '@fixtures/sidebar.fixture';
 import { useNetworkStatus } from '@hooks/useNetworkStatus';
@@ -32,7 +31,7 @@ const UserDropdownMenu = ({
   children,
 }: UserFooterProps) => {
   const { isOnline } = useNetworkStatus();
-  const { isMobile, setOpenMobile } = useSidebar();
+  const { isMobile } = useSidebar();
   const { handleLogout, isLoggingOut } = useLogout();
 
   if (loading) {
@@ -58,49 +57,37 @@ const UserDropdownMenu = ({
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-(--radix-dropdown-menu-trigger-width) max-w-[calc(100vw-2rem)] rounded-2xl"
-        side={isMobile ? 'top' : 'right'}
-        align={isMobile ? 'start' : 'end'}
-        sideOffset={8}
-        collisionPadding={16}
+        className="w-[--radix-dropdown-menu-trigger-width] "
+        side={isMobile ? 'bottom' : 'right'}
+        align="end"
+        sideOffset={4}
       >
-        {!isMobile && (
-          <DropdownMenuLabel>
-            <div className="flex items-center gap-2 ">
-              <Avatar>
-                <AvatarFallback>
-                  {username?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid min-w-0 flex-1 text-sm leading-tight">
-                <span className="truncate font-semibold">{username}</span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {email}
-                </span>
-              </div>
+        <DropdownMenuLabel>
+          <div className="flex items-center gap-2 ">
+            <Avatar>
+              <AvatarFallback>
+                {username?.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-sm leading-tight">
+              <span className="truncate font-semibold">{username}</span>
+              <span className="truncate text-xs text-muted-foreground">
+                {email}
+              </span>
             </div>
-          </DropdownMenuLabel>
-        )}
-        {!isMobile && <DropdownMenuSeparator />}
-        <DropdownMenuItems
-          items={USER_MENU}
-          onSelect={() => {
-            if (isMobile) setOpenMobile(false);
-          }}
-        />
+          </div>
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="min-h-11 cursor-pointer"
-          onSelect={event => {
-            event.preventDefault();
-            void handleLogout();
-          }}
+        <DropdownMenuItems items={USER_MENU} />
+        <Button
+          className="w-full"
+          onClick={handleLogout}
           disabled={!isOnline || isLoggingOut}
           title={!isOnline ? 'Cannot log out while offline' : undefined}
+          variant={'secondary'}
         >
-          <LogOut aria-hidden="true" className="size-4" />
           {isLoggingOut ? 'Logging out...' : 'Logout'}
-        </DropdownMenuItem>
+        </Button>
       </DropdownMenuContent>
     </DropdownMenu>
   );

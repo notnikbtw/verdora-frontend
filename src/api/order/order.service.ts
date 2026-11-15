@@ -3,7 +3,6 @@ import type { ApiResponse } from '@/types/api';
 import type { PaginatedData } from '@/types/pagination';
 import type {
   AdminOrderSummary,
-  AdminOrderDetails,
   AdminOrdersParams,
   Order,
   UpdateOrderPayload,
@@ -45,13 +44,6 @@ export const orderService = {
       ApiResponse<PaginatedData<AdminOrderSummary>>
     >('/orders/all', { params });
 
-    return response.data.data;
-  },
-
-  getAdminOrderDetails: async (orderId: number) => {
-    const response = await instance.get<ApiResponse<AdminOrderDetails>>(
-      `/orders/${orderId}/details`
-    );
     return response.data.data;
   },
 

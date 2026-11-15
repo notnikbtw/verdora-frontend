@@ -1,15 +1,9 @@
-import { scrollToTop } from '@/utils/scroll.utils';
-import { useState } from 'react';
-import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useState, useMemo } from 'react';
 import AdminLayout from '@components/layout/pageLayout/AdminLayout';
 import AdminSectionHeader from '@components/common/section/AdminSectionHeader';
 import { Button } from '@components/ui/button';
 import OrderStatusBadge from '@/components/common/badge/OrderStatusBadge';
-import {
-  formatOrderDate,
-  formatOrderPrice,
-  getOrderStatusLabel,
-} from '@/utils/order.utils';
+import { formatOrderDate, formatOrderPrice } from '@/utils/order.utils';
 import {
   Card,
   CardContent,
@@ -30,10 +24,9 @@ import OrderDetailsDialog from '@components/common/dialog/OrderDetailsDialog';
 import AlertComponent from '@components/common/dialog/AlertComponent';
 import NoticeAlert from '@components/common/NoticeAlert';
 import {
-  useAdminOrders,
-  useAdminOrderDetails,
-  useOrderCount,
+  useAllOrders,
   useUpdateOrder,
+  useCancelOrder,
 } from '@api/order/order.hooks';
 import type { Order, OrderStatus } from '@/types/order';
 import {
@@ -54,142 +47,86 @@ import {
 import { Skeleton } from '@components/ui/skeleton';
 import ErrorSection from '@components/common/section/ErrorSection';
 import { EmptySection } from '@components/common/section/EmptySection';
-import { PaginationComponent } from '@components/common/pagination/Pagination';
-
-const PAGE_SIZE = 12;
-type OrderRef = Pick<Order, 'orderId' | 'status'>;
-const FILTER_STATUSES: OrderStatus[] = [
-  'PENDING',
-  'PENDING_PAYMENT',
-  'PAID',
-  'CONFIRMED',
-  'SHIPPED',
-  'IN_TRANSIT',
-  'DELIVERED',
-  'CANCELLED',
-];
 
 const OrderManagement = () => {
-  const [page, setPage] = useState(0);
-  const handlePageChange = (nextPage: number) => {
-    scrollToTop();
-    setPage(nextPage);
-  };
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | undefined>();
   const {
-    data: ordersPage,
+    data: apiOrders,
     isLoading: ordersLoading,
     isError,
     error: ordersError,
     refetch: refetchOrders,
-  } = useAdminOrders({
-    page,
-    size: PAGE_SIZE,
-    sort: 'createdAt,desc',
-    status: statusFilter,
-  });
-  const apiOrders = ordersPage?.content ?? [];
-  const total = useAdminOrders({ page: 0, size: 1 });
-  const pending = useOrderCount(['PENDING']);
-  const paid = useOrderCount(['PAID']);
-  const shipped = useOrderCount(['SHIPPED']);
-  const cancelled = useOrderCount(['CANCELLED']);
-  const queryClient = useQueryClient();
-  const isRefetching = useIsFetching({ queryKey: ['orders', 'admin'] }) > 0;
-  const updateMutation = useUpdateOrder();
-  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
-  const details = useAdminOrderDetails(selectedOrderId);
-  const [editingOrder, setEditingOrder] = useState<OrderRef | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PENDING');
-  const [cancellingOrder, setCancellingOrder] = useState<OrderRef | null>(null);
+    isRefetching,
+  } = useAllOrders();
 
-  const moveBackIfPageEmpties = (status: OrderStatus) => {
-    if (
-      statusFilter &&
-      statusFilter !== status &&
-      apiOrders.length === 1 &&
-      page > 0
-    ) {
-      setPage(page - 1);
-    }
-  };
+  const updateMutation = useUpdateOrder();
+  const cancelMutation = useCancelOrder();
+
+  const [selectedOrderDetails, setSelectedOrderDetails] =
+    useState<Order | null>(null);
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PENDING');
+  const [cancellingOrder, setCancellingOrder] = useState<Order | null>(null);
+
+  const metrics = useMemo(() => {
+    return {
+      total: apiOrders?.length,
+      pending: apiOrders?.filter(o => o.status === 'PENDING').length,
+      paid: apiOrders?.filter(o => o.status === 'PAID').length,
+      shipped: apiOrders?.filter(o => o.status === 'SHIPPED').length,
+      cancelled: apiOrders?.filter(o => o.status === 'CANCELLED').length,
+    };
+  }, [apiOrders]);
+
   const handleUpdateStatus = () => {
-    if (!editingOrder || updateMutation.isPending) return;
+    if (!editingOrder) return;
+    const targetId = editingOrder.orderId;
+    const newStatus = selectedStatus;
+
     updateMutation.mutate(
-      { orderId: editingOrder.orderId, status: selectedStatus },
+      { orderId: targetId, status: newStatus },
       {
         onSuccess: () => {
           setEditingOrder(null);
-          moveBackIfPageEmpties(selectedStatus);
+
+          if (selectedOrderDetails?.orderId === targetId) {
+            setSelectedOrderDetails(prev =>
+              prev ? { ...prev, status: newStatus } : null
+            );
+          }
         },
       }
     );
   };
+
   const handleCancelOrder = () => {
-    if (!cancellingOrder || updateMutation.isPending) return;
-    updateMutation.mutate(
-      { orderId: cancellingOrder.orderId, status: 'CANCELLED' },
-      {
-        onSuccess: () => {
-          setCancellingOrder(null);
-          moveBackIfPageEmpties('CANCELLED');
-        },
-      }
-    );
+    if (!cancellingOrder) return;
+    const targetId = cancellingOrder.orderId;
+
+    cancelMutation.mutate(targetId, {
+      onSuccess: () => {
+        setCancellingOrder(null);
+
+        if (selectedOrderDetails?.orderId === targetId) {
+          setSelectedOrderDetails(prev =>
+            prev ? { ...prev, status: 'CANCELLED' } : null
+          );
+        }
+      },
+    });
   };
-  const metrics = [
-    {
-      title: 'Total Orders',
-      description: 'All recorded orders',
-      value: total.data?.totalElements,
-      icon: Package,
-      isPending: total.isPending,
-      isError: total.isError,
-    },
-    {
-      title: 'Pending',
-      description: 'Awaiting processing',
-      value: pending.count,
-      icon: Clock,
-      ...pending,
-    },
-    {
-      title: 'Paid',
-      description: 'Payment received',
-      value: paid.count,
-      icon: CheckCircle2,
-      ...paid,
-    },
-    {
-      title: 'Shipped',
-      description: 'In transit / fulfilled',
-      value: shipped.count,
-      icon: Truck,
-      ...shipped,
-    },
-    {
-      title: 'Cancelled',
-      description: 'Voided orders',
-      value: cancelled.count,
-      icon: XCircle,
-      ...cancelled,
-    },
-  ];
+
+  const formatDate = (dateStr: string) => formatOrderDate(dateStr);
 
   return (
     <AdminLayout>
       <AdminSectionHeader
         title="Order Management"
-        count={ordersPage?.totalElements}
+        count={apiOrders?.length}
         description="Monitor, process, and update customer orders across your catalog."
       >
         <Button
           variant="outline"
-          onClick={() =>
-            void queryClient.invalidateQueries({
-              queryKey: ['orders', 'admin'],
-            })
-          }
+          onClick={() => refetchOrders()}
           disabled={isRefetching}
           className="cursor-pointer gap-2"
         >
@@ -201,209 +138,205 @@ const OrderManagement = () => {
       </AdminSectionHeader>
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
-        {metrics.map(metric =>
-          metric.isPending ? (
-            <DashboardMetricCardSkeleton key={metric.title} />
-          ) : (
+        {ordersLoading ? (
+          <>
+            <DashboardMetricCardSkeleton />
+            <DashboardMetricCardSkeleton />
+            <DashboardMetricCardSkeleton />
+            <DashboardMetricCardSkeleton />
+            <DashboardMetricCardSkeleton />
+          </>
+        ) : (
+          <>
             <DashboardMetricCard
-              key={metric.title}
-              value={metric.value?.toString() ?? 'N/A'}
-              title={metric.title}
-              description={metric.description}
-              icon={metric.icon}
-              error={metric.isError}
-              errorMessage="Failed to load order count. Please refresh."
+              value={metrics?.total?.toString() ?? 'N/A'}
+              title="Total Orders"
+              description="All recorded orders"
+              icon={Package}
+              error={isError}
+              errorMessage="Failed to load orders. Please try again later."
             />
-          )
+            <DashboardMetricCard
+              value={metrics?.pending?.toString() ?? 'N/A'}
+              title="Pending"
+              description="Awaiting processing"
+              icon={Clock}
+              error={isError}
+              errorMessage="Failed to load orders. Please try again later."
+            />
+            <DashboardMetricCard
+              value={metrics?.paid?.toString() ?? 'N/A'}
+              title="Paid"
+              description="Payment received"
+              icon={CheckCircle2}
+              error={isError}
+              errorMessage="Failed to load orders. Please try again later."
+            />
+            <DashboardMetricCard
+              value={metrics?.shipped?.toString() ?? 'N/A'}
+              title="Shipped"
+              description="In transit / fulfilled"
+              icon={Truck}
+              error={isError}
+              errorMessage="Failed to load orders. Please try again later."
+            />
+            <DashboardMetricCard
+              value={metrics?.cancelled?.toString() ?? 'N/A'}
+              title="Cancelled"
+              description="Voided orders"
+              icon={XCircle}
+              error={isError}
+              errorMessage="Failed to load orders. Please try again later."
+            />
+          </>
         )}
       </div>
 
-      <Card className="mt-6 border-border shadow-sm">
-        <CardHeader className="py-4 px-6 border-b">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <CardTitle className="text-base">Order Records</CardTitle>
-              <CardDescription className="text-xs mt-0.5">
-                Showing {apiOrders.length} of {ordersPage?.totalElements ?? 0}{' '}
-                orders
-              </CardDescription>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <label
-                htmlFor="order-status-filter"
-                className="text-sm font-medium"
-              >
-                Status
-              </label>
-              <select
-                id="order-status-filter"
-                value={statusFilter ?? ''}
-                onChange={event => {
-                  setStatusFilter(
-                    event.target.value
-                      ? (event.target.value as OrderStatus)
-                      : undefined
-                  );
-                  setPage(0);
-                }}
-                className="min-h-11 rounded-md border border-input bg-background px-3 py-2 text-base sm:text-sm"
-              >
-                <option value="">All statuses</option>
-                {FILTER_STATUSES.map(status => (
-                  <option key={status} value={status}>
-                    {getOrderStatusLabel(status)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0 overflow-x-auto">
-          {ordersLoading ? (
-            <div
-              className="space-y-4 p-6"
-              role="status"
-              aria-label="Loading orders"
-            >
+      <div className="mt-6">
+        {ordersLoading ? (
+          <Card className="border-border shadow-sm p-6">
+            <div className="space-y-4">
               <Skeleton className="h-8 w-full" />
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
             </div>
-          ) : isError ? (
-            <div className="py-8">
-              <ErrorSection
-                title="Failed to load orders"
-                message={
-                  ordersError?.response?.data?.message ||
-                  ordersError?.message ||
-                  'Unable to load orders.'
-                }
-                onRetry={() => void refetchOrders()}
-                retryText="Try again"
-              />
-            </div>
-          ) : apiOrders.length === 0 ? (
-            <EmptySection
-              title="No orders found"
-              description={
-                statusFilter
-                  ? 'No orders match the selected status. Choose another status or All statuses.'
-                  : 'There are no customer orders recorded in the system yet.'
+          </Card>
+        ) : isError ? (
+          <Card className="border-border py-8">
+            <ErrorSection
+              title="Failed to load orders"
+              message={
+                ordersError?.response?.data?.message ||
+                ordersError?.message ||
+                'Something went wrong while fetching orders. Please try again.'
               }
-              className="px-6 py-12"
-              icon={
-                <Package className="size-8 text-primary" aria-hidden="true" />
-              }
+              onRetry={() => refetchOrders()}
+              retryText="Try again"
             />
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-25 pl-6">Order ID</TableHead>
-                  <TableHead>Date & Time</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead className="text-right">Total Amount</TableHead>
-                  <TableHead className="text-center">Status</TableHead>
-                  <TableHead className="text-right pr-6">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {apiOrders.map(order => (
-                  <TableRow key={order.orderId} className="hover:bg-muted/30">
-                    <TableCell className="font-semibold pl-6">
-                      #{order.orderId}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                      {formatOrderDate(order.createdAt)}
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm font-medium">
-                        {order.customer?.name || 'Unknown customer'}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {order.customer?.email || '—'}
-                      </p>
-                    </TableCell>
-                    <TableCell className="text-right font-semibold">
-                      {formatOrderPrice(order.totalPrice)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <OrderStatusBadge status={order.status} />
-                    </TableCell>
-                    <TableCell className="text-right pr-6">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setSelectedOrderId(order.orderId)}
-                          className="h-8 px-2 text-xs"
-                          title="View order details"
-                        >
-                          <Eye className="size-3.5 mr-1" />
-                          Details
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={updateMutation.isPending}
-                          onClick={() => {
-                            updateMutation.reset();
-                            setEditingOrder(order);
-                            setSelectedStatus(order.status);
-                          }}
-                          className="h-8 px-2 text-xs"
-                          title="Edit order status"
-                        >
-                          <Pencil className="size-3.5 mr-1" />
-                          Status
-                        </Button>
-                        {order.status !== 'CANCELLED' && (
+          </Card>
+        ) : !apiOrders || apiOrders.length === 0 ? (
+          <EmptySection
+            title="No orders found"
+            description="There are no customer orders recorded in the system yet."
+            className="rounded-xl border border-dashed border-border bg-card px-6 py-12"
+            icon={
+              <div className="flex items-center justify-center rounded-full bg-primary/10 p-4">
+                <Package className="size-8 text-primary" aria-hidden="true" />
+              </div>
+            }
+          />
+        ) : (
+          <Card className="border-border shadow-sm">
+            <CardHeader className="py-4 px-6 border-b">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <CardTitle className="text-base">Order Records</CardTitle>
+                  <CardDescription className="text-xs mt-0.5">
+                    Showing {apiOrders.length} orders
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0 overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-25 pl-6">Order ID</TableHead>
+                    <TableHead>Date & Time</TableHead>
+                    <TableHead>Items Overview</TableHead>
+                    <TableHead className="text-center">Qty</TableHead>
+                    <TableHead className="text-right">Total Amount</TableHead>
+                    <TableHead className="text-center">Status</TableHead>
+                    <TableHead className="text-right pr-6">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {apiOrders.map(order => (
+                    <TableRow key={order.orderId} className="hover:bg-muted/30">
+                      <TableCell className="font-semibold text-foreground pl-6">
+                        #{order.orderId}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                        {formatDate(order.createdAt)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="max-w-70">
+                          <p className="text-sm font-medium truncate">
+                            {order.items[0]?.productName || 'Order items'}
+                          </p>
+                          {order.items.length > 1 && (
+                            <p className="text-xs text-muted-foreground">
+                              +{order.items.length - 1} other item
+                              {order.items.length - 1 > 1 ? 's' : ''}
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center font-medium text-xs">
+                        {order.items.reduce((acc, i) => acc + i.quantity, 0)}
+                      </TableCell>
+                      <TableCell className="text-right font-semibold text-foreground">
+                        {formatOrderPrice(order.totalPrice)}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <OrderStatusBadge status={order.status} />
+                      </TableCell>
+                      <TableCell className="text-right pr-6">
+                        <div className="flex items-center justify-end gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
-                            disabled={updateMutation.isPending}
+                            onClick={() => setSelectedOrderDetails(order)}
+                            className="cursor-pointer h-8 px-2 text-xs"
+                            title="View order details"
+                          >
+                            <Eye className="size-3.5 mr-1" />
+                            Details
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => {
                               updateMutation.reset();
-                              setCancellingOrder(order);
+                              setEditingOrder(order);
+                              setSelectedStatus(order.status);
                             }}
-                            className="h-8 px-2 text-xs text-destructive hover:bg-destructive/10"
-                            title="Cancel order"
+                            className="cursor-pointer h-8 px-2 text-xs"
+                            title="Edit order status"
                           >
-                            <XCircle className="size-3.5 mr-1" />
-                            Cancel
+                            <Pencil className="size-3.5 mr-1" />
+                            Status
                           </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-        {ordersPage && ordersPage.totalPages > 1 && (
-          <div className="flex justify-center py-4">
-            <PaginationComponent
-              currentPage={page}
-              totalPages={ordersPage.totalPages}
-              onPageChange={handlePageChange}
-            />
-          </div>
+                          {order.status !== 'CANCELLED' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setCancellingOrder(order)}
+                              className="cursor-pointer h-8 px-2 text-xs text-destructive hover:bg-destructive/10"
+                              title="Cancel order"
+                            >
+                              <XCircle className="size-3.5 mr-1" />
+                              Cancel
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         )}
-      </Card>
+      </div>
 
       <OrderDetailsDialog
-        order={details.data ?? null}
-        customer={details.data?.customer}
-        open={selectedOrderId !== null}
-        isLoading={details.isPending}
-        errorMessage={
-          details.error?.response?.data?.message || details.error?.message
-        }
-        onRetry={() => void details.refetch()}
+        order={selectedOrderDetails}
+        open={!!selectedOrderDetails}
         showFullPageLink={false}
         onOpenChange={open => {
-          if (!open) setSelectedOrderId(null);
+          if (!open) setSelectedOrderDetails(null);
         }}
         onEditStatus={order => {
           updateMutation.reset();
@@ -453,11 +386,8 @@ const OrderManagement = () => {
           )}
 
           <div className="space-y-2">
-            <label htmlFor="order-status" className="text-sm font-medium">
-              Fulfillment Status
-            </label>
+            <label className="text-sm font-medium">Fulfillment Status</label>
             <select
-              id="order-status"
               value={selectedStatus}
               onChange={e => setSelectedStatus(e.target.value as OrderStatus)}
               disabled={updateMutation.isPending}
@@ -466,9 +396,6 @@ const OrderManagement = () => {
               <option value="PENDING">Pending - Processing required</option>
               <option value="PAID">Paid - Payment confirmed</option>
               <option value="SHIPPED">Shipped - Dispatched to customer</option>
-              <option value="DELIVERED">
-                Delivered - Received by customer
-              </option>
               <option value="CANCELLED">Cancelled - Order voided</option>
             </select>
           </div>
@@ -482,13 +409,13 @@ const OrderManagement = () => {
         onOpenChange={open => {
           if (!open) {
             setCancellingOrder(null);
-            updateMutation.reset();
+            cancelMutation.reset();
           }
         }}
         actionText="Confirm Cancel Order"
         loadingText="Cancelling..."
-        isDeleting={updateMutation.isPending}
-        errorText={updateMutation.error?.response?.data?.message}
+        isDeleting={cancelMutation.isPending}
+        errorText={cancelMutation.error?.response?.data?.message}
         onAction={handleCancelOrder}
       />
     </AdminLayout>
