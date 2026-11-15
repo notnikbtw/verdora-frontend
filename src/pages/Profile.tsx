@@ -92,6 +92,7 @@ export const Profile = () => {
     try {
       const updated = await updateMutation.mutateAsync({
         name: formData.name,
+        // Omit a blank phone to preserve it; clearing with null is not confirmed.
         ...(formData.phone ? { phone: formData.phone } : {}),
       });
 

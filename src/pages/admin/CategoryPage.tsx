@@ -82,8 +82,6 @@ const AdminCategoriesPage = () => {
     );
   };
 
-  const errorCreate = createMutation.error?.response?.data?.message;
-
   return (
     <AdminLayout>
       <AdminSectionHeader
@@ -280,19 +278,9 @@ const AdminCategoriesPage = () => {
             }
             error={createFormErrors.imageUrl?.message}
           />
-          {errorCreate ? (
-            <p
-              id="category-name-error"
-              role="alert"
-              className="text-sm text-destructive"
-            >
-              {errorCreate}
-            </p>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              Maximum {categoryMaxLength} characters.
-            </p>
-          )}
+          <p className="text-xs text-muted-foreground">
+            Maximum {categoryMaxLength} characters.
+          </p>
         </div>
       </DialogComponent>
     </AdminLayout>

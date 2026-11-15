@@ -232,7 +232,6 @@ const DiscountManagement = () => {
         }}
         isPending={discountMutation.isPending}
         fieldErrors={discountMutation.error?.response?.data?.errors}
-        errorMessage={discountMutation.error?.response?.data?.message}
       />
 
       <AlertComponent
@@ -245,7 +244,6 @@ const DiscountManagement = () => {
         actionText="Remove discount"
         loadingText="Removing..."
         isDeleting={discountMutation.isPending}
-        errorText={discountMutation.error?.response?.data?.message}
         onAction={handleRemoveDiscount}
       />
     </AdminLayout>

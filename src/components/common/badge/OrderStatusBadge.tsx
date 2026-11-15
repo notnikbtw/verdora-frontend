@@ -20,16 +20,10 @@ export const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({
 }) => {
   const normalizedStatus = (status || '').trim().toUpperCase();
 
-  const isPending =
-    normalizedStatus === 'PENDING' ||
-    normalizedStatus === 'PENDING_PAYMENT' ||
-    normalizedStatus === 'PROCESSING';
-  const isConfirmed =
-    normalizedStatus === 'PAID' || normalizedStatus === 'CONFIRMED';
-  const isShipped =
-    normalizedStatus === 'SHIPPED' || normalizedStatus === 'IN_TRANSIT';
-  const isDelivered =
-    normalizedStatus === 'DELIVERED' || normalizedStatus === 'COMPLETED';
+  const isPending = normalizedStatus === 'PENDING';
+  const isConfirmed = normalizedStatus === 'PAID';
+  const isShipped = normalizedStatus === 'SHIPPED';
+  const isDelivered = normalizedStatus === 'DELIVERED';
   const isCancelled = normalizedStatus === 'CANCELLED';
 
   const label = format === 'label' ? getOrderStatusLabel(status) : status;

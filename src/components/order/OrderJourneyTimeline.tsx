@@ -11,10 +11,8 @@ type Props = {
 export const OrderJourneyTimeline: FC<Props> = ({ order }) => {
   const isCancelled = order.status === 'CANCELLED';
   const isDelivered = order.status === 'DELIVERED';
-  const isShipped =
-    order.status === 'SHIPPED' || order.status === 'IN_TRANSIT' || isDelivered;
-  const isConfirmed =
-    order.status === 'PAID' || order.status === 'CONFIRMED' || isShipped;
+  const isShipped = order.status === 'SHIPPED' || isDelivered;
+  const isConfirmed = order.status === 'PAID' || isShipped;
   const estimatedDelivery = getEstimatedDeliveryDate(order);
 
   return (

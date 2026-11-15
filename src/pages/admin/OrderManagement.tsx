@@ -28,14 +28,14 @@ import {
 import DialogComponent from '@components/common/dialog/DialogComponent';
 import OrderDetailsDialog from '@components/common/dialog/OrderDetailsDialog';
 import AlertComponent from '@components/common/dialog/AlertComponent';
-import NoticeAlert from '@components/common/NoticeAlert';
 import {
   useAdminOrders,
   useAdminOrderDetails,
   useOrderCount,
   useUpdateOrder,
 } from '@api/order/order.hooks';
-import type { Order, OrderStatus } from '@/types/order';
+import { ORDER_STATUSES, type Order, type OrderStatus } from '@/types/order';
+import { ORDER_STATUS_DESCRIPTIONS } from '@/config/orders.config';
 import {
   Package,
   Clock,
@@ -58,16 +58,6 @@ import { PaginationComponent } from '@components/common/pagination/Pagination';
 
 const PAGE_SIZE = 12;
 type OrderRef = Pick<Order, 'orderId' | 'status'>;
-const FILTER_STATUSES: OrderStatus[] = [
-  'PENDING',
-  'PENDING_PAYMENT',
-  'PAID',
-  'CONFIRMED',
-  'SHIPPED',
-  'IN_TRANSIT',
-  'DELIVERED',
-  'CANCELLED',
-];
 
 const OrderManagement = () => {
   const [page, setPage] = useState(0);
@@ -249,7 +239,7 @@ const OrderManagement = () => {
                 className="min-h-11 rounded-md border border-input bg-background px-3 py-2 text-base sm:text-sm"
               >
                 <option value="">All statuses</option>
-                {FILTER_STATUSES.map(status => (
+                {ORDER_STATUSES.map(status => (
                   <option key={status} value={status}>
                     {getOrderStatusLabel(status)}
                   </option>
@@ -441,17 +431,6 @@ const OrderManagement = () => {
             </div>
           )}
 
-          {updateMutation.isError && (
-            <NoticeAlert
-              variant="error"
-              message={
-                updateMutation.error?.response?.data?.message ||
-                updateMutation.error?.message ||
-                'Failed to update order status. Please try again.'
-              }
-            />
-          )}
-
           <div className="space-y-2">
             <label htmlFor="order-status" className="text-sm font-medium">
               Fulfillment Status
@@ -463,13 +442,12 @@ const OrderManagement = () => {
               disabled={updateMutation.isPending}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
             >
-              <option value="PENDING">Pending - Processing required</option>
-              <option value="PAID">Paid - Payment confirmed</option>
-              <option value="SHIPPED">Shipped - Dispatched to customer</option>
-              <option value="DELIVERED">
-                Delivered - Received by customer
-              </option>
-              <option value="CANCELLED">Cancelled - Order voided</option>
+              {ORDER_STATUSES.map(status => (
+                <option key={status} value={status}>
+                  {getOrderStatusLabel(status)} -{' '}
+                  {ORDER_STATUS_DESCRIPTIONS[status]}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -488,7 +466,6 @@ const OrderManagement = () => {
         actionText="Confirm Cancel Order"
         loadingText="Cancelling..."
         isDeleting={updateMutation.isPending}
-        errorText={updateMutation.error?.response?.data?.message}
         onAction={handleCancelOrder}
       />
     </AdminLayout>

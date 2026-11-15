@@ -15,7 +15,6 @@ type CreateProductDialogProps = {
   onSubmit: (data: AdminProductFormData) => void;
   onOpenChange: (open: boolean) => void;
   isPending: boolean;
-  errorMessage?: string;
 };
 
 export const CreateProductDialog: React.FC<CreateProductDialogProps> = ({
@@ -24,7 +23,6 @@ export const CreateProductDialog: React.FC<CreateProductDialogProps> = ({
   onSubmit,
   onOpenChange,
   isPending,
-  errorMessage,
 }) => {
   const form = useForm<AdminProductFormData>({
     resolver: zodResolver(adminProductSchema),
@@ -87,7 +85,6 @@ export const CreateProductDialog: React.FC<CreateProductDialogProps> = ({
         <ProductFormFields
           form={form}
           categoriesData={categoriesData}
-          errorMessage={errorMessage}
           idPrefix="create"
         />
       </form>

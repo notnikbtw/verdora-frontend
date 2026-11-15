@@ -41,9 +41,6 @@ const CategoryRow = ({ category, categoryMaxLength, onDeleted }: Props) => {
     setIsEditOpen(true);
   };
 
-  const errorUpdate = updateMutation.error?.response?.data?.message;
-  const errorDelete = deleteMutation.error?.response?.data?.message;
-
   return (
     <TableRow>
       <TableCell className="pl-6">
@@ -145,19 +142,9 @@ const CategoryRow = ({ category, categoryMaxLength, onDeleted }: Props) => {
             }
             error={editFormErrors.imageUrl?.message}
           />
-          {errorUpdate ? (
-            <p
-              id={`edit-category-name-error-${category.categoryId}`}
-              role="alert"
-              className="text-sm text-destructive"
-            >
-              {errorUpdate}
-            </p>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              Maximum {categoryMaxLength} characters.
-            </p>
-          )}
+          <p className="text-xs text-muted-foreground">
+            Maximum {categoryMaxLength} characters.
+          </p>
         </div>
       </DialogComponent>
 
@@ -165,7 +152,6 @@ const CategoryRow = ({ category, categoryMaxLength, onDeleted }: Props) => {
         title="Delete category"
         description={`Are you sure you want to delete category "${category.name}"?`}
         isAlertDialogOpen={isDeleteDialogOpen}
-        errorText={errorDelete}
         onOpenChange={open => {
           setIsDeleteDialogOpen(open);
           if (!open) {

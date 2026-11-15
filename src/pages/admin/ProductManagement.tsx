@@ -287,7 +287,6 @@ const ProductManagement = () => {
           if (!open) closeCreate();
         }}
         isPending={createMutation.isPending}
-        errorMessage={createMutation.error?.response?.data?.message}
       />
 
       <EditProductDialog
@@ -298,7 +297,6 @@ const ProductManagement = () => {
           if (!open) setEditingProduct(null);
         }}
         isPending={updateMutation.isPending}
-        errorMessage={updateMutation.error?.response?.data?.message}
       />
 
       <AlertComponent
@@ -314,7 +312,6 @@ const ProductManagement = () => {
         actionText="Delete Product"
         loadingText="Deleting..."
         isDeleting={deleteMutation.isPending}
-        errorText={deleteMutation.error?.response?.data?.message}
         onAction={handleDeleteProduct}
       />
     </AdminLayout>

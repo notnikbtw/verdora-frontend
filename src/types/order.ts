@@ -1,12 +1,13 @@
-export type OrderStatus =
-  | 'PENDING'
-  | 'PAID'
-  | 'CONFIRMED'
-  | 'PENDING_PAYMENT'
-  | 'SHIPPED'
-  | 'IN_TRANSIT'
-  | 'DELIVERED'
-  | 'CANCELLED';
+// Values accepted by GET /orders/all and PATCH /orders/{id}/status.
+export const ORDER_STATUSES = [
+  'PENDING',
+  'PAID',
+  'SHIPPED',
+  'DELIVERED',
+  'CANCELLED',
+] as const;
+
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export type OrderItems = {
   orderItemId: number;

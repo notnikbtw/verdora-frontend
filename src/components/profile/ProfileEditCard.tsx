@@ -106,7 +106,7 @@ export const ProfileEditCard = ({
               disabled={isPending}
               containerClassName="min-h-11"
               placeholder="+380984769000"
-              description="Optional. Use international format, e.g. +380984769000"
+              description="Use international format, e.g. +380984769000. Leave blank to keep your current phone number."
               value={watch('phone')}
               onChange={val =>
                 setValue('phone', val, {

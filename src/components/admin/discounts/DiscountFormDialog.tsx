@@ -23,7 +23,6 @@ type DiscountFormDialogProps = {
   onOpenChange: (open: boolean) => void;
   isPending: boolean;
   fieldErrors?: Record<string, string>;
-  errorMessage?: string;
 };
 
 export const DiscountFormDialog: React.FC<DiscountFormDialogProps> = ({
@@ -34,7 +33,6 @@ export const DiscountFormDialog: React.FC<DiscountFormDialogProps> = ({
   onOpenChange,
   isPending,
   fieldErrors,
-  errorMessage,
 }) => {
   const form = useForm<DiscountFormData>({
     resolver: zodResolver(
@@ -82,13 +80,10 @@ export const DiscountFormDialog: React.FC<DiscountFormDialogProps> = ({
     void form.trigger(FIELDS);
   };
 
-  const hasFieldError = FIELDS.some(field => fieldErrors?.[field]);
   const otherServerErrors = Object.entries(fieldErrors ?? {})
     .filter(([key]) => !(FIELDS as readonly string[]).includes(key))
     .map(([key, message]) => `${key}: ${message}`);
-  const generalError = hasFieldError
-    ? otherServerErrors.join('. ')
-    : [errorMessage, ...otherServerErrors].filter(Boolean).join('. ');
+  const otherFieldErrors = otherServerErrors.join('. ');
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isPending) return;
@@ -116,8 +111,8 @@ export const DiscountFormDialog: React.FC<DiscountFormDialogProps> = ({
     >
       <form onSubmit={submit} noValidate>
         <div className="space-y-4 py-1">
-          {generalError && (
-            <NoticeAlert variant="error" message={generalError} />
+          {otherFieldErrors && (
+            <NoticeAlert variant="error" message={otherFieldErrors} />
           )}
 
           <TextField
