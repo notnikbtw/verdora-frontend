@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertCircle, PackageX, Plus } from 'lucide-react';
 import { useGetProductById } from '@api/product/product.hooks';
-import { useCategoryById } from '@api/category/category.hooks';
 import { HOTSPOTS } from '@/config/home.config';
-import { formatCurrency } from '@/utils/order.utils';
+import HomeProductPrice from '@components/home/HomeProductPrice';
 import { cn } from '@/lib/utils';
 import { Button } from '@components/ui/button';
 import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder';
@@ -46,14 +45,6 @@ const HomeInteriorSection = () => {
   const selectedProductError = currentProductQuery.error;
   const refetchSelectedProduct = currentProductQuery.refetch;
   const isSelectedProductPanelLoading = isSelectedProductLoading;
-
-  const selectedProductPrice =
-    selectedProduct?.discountPrice &&
-    selectedProduct.discountPrice < selectedProduct.price
-      ? selectedProduct.discountPrice
-      : selectedProduct?.price;
-
-  const { data: category } = useCategoryById(selectedProduct?.categoryId ?? 0);
 
   return (
     <SectionLayout title="Integrate in your house">
@@ -105,34 +96,38 @@ const HomeInteriorSection = () => {
               className="size-full"
             />
           ) : selectedProduct && !isSelectedProductError ? (
-            <div className="flex h-full flex-col justify-between rounded-[32px] bg-white p-6 shadow-sm lg:p-7">
-              <h3 className="text-center text-lg lg:text-2xl font-bold tracking-tight text-[#0C0C0C]">
-                {selectedProduct.name}
-              </h3>
-
-              <div className="relative my-auto flex w-full flex-1 items-center justify-center py-4">
+            <div className="flex h-full min-w-0 flex-col overflow-hidden rounded-[32px] border border-border bg-card shadow-sm">
+              <div className="relative aspect-square w-full bg-[#F2F3F0] lg:aspect-auto lg:min-h-56 lg:flex-1">
                 <ImageWithPlaceholder
                   src={selectedProduct.imageUrl}
                   alt={selectedProduct.name}
-                  placeholderLabel={category?.name || 'Verdora Plant'}
-                  className="h-auto aspect-square max-h-72 w-full rounded-2xl"
+                  placeholderLabel="Image unavailable"
+                  className="absolute inset-0 rounded-none"
                   fit="contain"
                 />
-
-                <span className="absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-2xl bg-[#0C0C0C] px-7 py-3 text-2xl font-bold leading-none text-white shadow-lg lg:text-3xl">
-                  {formatCurrency(selectedProductPrice)}
-                </span>
               </div>
-
-              <Button
-                type="button"
-                className="h-13 w-full rounded-full bg-[#23511E] text-base font-semibold text-white transition-colors hover:bg-[#1b4017] disabled:opacity-50"
-                asChild
-              >
-                <Link to={`/products/${selectedProduct.productId}`}>
-                  View product
-                </Link>
-              </Button>
+              <div className="flex flex-col gap-4 p-5 text-center sm:p-6">
+                <h3
+                  title={selectedProduct.name}
+                  className="line-clamp-2 wrap-anywhere text-lg font-semibold tracking-tight text-foreground lg:text-xl"
+                >
+                  {selectedProduct.name}
+                </h3>
+                <HomeProductPrice
+                  price={selectedProduct.price}
+                  discountPrice={selectedProduct.discountPrice}
+                  className="justify-center"
+                />
+                <Button
+                  type="button"
+                  className="h-13 w-full rounded-full bg-[#23511E] text-base font-semibold text-white transition-colors hover:bg-[#1b4017] disabled:opacity-50"
+                  asChild
+                >
+                  <Link to={`/products/${selectedProduct.productId}`}>
+                    View product
+                  </Link>
+                </Button>
+              </div>
             </div>
           ) : isSelectedProductError &&
             selectedProductError?.response?.status !== 404 ? (
