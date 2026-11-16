@@ -13,3 +13,4 @@ export const HOTSPOTS = [
     label: 'Rose',
   },
 ];
+export const CATEGORY_ROTATION_DELAY_MS = 5000;

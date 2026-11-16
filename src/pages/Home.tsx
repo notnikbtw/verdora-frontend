@@ -22,10 +22,8 @@ const HomeSalesSection = lazy(() =>
     default: module.HomeSalesSection,
   }))
 );
-const HomeCategoriesSection = lazy(() =>
-  import('@components/home/HomeProductSections').then(module => ({
-    default: module.HomeCategoriesSection,
-  }))
+const HomeCategoriesSection = lazy(
+  () => import('@components/home/HomeCategoriesSection')
 );
 const HomeCatalogSection = lazy(() =>
   import('@components/home/HomeProductSections').then(module => ({
@@ -119,7 +117,7 @@ const Home = () => (
       </DeferredSection>
       <DeferredSection
         label="Categories"
-        placeholderClassName="min-h-[40rem] sm:min-h-[26rem] xl:min-h-[16rem]"
+        placeholderClassName="min-h-[28rem] sm:min-h-[30rem]"
       >
         <HomeCategoriesSection />
       </DeferredSection>
