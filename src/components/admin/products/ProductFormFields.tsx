@@ -1,27 +1,22 @@
 import React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import TextField from '@components/common/forms/TextField';
-import NoticeAlert from '@components/common/NoticeAlert';
 import type { AdminProductFormData } from '@/schemas/product.schema';
 import type { Category } from '@/types/category';
 
 type ProductFormFieldsProps = {
   form: UseFormReturn<AdminProductFormData>;
   categoriesData?: Category[];
-  errorMessage?: string;
   idPrefix?: string;
 };
 
 export const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
   form,
   categoriesData,
-  errorMessage,
   idPrefix = 'product',
 }) => {
   return (
     <div className="space-y-4 py-1">
-      {errorMessage && <NoticeAlert variant="error" message={errorMessage} />}
-
       <TextField
         type="text"
         label="Product Name"

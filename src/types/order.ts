@@ -1,12 +1,13 @@
-export type OrderStatus =
-  | 'PENDING'
-  | 'PAID'
-  | 'CONFIRMED'
-  | 'PENDING_PAYMENT'
-  | 'SHIPPED'
-  | 'IN_TRANSIT'
-  | 'DELIVERED'
-  | 'CANCELLED';
+// Values accepted by GET /orders/all and PATCH /orders/{id}/status.
+export const ORDER_STATUSES = [
+  'PENDING',
+  'PAID',
+  'SHIPPED',
+  'DELIVERED',
+  'CANCELLED',
+] as const;
+
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export type OrderItems = {
   orderItemId: number;
@@ -43,7 +44,16 @@ export type UpdateOrderPayload = {
 export type AdminOrderSummary = Pick<
   Order,
   'orderId' | 'status' | 'totalPrice' | 'createdAt'
->;
+> & { customer: OrderCustomer };
+
+export type OrderCustomer = {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string | null;
+};
+
+export type AdminOrderDetails = AdminOrderSummary & { items: OrderItems[] };
 
 export type AdminOrdersParams = {
   status?: OrderStatus;

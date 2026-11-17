@@ -7,9 +7,11 @@ export type UserType = {
 };
 
 export type UpdateUserPayload = {
-  name?: string;
+  name: string;
   phone?: string;
 };
+
+export type UserProfile = Omit<UserType, 'id'>;
 
 export type GetAllUsersPayload = {
   page: number;

@@ -8,10 +8,7 @@ type Props = {
 };
 
 export const OrderInfoCards: FC<Props> = ({ order }) => {
-  const isPaid =
-    order.status === 'PAID' ||
-    order.status === 'CONFIRMED' ||
-    order.status === 'SHIPPED';
+  const isPaid = order.status === 'PAID' || order.status === 'SHIPPED';
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

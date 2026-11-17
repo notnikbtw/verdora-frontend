@@ -367,7 +367,7 @@ export const syncGuestCartToBackend = async (): Promise<SyncCartResult> => {
     return activeSyncPromise;
   }
 
-  activeSyncPromise = (async () => {
+  activeSyncPromise = Promise.resolve().then(async () => {
     try {
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('guest-cart-sync-start'));
@@ -439,7 +439,7 @@ export const syncGuestCartToBackend = async (): Promise<SyncCartResult> => {
         window.dispatchEvent(new CustomEvent('guest-cart-sync-end'));
       }
     }
-  })();
+  });
 
   return activeSyncPromise;
 };

@@ -97,7 +97,7 @@ const OrderResult = () => {
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
                     Status
                   </p>
-                  <OrderStatusBadge status={order?.status || 'CONFIRMED'} />
+                  <OrderStatusBadge status={order?.status || 'PENDING'} />
                 </div>
               </div>
 

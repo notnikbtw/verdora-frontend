@@ -7,7 +7,7 @@ import OrderSummary from '@components/common/cards/OrderSummary';
 import CartItemSkeleton from '@components/common/cards/CartItemSkeleton';
 import { EmptySection } from '@components/common/section/EmptySection';
 import ErrorSection from '@components/common/section/ErrorSection';
-import NoticeAlert from '@components/common/NoticeAlert';
+import { useIsMutating } from '@tanstack/react-query';
 import { useProceedToCheckout } from '@hooks/useProceedToCheckout';
 import { rateLimit } from '@/utils/rateLimit';
 import {
@@ -23,6 +23,11 @@ export const ProfileCartTab = () => {
   const { data: cart, isLoading, error: queryError, refetch } = useGetCart();
   const updateQuantityMutation = useUpdateCartItemQuantity();
   const removeItemMutation = useRemoveItemFromCart();
+  const isRestoring = useIsMutating({ mutationKey: ['cart', 'restore'] }) > 0;
+  const cartBusy =
+    isRestoring ||
+    updateQuantityMutation.isPending ||
+    removeItemMutation.isPending;
 
   const items = cart?.items || [];
   const totalPrice = cart?.totalPrice ?? 0;
@@ -91,13 +96,10 @@ export const ProfileCartTab = () => {
   };
 
   const handleProceedToCheckout = handleSubmit(() => {
+    if (cartBusy) return;
     if (!canSubmit()) return;
     navigate('/checkout');
   });
-
-  const mutationError =
-    updateQuantityMutation.error?.response?.data?.message ||
-    removeItemMutation.error?.response?.data?.message;
 
   return (
     <div className="flex flex-col gap-6">
@@ -124,17 +126,6 @@ export const ProfileCartTab = () => {
           )}
         </div>
       </div>
-
-      {mutationError && (
-        <NoticeAlert
-          variant="error"
-          message={mutationError}
-          onDismiss={() => {
-            updateQuantityMutation.reset();
-            removeItemMutation.reset();
-          }}
-        />
-      )}
 
       {isLoading ? (
         <div className="flex flex-col gap-4">
@@ -184,6 +175,7 @@ export const ProfileCartTab = () => {
                 price={item.price}
                 discountPrice={item.discountPrice}
                 quantity={item.quantity}
+                isUpdating={cartBusy}
                 onIncrease={() => handleIncrease(item.cartItemId)}
                 onDecrease={() => handleDecrease(item.cartItemId)}
                 onRemove={() => handleRemove(item.cartItemId)}
@@ -201,9 +193,8 @@ export const ProfileCartTab = () => {
               agreeToTermsError={formErrors.agreeToTerms?.message}
               onAgreeToTermsChange={handleAgreeToTerms}
               handleProceedToCheckout={handleProceedToCheckout}
-              loading={
-                updateQuantityMutation.isPending || removeItemMutation.isPending
-              }
+              isActionDisabled={cartBusy}
+              isActionLoading={cartBusy}
             />
           </div>
         </div>

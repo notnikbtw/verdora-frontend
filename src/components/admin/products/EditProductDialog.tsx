@@ -16,7 +16,6 @@ type EditProductDialogProps = {
   onSubmit: (data: AdminProductFormData) => void;
   onOpenChange: (open: boolean) => void;
   isPending: boolean;
-  errorMessage?: string;
 };
 
 export const EditProductDialog: React.FC<EditProductDialogProps> = ({
@@ -25,7 +24,6 @@ export const EditProductDialog: React.FC<EditProductDialogProps> = ({
   onSubmit,
   onOpenChange,
   isPending,
-  errorMessage,
 }) => {
   const form = useForm<AdminProductFormData>({
     resolver: zodResolver(adminProductSchema),
@@ -74,7 +72,6 @@ export const EditProductDialog: React.FC<EditProductDialogProps> = ({
         <ProductFormFields
           form={form}
           categoriesData={categoriesData}
-          errorMessage={errorMessage}
           idPrefix="edit"
         />
       </form>

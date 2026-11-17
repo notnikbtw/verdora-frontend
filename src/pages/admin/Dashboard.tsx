@@ -1,3 +1,4 @@
+import { scrollToTop } from '@/utils/scroll.utils';
 import AdminLayout from '@components/layout/pageLayout/AdminLayout';
 import {
   Card,
@@ -38,6 +39,10 @@ import { PaginationComponent } from '@components/common/pagination/Pagination';
 
 const AdminDashboard = () => {
   const [page, setPage] = useState(0);
+  const handlePageChange = (nextPage: number) => {
+    scrollToTop();
+    setPage(nextPage);
+  };
   const {
     data: usersData,
     isPending: userPending,
@@ -195,7 +200,7 @@ const AdminDashboard = () => {
                 <PaginationComponent
                   currentPage={usersData.number}
                   totalPages={usersData.totalPages}
-                  onPageChange={setPage}
+                  onPageChange={handlePageChange}
                 />
               </div>
             )}

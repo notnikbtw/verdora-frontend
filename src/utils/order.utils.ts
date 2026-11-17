@@ -1,12 +1,6 @@
 import type { Order } from '@/types/order';
 
-export const CANCELLABLE_STATUSES: readonly string[] = [
-  'PENDING',
-  'PENDING_PAYMENT',
-  'PAID',
-  'CONFIRMED',
-  'PROCESSING',
-];
+export const CANCELLABLE_STATUSES: readonly string[] = ['PENDING', 'PAID'];
 
 export const isOrderCancellable = (status?: string | null): boolean => {
   if (!status) return false;
@@ -15,7 +9,6 @@ export const isOrderCancellable = (status?: string | null): boolean => {
 
 export const FINAL_ORDER_STATUSES: readonly string[] = [
   'DELIVERED',
-  'COMPLETED',
   'CANCELLED',
 ];
 
@@ -28,18 +21,12 @@ export const getOrderStatusLabel = (status?: string | null): string => {
   if (!status) return 'Unknown';
   switch (status.trim().toUpperCase()) {
     case 'PENDING':
-    case 'PENDING_PAYMENT':
-      return 'Pending payment';
-    case 'PROCESSING':
-      return 'Processing';
+      return 'Pending';
     case 'PAID':
-    case 'CONFIRMED':
-      return 'Confirmed';
+      return 'Paid';
     case 'SHIPPED':
-    case 'IN_TRANSIT':
-      return 'In Transit';
+      return 'Shipped';
     case 'DELIVERED':
-    case 'COMPLETED':
       return 'Delivered';
     case 'CANCELLED':
       return 'Cancelled';
@@ -198,7 +185,7 @@ export const printOrderInvoice = (order: Order): void => {
             <p style="margin: 0 0 4px; font-weight: 600;">Payment Method:</p>
             <p style="margin: 0 0 8px; color: #4b5563;">${order.paymentMethod || 'Credit / Debit Card'}</p>
             <p style="margin: 0 0 4px; font-weight: 600;">Payment Status:</p>
-            <p style="margin: 0; color: #4b5563;">${order.status === 'PAID' || order.status === 'CONFIRMED' || order.status === 'SHIPPED' ? 'Paid in Full' : order.status}</p>
+            <p style="margin: 0; color: #4b5563;">${order.status === 'PAID' || order.status === 'SHIPPED' ? 'Paid in Full' : order.status}</p>
           </div>
         </div>
 

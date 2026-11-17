@@ -1,34 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
-@import '@fontsource-variable/geist';
-@import 'tw-animate-css';
-@import 'shadcn/tailwind.css';
 @import '@fontsource-variable/inter';
-
-@font-face {
-  font-family: 'DM Sans';
-  src: url('./assets/fonts/DMSans-Font.woff2') format('woff2');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Inter';
-  src: url('./assets/fonts/Inter-Font.woff2') format('woff2');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Outfit';
-  src: url('./assets/fonts/Outfit-Font.woff2') format('woff2');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
 
 html {
   scroll-behavior: smooth;
@@ -37,6 +10,12 @@ html {
 body {
   min-height: 100vh;
   font-family: var(--sans);
+}
+
+@media (max-width: 767px) {
+  body:has([data-mobile-action-bar]) .Toastify__toast-container--bottom-center {
+    bottom: calc(var(--mobile-action-bar-height, 0px) + 0.75rem) !important;
+  }
 }
 
 *,
@@ -188,9 +167,7 @@ svg {
 
 @theme {
   --color-link-text: var(--link-text);
-  --font-sans: 'DM Sans', sans-serif;
-  --font-inter: 'Inter', sans-serif;
-  --font-outfit: 'Outfit', sans-serif;
+  --font-sans: 'Inter Variable', sans-serif;
   --font-heading: var(--font-sans);
 
   --color-text: var(--text);
@@ -258,7 +235,7 @@ svg {
 
 /* Surface for clickable cards on the paper background. */
 @utility card-surface {
-  @apply rounded-2xl border border-white/80 bg-white/80 shadow-xs backdrop-blur-sm;
+  @apply rounded-2xl border border-white/80 bg-white/80 shadow-xs lg:backdrop-blur-sm;
 }
 
 /* Hover for clickable cards: lift, brighten, and deepen the shadow. */

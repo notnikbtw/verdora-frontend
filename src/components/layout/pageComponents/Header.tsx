@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Logo from '@components/common/Logo';
 import { Button } from '@components/ui/button';
 import { useAppSelector } from '@api/hooks';
 import { Spinner } from '@components/ui/spinner';
-import CartIcon from '@assets/icons/cart.svg?react';
-import SearchIcon from '@assets/icons/search.svg?react';
-import MenuIcon from '@assets/icons/menu.svg?react';
 import { useGetCart } from '@api/cart/cart.hooks';
 import { useGetFavorites } from '@api/favorites/favorites.hooks';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
 import { useNetworkStatus } from '@hooks/useNetworkStatus';
 import { useLogout } from '@hooks/useLogout';
 import LinkComponent from '@components/common/Link';
+import { isSalesLocation } from '@/utils/navigation.utils';
 import { SidebarTrigger } from '@components/ui/sidebar';
 import TextField from '@components/common/forms/TextField';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Heart } from 'lucide-react';
+import { Heart, ShoppingBasket, Search, Menu } from 'lucide-react';
 
 type HeaderProps = {
   onOpenMenu?: () => void;
@@ -30,11 +28,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   const { user, hydrating } = useAppSelector(state => state.auth);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
 
-  const isSalesPage =
-    location.pathname.includes('/sales') ||
-    (location.pathname === '/catalog' &&
-      (new URLSearchParams(location.search).get('discount') === 'true' ||
-        new URLSearchParams(location.search).get('onSale') === 'true'));
+  const isSalesPage = isSalesLocation(location);
   const isSalesActive = isSalesPage;
   const isCatalogActive = location.pathname === '/catalog' && !isSalesPage;
   const [search, setSearch] = useState('');
@@ -67,7 +61,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
 
   return (
     <>
-      <header className="sticky top-0 lg:top-6 flex justify-between items-center h-16 gap-3 px-4 z-50 w-full lg:page-container bg-[#E6EAE5]/80 lg:bg-transparent backdrop-blur border border-white/80 shadow-xs sm:px-8 lg:rounded-full">
+      <header className="sticky top-0 lg:top-6 flex justify-between items-center h-16 gap-3 px-4 z-50 w-full lg:page-container bg-[#E6EAE5] lg:bg-transparent lg:backdrop-blur border border-white/80 shadow-xs sm:px-8 lg:rounded-full">
         <div className="flex xl:hidden items-center">
           {onOpenMenu ? (
             <button
@@ -76,11 +70,11 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
               aria-label="Open mobile menu"
               className="flex size-11 items-center justify-center"
             >
-              <MenuIcon className="size-6 text-link-text" />
+              <Menu aria-hidden="true" className="size-6 text-link-text" />
             </button>
           ) : (
             <SidebarTrigger className="size-11">
-              <MenuIcon className="size-6 text-link-text" />
+              <Menu aria-hidden="true" className="size-6 text-link-text" />
             </SidebarTrigger>
           )}
         </div>
@@ -107,7 +101,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
             <TextField
               type="text"
               placeholder="Search plants"
-              rightIcon={<SearchIcon />}
+              rightIcon={<Search aria-hidden="true" className="size-4" />}
               value={search}
               onChange={val => setSearch(val)}
               onRightIconClick={handleSearchSubmit}
@@ -145,7 +139,10 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
               className="relative flex items-center justify-center p-2 rounded-full hover:bg-black/5 transition-colors"
               aria-label="Shopping cart"
             >
-              <CartIcon className="size-5 text-[#2C332D]" />
+              <ShoppingBasket
+                aria-hidden="true"
+                className="size-5 text-[#2C332D]"
+              />
               {cartItemCount > 0 && (
                 <span className="count-badge bg-primary">{cartItemCount}</span>
               )}
@@ -183,7 +180,10 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
           className="relative flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-black/5 xl:hidden"
           aria-label={`Shopping cart (${cartItemCount} items)`}
         >
-          <CartIcon className="size-5 text-[#2C332D]" />
+          <ShoppingBasket
+            aria-hidden="true"
+            className="size-5 text-[#2C332D]"
+          />
           {cartItemCount > 0 && (
             <span className="count-badge bg-primary">
               {cartItemCount > 99 ? '99+' : cartItemCount}

@@ -1,7 +1,7 @@
+import { ShoppingBasket } from 'lucide-react';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import { Button } from '@components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
-import CartIcon from '@assets/icons/cart.svg?react';
 import CartItem from '@components/common/cards/CartItem';
 import OrderSummary from '@components/common/cards/OrderSummary';
 import { useEffect, useMemo, useState } from 'react';
@@ -13,6 +13,7 @@ import { EmptySection } from '@components/common/section/EmptySection';
 import ErrorSection from '@components/common/section/ErrorSection';
 import NoticeAlert from '@components/common/NoticeAlert';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
+import { useIsMutating } from '@tanstack/react-query';
 import { useAppSelector } from '@api/hooks';
 import {
   getStoredGuestCart,
@@ -49,6 +50,11 @@ const Cart = () => {
   const { data: cart, isLoading, error: queryError, refetch } = useGetCart();
   const updateQuantityMutation = useUpdateCartItemQuantity();
   const removeItemMutation = useRemoveItemFromCart();
+  const isRestoring = useIsMutating({ mutationKey: ['cart', 'restore'] }) > 0;
+  const cartBusy =
+    isRestoring ||
+    updateQuantityMutation.isPending ||
+    removeItemMutation.isPending;
 
   useEffect(() => {
     const handleStorageChange = (e?: StorageEvent | Event) => {
@@ -102,7 +108,6 @@ const Cart = () => {
   // and no sync error was recorded yet, automatically trigger background sync
   useEffect(() => {
     if (user && guestCartCount > 0 && !isGuestCartSyncing() && !syncError) {
-      setIsSyncingGuestCart(true);
       syncGuestCartToBackend()
         .then(() => {
           setGuestCartCount(0);
@@ -195,6 +200,7 @@ const Cart = () => {
   };
 
   const handleProceedToCheckout = handleSubmit(() => {
+    if (cartBusy || isSyncingGuestCart) return;
     if (!canSubmit()) return;
     if (!user) {
       setIsLoginPromptOpen(true);
@@ -279,7 +285,10 @@ const Cart = () => {
           className="rounded-xl border border-dashed border-border bg-card p-12 shadow-xs my-6"
           icon={
             <div className="flex items-center justify-center rounded-full bg-primary/10 p-4">
-              <CartIcon className="size-8 text-primary" />
+              <ShoppingBasket
+                aria-hidden="true"
+                className="size-8 text-primary"
+              />
             </div>
           }
           action={
@@ -291,10 +300,6 @@ const Cart = () => {
       </LayoutPage>
     );
   }
-
-  const mutationError =
-    updateQuantityMutation.error?.response?.data?.message ||
-    removeItemMutation.error?.response?.data?.message;
 
   return (
     <LayoutPage>
@@ -338,13 +343,6 @@ const Cart = () => {
             }
           />
         )}
-        {mutationError && (
-          <NoticeAlert
-            variant="error"
-            message={mutationError}
-            className="mt-4 mb-6"
-          />
-        )}
 
         <div className="flex flex-col lg:flex-row lg:items-start gap-6">
           <div className="flex min-w-0 w-full flex-1 flex-col gap-4">
@@ -357,11 +355,7 @@ const Cart = () => {
                 price={item.price}
                 discountPrice={item.discountPrice}
                 quantity={item.quantity}
-                isUpdating={
-                  updateQuantityMutation.isPending &&
-                  updateQuantityMutation.variables?.cartItemId ===
-                    item.cartItemId
-                }
+                isUpdating={cartBusy}
                 isRemoving={
                   removeItemMutation.isPending &&
                   removeItemMutation.variables?.cartItemId === item.cartItemId
@@ -374,6 +368,7 @@ const Cart = () => {
           </div>
 
           <OrderSummary
+            mobileActions
             totalItems={totalItems}
             totalItemsPrice={totalPrice - shippingCost}
             shippingCost={shippingCost}
@@ -382,9 +377,8 @@ const Cart = () => {
             agreeToTermsError={formErrors.agreeToTerms?.message}
             onAgreeToTermsChange={handleAgreeToTerms}
             handleProceedToCheckout={handleProceedToCheckout}
-            loading={
-              updateQuantityMutation.isPending || removeItemMutation.isPending
-            }
+            isActionDisabled={cartBusy || isSyncingGuestCart}
+            isActionLoading={cartBusy || isSyncingGuestCart}
           />
         </div>
 

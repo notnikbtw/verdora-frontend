@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,6 @@ import { Button } from '@components/ui/button';
 import { Checkbox } from '@components/ui/checkbox';
 import { Spinner } from '@components/ui/spinner';
 import PasswordField from '@components/common/forms/PasswordField';
-import NoticeAlert from '@components/common/NoticeAlert';
 import { AlertTriangle, Lock } from 'lucide-react';
 
 type Props = {
@@ -19,19 +18,36 @@ type Props = {
   onOpenChange: (open: boolean) => void;
   onConfirmDelete: (password: string) => Promise<void>;
   isDeleting: boolean;
-  errorText?: string | null;
 };
+
+const subscribeViewport = (onChange: () => void) => {
+  window.visualViewport?.addEventListener('resize', onChange);
+  window.visualViewport?.addEventListener('scroll', onChange);
+  window.addEventListener('resize', onChange);
+  return () => {
+    window.visualViewport?.removeEventListener('resize', onChange);
+    window.visualViewport?.removeEventListener('scroll', onChange);
+    window.removeEventListener('resize', onChange);
+  };
+};
+const getViewport = () =>
+  `${window.visualViewport?.height ?? window.innerHeight}:${window.visualViewport?.offsetTop ?? 0}`;
 
 export const DeleteAccountModal = ({
   open,
   onOpenChange,
   onConfirmDelete,
   isDeleting,
-  errorText,
 }: Props) => {
   const [password, setPassword] = useState('');
   const [acknowledged, setAcknowledged] = useState(false);
   const [touchedPassword, setTouchedPassword] = useState(false);
+  const viewport = useSyncExternalStore(
+    subscribeViewport,
+    getViewport,
+    () => '0:0'
+  );
+  const [viewportHeight, viewportTop] = viewport.split(':').map(Number);
 
   const handleClose = () => {
     if (isDeleting) return;
@@ -53,7 +69,17 @@ export const DeleteAccountModal = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg p-6 sm:p-8 rounded-2xl">
+      <DialogContent
+        className="sm:max-w-lg p-5 sm:p-8 rounded-2xl overflow-y-auto overscroll-contain"
+        style={
+          viewportHeight > 0
+            ? {
+                top: viewportTop + viewportHeight / 2,
+                maxHeight: Math.max(0, viewportHeight - 32),
+              }
+            : { maxHeight: 'calc(100dvh - 2rem)' }
+        }
+      >
         <DialogHeader className="space-y-3">
           <div className="flex items-center gap-3">
             <div className="size-10 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
@@ -74,14 +100,6 @@ export const DeleteAccountModal = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 my-2">
-          {errorText && (
-            <NoticeAlert
-              variant="error"
-              title="Deletion failed"
-              message={errorText}
-            />
-          )}
-
           <div className="rounded-xl border border-rose-200 bg-rose-50/60 p-3.5 text-xs sm:text-sm text-rose-800">
             Any active order still in delivery will be cancelled without a
             refund of the delivery fee.
@@ -93,6 +111,7 @@ export const DeleteAccountModal = ({
               placeholder="••••••••"
               value={password}
               disabled={isDeleting}
+              containerClassName="min-h-11"
               onChange={val => {
                 setPassword(val);
                 if (!touchedPassword) setTouchedPassword(true);
@@ -119,13 +138,13 @@ export const DeleteAccountModal = ({
             </label>
           </div>
 
-          <DialogFooter className="pt-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5">
+          <DialogFooter className="sticky bottom-0 border-t border-zinc-100 bg-white pt-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5">
             <Button
               type="button"
               variant="outline"
               onClick={handleClose}
               disabled={isDeleting}
-              className="rounded-xl"
+              className="w-full sm:w-auto min-h-11 rounded-xl"
             >
               Cancel
             </Button>
@@ -133,7 +152,8 @@ export const DeleteAccountModal = ({
               type="submit"
               variant="destructive"
               disabled={!password.trim() || !acknowledged || isDeleting}
-              className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white gap-2 min-w-36"
+              aria-busy={isDeleting}
+              className="w-full sm:w-auto min-h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white gap-2 min-w-36"
             >
               {isDeleting ? (
                 <>
