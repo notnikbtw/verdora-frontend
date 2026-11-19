@@ -1,17 +1,24 @@
 # Checkout delivery and server totals
 
-Verified against the deployed `/v3/api-docs` on 2026-11-08.
+Verified against the deployed `/v3/api-docs` on 2026-11-19.
+
+`CartResponse` contains `cartId`, `items` and `totalPrice` (the total price of all
+items). It does not include `shippingCost`. A captured `GET /cart` response also
+confirmed that the field is absent. A missing shipping cost must not be displayed
+as zero or interpreted as free delivery.
 
 `POST /orders` currently has no request body or delivery parameters. It creates
 an order from the current cart. The frontend cannot
 communicate that selection, the pickup location, or a courier address to the
 server through the documented API.
 
-Until this API is extended, Checkout displays `cart.totalPrice` and
-`cart.shippingCost` for both delivery methods. Selecting pickup does not deduct
-shipping or advertise free pickup. The UI explicitly says the displayed shipping
-charge still applies to pickup. A delivery-specific quote cannot be offered
-until the backend supports it.
+Until this API is extended, Cart and Checkout preserve the server's
+`cart.totalPrice`. When `shippingCost` is absent, delivery options and the summary
+show "Not calculated", the amount is labelled "Items total", and the UI explains
+that delivery is not included. Guest carts also leave delivery uncalculated.
+An explicit numeric shipping cost, including zero, is displayed as returned.
+Selecting pickup does not deduct an invented fee or advertise free pickup. A
+delivery-specific quote cannot be offered until the backend supports it.
 
 Required backend support:
 

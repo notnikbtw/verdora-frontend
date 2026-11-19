@@ -14,7 +14,7 @@ type Props = {
   totalItems?: number;
   totalItemsPrice?: number;
   subtotal?: number;
-  shippingCost?: number;
+  shippingCost?: number | null;
   shippingText?: ReactNode;
   totalCost: number;
   agreeToTerms?: boolean;
@@ -62,6 +62,8 @@ const OrderSummary = ({
   mobileActions = false,
 }: Props) => {
   const displaySubtotal = subtotal !== undefined ? subtotal : totalItemsPrice;
+  const shippingUnknown = shippingCost == null && shippingText === undefined;
+  const totalLabel = shippingUnknown ? 'Items total' : 'Total';
   const triggerAction = onAction || handleProceedToCheckout;
   const hasTerms = Boolean(showTerms && onAgreeToTermsChange);
   const hintId = useId();
@@ -84,7 +86,7 @@ const OrderSummary = ({
     <MobileActionBar>
       <div className="flex items-center justify-between gap-3">
         <div className="shrink-0">
-          <p className="text-xs text-muted-foreground">Total</p>
+          <p className="text-xs text-muted-foreground">{totalLabel}</p>
           <p className="text-lg font-bold text-primary">
             {formatOrderPrice(totalCost)}
           </p>
@@ -184,7 +186,9 @@ const OrderSummary = ({
               shippingText
             ) : (
               <span className="font-medium text-gray-900 shrink-0">
-                {formatOrderPrice(shippingCost ?? 0)}
+                {shippingUnknown
+                  ? 'Not calculated'
+                  : formatOrderPrice(shippingCost)}
               </span>
             )}
           </div>
@@ -193,11 +197,20 @@ const OrderSummary = ({
         <Separator />
 
         <div className="flex items-center justify-between font-bold text-gray-900 gap-2">
-          <span className="text-base">Total</span>
+          <span className="text-base">{totalLabel}</span>
           <span className="text-xl text-emerald-700 shrink-0">
             {formatOrderPrice(totalCost ?? 0)}
           </span>
         </div>
+
+        {shippingUnknown && (
+          <p
+            role="status"
+            className="text-xs leading-relaxed text-muted-foreground"
+          >
+            Delivery cost is unavailable. The amount shown covers items only.
+          </p>
+        )}
 
         {hasTerms && (
           <div className="flex gap-2 flex-col w-full pt-1">

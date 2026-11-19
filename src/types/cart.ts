@@ -27,5 +27,6 @@ export type Cart = {
   cartId: number;
   items: CartItemType[];
   totalPrice: number;
-  shippingCost: number;
+  // The current API omits this field; absence does not mean free shipping.
+  shippingCost?: number | null;
 };

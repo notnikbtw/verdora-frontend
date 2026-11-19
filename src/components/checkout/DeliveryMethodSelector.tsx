@@ -5,7 +5,7 @@ import { formatOrderPrice } from '@/utils/order.utils';
 type Props = {
   selectedMethod: 'delivery' | 'pickup';
   onSelectMethod: (method: 'delivery' | 'pickup') => void;
-  baseShippingCost: number;
+  baseShippingCost?: number | null;
 };
 
 const DeliveryMethodSelector = ({
@@ -41,7 +41,9 @@ const DeliveryMethodSelector = ({
               Courier Delivery
             </span>
             <span className="text-xs font-semibold text-emerald-700">
-              {formatOrderPrice(baseShippingCost)}
+              {baseShippingCost == null
+                ? 'Not calculated'
+                : formatOrderPrice(baseShippingCost)}
             </span>
           </div>
           <p className="text-xs text-gray-500 mt-1">
@@ -76,7 +78,9 @@ const DeliveryMethodSelector = ({
               Store Pickup
             </span>
             <span className="text-xs font-semibold text-emerald-700">
-              {formatOrderPrice(baseShippingCost)}
+              {baseShippingCost == null
+                ? 'Not calculated'
+                : formatOrderPrice(baseShippingCost)}
             </span>
           </div>
           <p className="text-xs text-gray-500 mt-1">
