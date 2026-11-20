@@ -205,6 +205,7 @@ export const useRemoveItemFromCart = () => {
         const filteredItems = old.items.filter(
           item => item.cartItemId !== variables.cartItemId
         );
+        // Missing shipping means unknown; use 0 only for arithmetic and preserve old.shippingCost.
         const shippingCost = old.shippingCost ?? 0;
         const { totalPrice } = calculateCartTotals(filteredItems, shippingCost);
 
@@ -293,6 +294,7 @@ export const useUpdateCartItemQuantity = () => {
           };
         });
 
+        // Missing shipping means unknown; use 0 only for arithmetic and preserve old.shippingCost.
         const shippingCost = old.shippingCost ?? 0;
         const { totalPrice } = calculateCartTotals(updatedItems, shippingCost);
 

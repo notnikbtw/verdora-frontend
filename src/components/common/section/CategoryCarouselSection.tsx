@@ -74,38 +74,45 @@ const CategoryCarouselSection = ({
   const autoplay = useCarouselAutoplay(
     api,
     rootRef,
-    categories.length > 1 && !isLoadingMore && !isLoadMoreError,
+    categories.length > 1 && !isLoadingMore,
     CATEGORY_ROTATION_DELAY_MS
   );
 
+  const loadMoreNearEnd = useCallback(
+    (index: number) => {
+      if (
+        categories.length &&
+        index >= categories.length - 4 &&
+        hasMore &&
+        !isLoadingMore &&
+        !isLoadMoreError
+      )
+        onLoadMore();
+    },
+    [categories.length, hasMore, isLoadingMore, isLoadMoreError, onLoadMore]
+  );
+
   useEffect(() => {
-    if (
-      categories.length &&
-      selected >= categories.length - 4 &&
-      hasMore &&
-      !isLoadingMore &&
-      !isLoadMoreError
-    )
-      onLoadMore();
-  }, [
-    selected,
-    categories.length,
-    hasMore,
-    isLoadingMore,
-    isLoadMoreError,
-    onLoadMore,
-  ]);
+    if (!api) return;
+    const loadAfterSwipe = () => loadMoreNearEnd(api.selectedScrollSnap());
+    api.on('pointerUp', loadAfterSwipe);
+    return () => {
+      api.off('pointerUp', loadAfterSwipe);
+    };
+  }, [api, loadMoreNearEnd]);
 
   const scroll = (direction: 'previous' | 'next') => {
     autoplay.setPaused(true);
     if (!api) return;
     if (direction === 'previous') {
       if (api.canScrollPrev()) api.scrollPrev(autoplay.reducedMotion);
-      else api.scrollTo(categories.length - 1, autoplay.reducedMotion);
+      else if (!hasMore)
+        api.scrollTo(categories.length - 1, autoplay.reducedMotion);
     } else {
       if (api.canScrollNext()) api.scrollNext(autoplay.reducedMotion);
-      else api.scrollTo(0, autoplay.reducedMotion);
+      else if (!hasMore) api.scrollTo(0, autoplay.reducedMotion);
     }
+    loadMoreNearEnd(api.selectedScrollSnap());
   };
   const total = totalCategories ?? categories.length;
 
@@ -169,72 +176,80 @@ const CategoryCarouselSection = ({
           </p>
         </div>
       ) : (
-        <div
-          onPointerEnter={event => {
-            if (event.pointerType === 'mouse') autoplay.setHovered(true);
-          }}
-          onPointerLeave={() => autoplay.setHovered(false)}
-          onFocusCapture={() => autoplay.setFocused(true)}
-          onBlurCapture={event => {
-            if (!event.currentTarget.contains(event.relatedTarget))
-              autoplay.setFocused(false);
-          }}
-        >
-          <Carousel
-            setApi={setApi}
-            opts={{ align: 'center', loop: true, containScroll: false }}
-            aria-label="Browse categories"
-            className="mt-2 w-full min-w-0"
+        <div>
+          <div
+            onPointerEnter={event => {
+              if (event.pointerType === 'mouse') autoplay.setHovered(true);
+            }}
+            onPointerLeave={() => autoplay.setHovered(false)}
+            onFocusCapture={() => autoplay.setFocused(true)}
+            onBlurCapture={event => {
+              if (!event.currentTarget.contains(event.relatedTarget))
+                autoplay.setFocused(false);
+            }}
           >
-            <CarouselContent
-              className="ml-0 py-6"
-              wrapperClassName="rounded-3xl"
+            <Carousel
+              setApi={setApi}
+              opts={{ align: 'center', loop: !hasMore, containScroll: false }}
+              onKeyDownCapture={event => {
+                if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                  event.preventDefault();
+                  scroll(event.key === 'ArrowLeft' ? 'previous' : 'next');
+                }
+              }}
+              aria-label="Browse categories"
+              className="mt-2 w-full min-w-0"
             >
-              {categories.map((category, index) => (
-                <CarouselItem
-                  key={category.categoryId}
-                  className="basis-[82%] pl-0 sm:basis-[45%] lg:basis-1/3"
-                  aria-label={`${index + 1} of ${total}`}
-                >
-                  <Link
-                    to={`/catalog?category=${category.categoryId}`}
-                    title={category.name}
-                    aria-label={`Browse ${category.name}`}
-                    data-category-id={category.categoryId}
-                    data-current={selected === index}
-                    className={cn(
-                      'group mx-2 block min-w-0 rounded-3xl border bg-card p-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-[transform,box-shadow,opacity] motion-safe:duration-500',
-                      selected === index
-                        ? 'scale-100 border-primary/50 shadow-lg'
-                        : 'scale-90 border-border opacity-80 hover:opacity-100'
-                    )}
+              <CarouselContent
+                className="ml-0 py-6"
+                wrapperClassName="rounded-3xl"
+              >
+                {categories.map((category, index) => (
+                  <CarouselItem
+                    key={category.categoryId}
+                    className="basis-[82%] pl-0 sm:basis-[45%] lg:basis-1/3"
+                    aria-label={`${index + 1} of ${total}`}
                   >
-                    <ImageWithPlaceholder
-                      src={category.imageUrl}
-                      alt={category.name}
-                      className="aspect-4/3 h-auto rounded-2xl"
-                      zoomOnHover
-                    />
-                    <div className="mt-4 flex min-w-0 items-center gap-3 px-1 pb-1">
-                      <h3 className="min-w-0 flex-1 truncate text-base font-semibold text-foreground sm:text-lg">
-                        {category.name}
-                      </h3>
-                      <span
-                        className={cn(
-                          'flex size-10 shrink-0 items-center justify-center rounded-full',
-                          selected === index
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted text-primary'
-                        )}
-                      >
-                        <ArrowRight aria-hidden="true" className="size-5" />
-                      </span>
-                    </div>
-                  </Link>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+                    <Link
+                      to={`/catalog?category=${category.categoryId}`}
+                      title={category.name}
+                      aria-label={`Browse ${category.name}`}
+                      data-category-id={category.categoryId}
+                      data-current={selected === index}
+                      className={cn(
+                        'group mx-2 block min-w-0 rounded-3xl border bg-card p-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-[transform,box-shadow,opacity] motion-safe:duration-500',
+                        selected === index
+                          ? 'scale-100 border-primary/50 shadow-lg'
+                          : 'scale-90 border-border opacity-80 hover:opacity-100'
+                      )}
+                    >
+                      <ImageWithPlaceholder
+                        src={category.imageUrl}
+                        alt={category.name}
+                        className="aspect-4/3 h-auto rounded-2xl"
+                        zoomOnHover
+                      />
+                      <div className="mt-4 flex min-w-0 items-center gap-3 px-1 pb-1">
+                        <h3 className="min-w-0 flex-1 truncate text-base font-semibold text-foreground sm:text-lg">
+                          {category.name}
+                        </h3>
+                        <span
+                          className={cn(
+                            'flex size-10 shrink-0 items-center justify-center rounded-full',
+                            selected === index
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted text-primary'
+                          )}
+                        >
+                          <ArrowRight aria-hidden="true" className="size-5" />
+                        </span>
+                      </div>
+                    </Link>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          </div>
 
           {categories.length > 1 && (
             <div className="flex items-center justify-between gap-3">
@@ -279,6 +294,7 @@ const CategoryCarouselSection = ({
                   size="touch"
                   className="size-11 p-0"
                   aria-label="Previous category"
+                  disabled={!api || (hasMore && selected === 0)}
                   onClick={() => scroll('previous')}
                 >
                   <ChevronLeft aria-hidden="true" className="size-5" />
@@ -289,6 +305,9 @@ const CategoryCarouselSection = ({
                   size="touch"
                   className="size-11 p-0"
                   aria-label="Next category"
+                  disabled={
+                    !api || (hasMore && selected === categories.length - 1)
+                  }
                   onClick={() => scroll('next')}
                 >
                   <ChevronRight aria-hidden="true" className="size-5" />

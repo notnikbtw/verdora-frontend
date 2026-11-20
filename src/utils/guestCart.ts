@@ -70,10 +70,10 @@ export const calculateCartItemPrices = (
 export const calculateCartTotals = (
   items: CartItemType[],
   shippingCost = 0
-): { totalPrice: number; shippingCost: number } => {
+): { totalPrice: number } => {
   const totalPrice =
     items.reduce((sum, item) => sum + item.subtotal, 0) + shippingCost;
-  return { totalPrice, shippingCost };
+  return { totalPrice };
 };
 
 export const getStoredGuestCart = (): StoredGuestCartItem[] => {

@@ -90,6 +90,9 @@ const OrderSummary = ({
           <p className="text-lg font-bold text-primary">
             {formatOrderPrice(totalCost)}
           </p>
+          {shippingUnknown && (
+            <p className="text-xs text-muted-foreground">excl. delivery</p>
+          )}
         </div>
         <Button
           type="button"
