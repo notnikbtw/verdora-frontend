@@ -12,6 +12,13 @@ const instance = axios.create({
 });
 
 let isRefreshing = false;
+let refreshPromise: Promise<unknown> | null = null;
+
+// Finish issuing any replacement cookies before logout expires them.
+export const waitForTokenRefresh = async () => {
+  if (refreshPromise) await refreshPromise.catch(() => undefined);
+};
+
 let failedQueue: {
   resolve: (value?: unknown) => void;
   reject: (reason?: unknown) => void;
@@ -34,17 +41,22 @@ instance.interceptors.response.use(
     const originalRequest = error.config;
 
     const url: string = originalRequest?.url ?? '';
-    const skipRefresh = ['/auth/login', '/auth/register', '/auth/refresh'].some(
-      path => url.includes(path)
-    );
+    const skipRefresh = [
+      '/auth/login',
+      '/auth/register',
+      '/auth/refresh',
+      '/auth/logout',
+    ].some(path => url.includes(path));
 
-    const hadSession = Boolean(store.getState().auth.user);
+    const auth = store.getState().auth;
+    const hadSession = Boolean(auth.user);
 
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
       !skipRefresh &&
-      hadSession
+      hadSession &&
+      !auth.loading.logout
     ) {
       originalRequest._retry = true;
 
@@ -58,7 +70,8 @@ instance.interceptors.response.use(
 
       isRefreshing = true;
       try {
-        await instance.post('/auth/refresh');
+        refreshPromise = instance.post('/auth/refresh');
+        await refreshPromise;
         processQueue(null);
         return instance(originalRequest);
       } catch (refreshError) {
@@ -68,6 +81,7 @@ instance.interceptors.response.use(
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
+        refreshPromise = null;
       }
     }
 
