@@ -31,7 +31,7 @@ export const ProfileCartTab = () => {
 
   const items = cart?.items || [];
   const totalPrice = cart?.totalPrice ?? 0;
-  const shippingCost = cart?.shippingCost ?? 0;
+  const shippingCost = cart?.shippingCost;
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const {
@@ -186,7 +186,7 @@ export const ProfileCartTab = () => {
           <div className="w-full xl:w-80 shrink-0">
             <OrderSummary
               totalItems={totalItems}
-              totalItemsPrice={totalPrice - shippingCost}
+              totalItemsPrice={totalPrice - (shippingCost ?? 0)}
               shippingCost={shippingCost}
               totalCost={totalPrice}
               agreeToTerms={agreeToTerms}

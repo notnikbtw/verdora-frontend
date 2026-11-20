@@ -67,8 +67,8 @@ const Checkout = () => {
 
   const items = cart?.items || [];
   const totalPrice = cart?.totalPrice ?? 0;
-  const shippingCost = cart?.shippingCost ?? 0;
-  const subtotalPrice = Math.max(0, totalPrice - shippingCost);
+  const shippingCost = cart?.shippingCost;
+  const subtotalPrice = Math.max(0, totalPrice - (shippingCost ?? 0));
 
   const onFormSubmit = async (_data: CheckoutFormData) => {
     if (!agreeToTerms || createOrderMutation.isPending || !canSubmit()) return;
@@ -263,10 +263,12 @@ const Checkout = () => {
 
                   {deliveryMethod === 'pickup' && (
                     <>
-                      <p role="status" className="text-sm text-gray-600">
-                        The shipping charge shown in Order Summary also applies
-                        to pickup.
-                      </p>
+                      {shippingCost != null && (
+                        <p role="status" className="text-sm text-gray-600">
+                          The shipping charge shown in Order Summary also
+                          applies to pickup.
+                        </p>
+                      )}
                       <PickupLocationSelector
                         locations={PICKUP_LOCATIONS}
                         selectedLocationId={selectedPickup}
