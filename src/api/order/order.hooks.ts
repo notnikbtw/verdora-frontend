@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import type { ApiErrorResponse } from '@/types/api';
 import type { PaginatedData } from '@/types/pagination';
@@ -43,6 +44,15 @@ export const useUpdateOrder = () => {
 
   return useMutation<Order, OrderAxiosError, UpdateOrderPayload>({
     mutationFn: data => orderService.updateOrder(data),
+    meta: {
+      conflictErrorMessage:
+        'This status change is not allowed. Orders cannot return to an earlier stage. Refresh the order and choose an allowed next status.',
+    },
+    onError: error => {
+      if (isAxiosError(error) && error.response?.status === 409) {
+        void queryClient.invalidateQueries({ queryKey: ['orders'] });
+      }
+    },
     onSuccess: (_order, variables) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       toast.success(
