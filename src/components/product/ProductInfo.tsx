@@ -207,7 +207,7 @@ export const ProductInfo = ({
         <p
           title={product.description}
           className={cn(
-            'text-[15px] sm:text-base text-[#5c665d] leading-relaxed max-w-xl',
+            'text-[15px] sm:text-base text-[#5c665d] leading-relaxed max-w-xl wrap-anywhere',
             descriptionClamp
           )}
         >
