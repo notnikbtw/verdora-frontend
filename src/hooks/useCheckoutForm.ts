@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useAppSelector } from '@api/hooks';
 import { readCheckoutDraft, saveCheckoutDraft } from '@/utils/checkoutDraft';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { PICKUP_LOCATIONS } from '@/config/checkout.config';
 import {
   checkoutSchema,
   type CheckoutFormData,
@@ -18,7 +19,7 @@ export const useCheckoutForm = (defaultValues?: Partial<CheckoutFormData>) => {
       email: '',
       phone: '',
       deliveryMethod: 'delivery',
-      pickupLocationId: 'kyiv-1',
+      pickupLocationId: PICKUP_LOCATIONS[0].id,
       street: '',
       building: '',
       apartment: '',

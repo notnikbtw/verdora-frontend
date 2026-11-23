@@ -5,18 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@components/ui/card';
 import { Badge } from '@components/ui/badge';
 import { Separator } from '@components/ui/separator';
 import { Skeleton } from '@components/ui/skeleton';
+import { Button } from '@components/ui/button';
 import ErrorSection from '@components/common/section/ErrorSection';
 import CartHeader from '@components/layout/pageComponents/CartHeader';
 import TextField from '@components/common/forms/TextField';
 import OrderSummary from '@components/common/cards/OrderSummary';
 import { formatCurrency } from '@/utils/order.utils';
 import { useGetCart } from '@api/cart/cart.hooks';
-import { useCreateOrder } from '@api/order/order.hooks';
+import { useCheckoutSummary, useCreateOrder } from '@api/order/order.hooks';
 import { useGetCurrentUser } from '@api/user/user.hooks';
 import { useCheckoutForm } from '@hooks/useCheckoutForm';
 import type { CheckoutFormData } from '@/schemas/checkout.schema';
 import { rateLimit } from '@/utils/rateLimit';
 import { clearCheckoutDraft } from '@/utils/checkoutDraft';
+import { buildCheckoutPayload } from '@/utils/checkout.utils';
 import {
   PICKUP_LOCATIONS,
   SUBMIT_RATE_LIMIT_MS,
@@ -52,6 +54,30 @@ const Checkout = () => {
 
   const deliveryMethod = watch('deliveryMethod');
   const selectedPickup = watch('pickupLocationId') || PICKUP_LOCATIONS[0].id;
+  const street = watch('street');
+  const building = watch('building');
+  const apartment = watch('apartment');
+  const pickupLocationId = watch('pickupLocationId');
+  const checkoutPayload = useMemo(
+    () =>
+      buildCheckoutPayload({
+        deliveryMethod,
+        pickupLocationId,
+        street,
+        building,
+        apartment,
+      }),
+    [deliveryMethod, pickupLocationId, street, building, apartment]
+  );
+  const checkoutSummary = useCheckoutSummary(checkoutPayload, cart);
+  const quoteReady = Boolean(
+    checkoutPayload &&
+    !checkoutSummary.isDebouncing &&
+    !checkoutSummary.isFetching &&
+    !checkoutSummary.isError &&
+    checkoutSummary.data
+  );
+  const quote = quoteReady ? checkoutSummary.data : undefined;
 
   useEffect(() => {
     if (currentUser && !isPreFilledRef.current) {
@@ -66,16 +92,33 @@ const Checkout = () => {
   }, [currentUser, setValue, getValues]);
 
   const items = cart?.items || [];
-  const totalPrice = cart?.totalPrice ?? 0;
-  const shippingCost = cart?.shippingCost;
-  const subtotalPrice = Math.max(0, totalPrice - (shippingCost ?? 0));
+  const totalPrice = quote?.totalPrice ?? cart?.totalPrice ?? 0;
+  const shippingCost = quote?.shippingCost;
+  const subtotalPrice = quote?.itemsTotal ?? cart?.totalPrice ?? 0;
+  const summaryPending =
+    checkoutSummary.isDebouncing || checkoutSummary.isFetching;
+  const actionDisabledReason =
+    !isValid || isValidating
+      ? 'Complete all required contact and delivery fields with valid details to continue.'
+      : summaryPending
+        ? 'Wait for the delivery total to be calculated.'
+        : 'Calculate the delivery total successfully before placing your order.';
 
-  const onFormSubmit = async (_data: CheckoutFormData) => {
-    if (!agreeToTerms || createOrderMutation.isPending || !canSubmit()) return;
+  const onFormSubmit = async (data: CheckoutFormData) => {
+    const payload = buildCheckoutPayload(data);
+    if (
+      !agreeToTerms ||
+      !quoteReady ||
+      !payload ||
+      JSON.stringify(payload) !== JSON.stringify(checkoutPayload) ||
+      createOrderMutation.isPending ||
+      !canSubmit()
+    )
+      return;
     createOrderMutation.reset();
 
     try {
-      const orderData = await createOrderMutation.mutateAsync();
+      const orderData = await createOrderMutation.mutateAsync(payload);
       if (currentUser) clearCheckoutDraft(currentUser.id);
       navigate(`/order-result?orderId=${orderData.orderId}`);
     } catch {
@@ -85,7 +128,7 @@ const Checkout = () => {
   };
 
   const handlePlaceOrderClick = () => {
-    if (createOrderMutation.isPending) return;
+    if (createOrderMutation.isPending || !quoteReady) return;
     if (!agreeToTerms) {
       document.querySelector<HTMLElement>('[data-order-terms]')?.focus();
       return;
@@ -242,7 +285,8 @@ const Checkout = () => {
                         shouldValidate: true,
                       });
                     }}
-                    baseShippingCost={shippingCost}
+                    shippingCost={shippingCost}
+                    isCalculating={summaryPending}
                   />
 
                   {deliveryMethod === 'delivery' && (
@@ -262,23 +306,15 @@ const Checkout = () => {
                   )}
 
                   {deliveryMethod === 'pickup' && (
-                    <>
-                      {shippingCost != null && (
-                        <p role="status" className="text-sm text-gray-600">
-                          The shipping charge shown in Order Summary also
-                          applies to pickup.
-                        </p>
-                      )}
-                      <PickupLocationSelector
-                        locations={PICKUP_LOCATIONS}
-                        selectedLocationId={selectedPickup}
-                        onSelectLocation={id =>
-                          setValue('pickupLocationId', id, {
-                            shouldValidate: true,
-                          })
-                        }
-                      />
-                    </>
+                    <PickupLocationSelector
+                      locations={PICKUP_LOCATIONS}
+                      selectedLocationId={selectedPickup}
+                      onSelectLocation={id =>
+                        setValue('pickupLocationId', id, {
+                          shouldValidate: true,
+                        })
+                      }
+                    />
                   )}
                 </CardContent>
               </Card>
@@ -295,14 +331,43 @@ const Checkout = () => {
             actionButtonText="Confirm & Place Order"
             onAction={handlePlaceOrderClick}
             isActionDisabled={
-              !isValid || isValidating || createOrderMutation.isPending
+              !isValid ||
+              isValidating ||
+              !quoteReady ||
+              createOrderMutation.isPending
             }
-            actionDisabledReason="Complete all required contact and delivery fields with valid details to continue."
+            actionDisabledReason={actionDisabledReason}
             isActionLoading={createOrderMutation.isPending}
             secondaryActionText="Return to Cart"
             secondaryActionLink="/cart"
             className="lg:top-28"
           >
+            <div aria-live="polite" aria-busy={summaryPending}>
+              {!checkoutPayload ? (
+                <p className="text-sm text-muted-foreground">
+                  Enter your delivery address or select a pickup location to
+                  calculate the total.
+                </p>
+              ) : summaryPending ? (
+                <p className="text-sm text-muted-foreground">
+                  Calculating delivery…
+                </p>
+              ) : checkoutSummary.isError ? (
+                <div className="space-y-2 text-sm">
+                  <p className="text-destructive">
+                    {checkoutSummary.error?.response?.data?.message ||
+                      'Unable to calculate delivery. Please try again.'}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => void checkoutSummary.refetch()}
+                  >
+                    Retry calculation
+                  </Button>
+                </div>
+              ) : null}
+            </div>
             <div className="space-y-2.5">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Items ({items.length})

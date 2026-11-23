@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import type { Order } from '@/types/order';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/ui/card';
 import { MapPin, Truck, CreditCard } from 'lucide-react';
+import { formatCurrency, getOrderDeliveryInfo } from '@/utils/order.utils';
 
 type Props = {
   order: Order;
@@ -9,6 +10,7 @@ type Props = {
 
 export const OrderInfoCards: FC<Props> = ({ order }) => {
   const isPaid = order.status === 'PAID' || order.status === 'SHIPPED';
+  const delivery = getOrderDeliveryInfo(order);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -16,16 +18,14 @@ export const OrderInfoCards: FC<Props> = ({ order }) => {
         <CardHeader className="flex flex-row items-center gap-2">
           <MapPin className="size-4 text-primary" />
           <CardTitle className="text-sm font-semibold">
-            Shipping Address
+            Delivery Destination
           </CardTitle>
         </CardHeader>
         <CardContent className="text-xs space-y-1 text-muted-foreground">
           <p className="font-semibold text-foreground text-sm">
             Delivery Destination
           </p>
-          <p className="leading-relaxed">
-            {order.shippingAddress || 'Address specified during checkout'}
-          </p>
+          <p className="leading-relaxed">{delivery.address}</p>
           <p className="text-[11px] text-muted-foreground pt-1">
             Contact receiver via account phone/email
           </p>
@@ -41,11 +41,10 @@ export const OrderInfoCards: FC<Props> = ({ order }) => {
         </CardHeader>
         <CardContent className="text-xs space-y-1 text-muted-foreground">
           <p className="font-semibold text-foreground text-sm">
-            {order.deliveryMethod || 'Standard Courier Delivery'}
+            {delivery.method}
           </p>
-          <p className="leading-relaxed">Expected transit: 2–4 business days</p>
           <p className="text-emerald-600 dark:text-emerald-400 font-medium pt-1">
-            Free shipping applied
+            Delivery: {formatCurrency(order.shippingCost, 'Not available')}
           </p>
         </CardContent>
       </Card>

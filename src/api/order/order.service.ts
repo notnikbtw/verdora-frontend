@@ -7,6 +7,8 @@ import type {
   AdminOrdersParams,
   Order,
   UpdateOrderPayload,
+  CheckoutPayload,
+  CheckoutSummary,
 } from '@/types/order';
 
 const ORDERS_PAGE_SIZE = 12;
@@ -21,8 +23,23 @@ const fetchOrdersPage = async (page: number) => {
 };
 
 export const orderService = {
-  createOrder: async () => {
-    const response = await instance.post<ApiResponse<Order>>('/orders');
+  getCheckoutSummary: async (
+    payload: CheckoutPayload,
+    signal?: AbortSignal
+  ) => {
+    const response = await instance.post<ApiResponse<CheckoutSummary>>(
+      '/orders/checkout-summary',
+      payload,
+      { signal }
+    );
+    return response.data.data;
+  },
+
+  createOrder: async (payload: CheckoutPayload) => {
+    const response = await instance.post<ApiResponse<Order>>(
+      '/orders',
+      payload
+    );
 
     return response.data.data;
   },

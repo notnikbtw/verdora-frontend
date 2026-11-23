@@ -7,6 +7,7 @@ import ErrorSection from '@components/common/section/ErrorSection';
 import { Skeleton } from '@components/ui/skeleton';
 import { Button } from '@components/ui/button';
 import { ExternalLink, Download, Pencil } from 'lucide-react';
+import OrderPriceBreakdown from '@components/order/OrderPriceBreakdown';
 import {
   Table,
   TableBody,
@@ -20,6 +21,7 @@ import {
   formatOrderPrice,
   isOrderCancellable,
   printOrderInvoice,
+  getOrderDeliveryInfo,
 } from '@/utils/order.utils';
 
 type OrderDetailsDialogProps = {
@@ -84,6 +86,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
 
   const cancellable = isOrderCancellable(order.status);
   const items = order.items ?? [];
+  const delivery = getOrderDeliveryInfo(order);
 
   return (
     <DialogComponent
@@ -242,11 +245,14 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
           </Table>
         </div>
 
-        <div className="flex flex-wrap justify-between items-center gap-3 pt-2 border-t border-border">
-          <span className="font-semibold text-base">Total Amount:</span>
-          <span className="whitespace-nowrap font-bold text-lg text-primary">
-            {formatOrderPrice(order.totalPrice)}
-          </span>
+        {order.deliveryMethod && (
+          <div className="space-y-1 text-sm wrap-anywhere">
+            <p className="font-medium">{delivery.method}</p>
+            <p className="text-muted-foreground">{delivery.address}</p>
+          </div>
+        )}
+        <div className="pt-2 border-t border-border">
+          <OrderPriceBreakdown order={order} />
         </div>
       </div>
     </DialogComponent>

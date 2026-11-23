@@ -14,6 +14,7 @@ import { Skeleton } from '@components/ui/skeleton';
 import ErrorSection from '@components/common/section/ErrorSection';
 import { useOrderById } from '@api/order/order.hooks';
 import { useGetCurrentUser } from '@api/user/user.hooks';
+import OrderPriceBreakdown from '@components/order/OrderPriceBreakdown';
 import {
   CheckCircle2,
   ShoppingBag,
@@ -140,11 +141,8 @@ const OrderResult = () => {
                         </span>
                       </div>
                     ))}
-                    <div className="p-3.5 flex justify-between items-center font-bold text-gray-900 bg-gray-50/50">
-                      <span>Total Paid</span>
-                      <span className="text-emerald-700">
-                        {formatOrderPrice(order.totalPrice)}
-                      </span>
+                    <div className="p-3.5 bg-gray-50/50">
+                      <OrderPriceBreakdown order={order} />
                     </div>
                   </div>
                 </div>

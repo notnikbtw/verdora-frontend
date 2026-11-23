@@ -1,40 +1,58 @@
 # Checkout delivery and server totals
 
-Verified against the deployed `/v3/api-docs` on 2026-11-19.
+Verified against the deployed `/v3/api-docs` on 2026-11-23.
 
-`CartResponse` contains `cartId`, `items` and `totalPrice` (the total price of all
-items). It does not include `shippingCost`. A captured `GET /cart` response also
-confirmed that the field is absent. A missing shipping cost must not be displayed
-as zero or interpreted as free delivery.
+`GET /cart` returns item totals without delivery. Cart and guest cart summaries
+keep shipping unknown until delivery details are selected in Checkout.
 
-`POST /orders` currently has no request body or delivery parameters. It creates
-an order from the current cart. The frontend cannot
-communicate that selection, the pickup location, or a courier address to the
-server through the documented API.
+## Quote and order creation
 
-Until this API is extended, Cart and Checkout preserve the server's
-`cart.totalPrice`. When `shippingCost` is absent, delivery options and the summary
-show "Not calculated", the amount is labelled "Items total", and the UI explains
-that delivery is not included. Guest carts also leave delivery uncalculated.
-An explicit numeric shipping cost, including zero, is displayed as returned.
-Selecting pickup does not deduct an invented fee or advertise free pickup. A
-delivery-specific quote cannot be offered until the backend supports it.
+Both `POST /orders/checkout-summary` and `POST /orders` require the same body:
 
-Required backend support:
+```json
+{
+  "deliveryMethod": "COURIER_DELIVERY",
+  "deliveryAddress": "Kyiv, Khreshchatyk St, 22"
+}
+```
 
-- Accept a delivery method (`delivery` or `pickup`), contact information, and
-  either a pickup location ID or a courier address.
-- Validate the location/address for the selected method.
-- Calculate item prices and shipping on the server; pickup is free, courier
-  delivery uses the applicable server tariff.
-- Provide a checkout quote with item subtotal, shipping cost and total before
-  confirmation. The frontend must display this quote rather than calculate a
-  separate authoritative total.
-- Create the order using the selected delivery details and validate the quote.
-  If the payable total changed, return the updated quote for the customer to
-  confirm before placing the order.
-- Return the saved delivery method, location/address, subtotal, shipping cost
-  and final total in the created order.
+or:
 
-The final endpoint names and request/response field names must be agreed with
-the backend and documented in OpenAPI before frontend integration.
+```json
+{ "deliveryMethod": "STORE_PICKUP", "pickupPointId": 1 }
+```
+
+`buildCheckoutPayload` builds both requests from the same form values. Pickup
+locations remain in `src/config/checkout.config.ts`, with numeric server IDs and
+stable string form IDs so existing checkout drafts still work. The backend
+currently stores the numeric ID without validating it against a directory.
+
+The summary endpoint does not create an order or clear the cart. Its response is
+an API envelope whose `data` contains `itemsTotal`, `shippingCost` and `totalPrice`.
+Checkout displays these values directly, without calculating tariffs. The current
+server tariff is free pickup, courier delivery at ₴150, and free courier delivery
+for item totals of at least ₴2000.
+
+Address changes are debounced. Delivery details and cart contents are part of the
+quote query key; obsolete requests can be aborted and cannot replace a quote for
+different delivery details. Confirmation is disabled while the form is invalid,
+the quote is being fetched, or calculation has failed. A failed quote shows one
+inline retry action without a mutation error toast.
+
+Creating an order sends the same delivery details used by the displayed quote.
+The order response is authoritative and includes `itemsTotal`, `shippingCost`,
+`totalPrice`, `deliveryMethod`, `deliveryAddress` and `pickupPointId`. The server
+recalculates the amount on creation; there is currently no quote ID or price lock
+covering concurrent cart or product-price changes between the two requests.
+
+## Order history
+
+`GET /orders` and `GET /orders/{id}` include the saved delivery breakdown. Details,
+confirmation and printed invoices display item subtotal, shipping and the final
+server total separately. Older orders have `deliveryMethod: null` and
+`shippingCost: 0`. Missing fields (for example in admin detail responses) stay
+unknown rather than being advertised as free shipping.
+
+Contact details shown in Checkout are not part of `CheckoutRequest`; only delivery
+details are sent. An endpoint for pickup locations and contact overrides would
+require an additional backend contract.
