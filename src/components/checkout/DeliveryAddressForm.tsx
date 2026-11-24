@@ -33,11 +33,11 @@ const DeliveryAddressForm = ({
         <div className="sm:col-span-3">
           <TextField
             type="text"
-            label="Street Address"
+            label="City and Street Address"
             required
             autoComplete="address-line1"
             id="street"
-            placeholder="e.g. Khreshchatyk St"
+            placeholder="e.g. Kyiv, Khreshchatyk St"
             value={street}
             onChange={val => onChangeField('street', val)}
             error={errors.street}

@@ -5,14 +5,23 @@ import { formatOrderPrice } from '@/utils/order.utils';
 type Props = {
   selectedMethod: 'delivery' | 'pickup';
   onSelectMethod: (method: 'delivery' | 'pickup') => void;
-  baseShippingCost: number;
+  shippingCost?: number;
+  isCalculating?: boolean;
 };
 
 const DeliveryMethodSelector = ({
   selectedMethod,
   onSelectMethod,
-  baseShippingCost,
+  shippingCost,
+  isCalculating = false,
 }: Props) => {
+  const deliveryPrice = (method: Props['selectedMethod']) => {
+    if (method !== selectedMethod) return 'Calculated after selection';
+    if (isCalculating) return 'Calculating…';
+    return shippingCost == null
+      ? 'Not calculated'
+      : formatOrderPrice(shippingCost);
+  };
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
       <button
@@ -41,7 +50,7 @@ const DeliveryMethodSelector = ({
               Courier Delivery
             </span>
             <span className="text-xs font-semibold text-emerald-700">
-              {formatOrderPrice(baseShippingCost)}
+              {deliveryPrice('delivery')}
             </span>
           </div>
           <p className="text-xs text-gray-500 mt-1">
@@ -76,7 +85,7 @@ const DeliveryMethodSelector = ({
               Store Pickup
             </span>
             <span className="text-xs font-semibold text-emerald-700">
-              {formatOrderPrice(baseShippingCost)}
+              {deliveryPrice('pickup')}
             </span>
           </div>
           <p className="text-xs text-gray-500 mt-1">

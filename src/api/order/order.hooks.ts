@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import type { ApiErrorResponse } from '@/types/api';
 import type { PaginatedData } from '@/types/pagination';
@@ -16,19 +17,46 @@ import type {
   Order,
   OrderStatus,
   UpdateOrderPayload,
+  CheckoutPayload,
+  CheckoutSummary,
 } from '@/types/order';
 
 import { getOrderStatusLabel, isFinalOrderStatus } from '@/utils/order.utils';
 
 import { clearGuestCart } from '@/utils/guestCart';
+import { useDebouncedValue } from '@hooks/useDebouncedValue';
+import type { Cart } from '@/types/cart';
 
 type OrderAxiosError = AxiosError<ApiErrorResponse>;
+
+export const useCheckoutSummary = (
+  payload: CheckoutPayload | null,
+  cart: Cart | undefined
+) => {
+  const debouncedPayload = useDebouncedValue(payload, 350);
+  const isDebouncing = payload !== debouncedPayload;
+  const query = useQuery<CheckoutSummary, OrderAxiosError>({
+    queryKey: [
+      'orders',
+      'checkout-summary',
+      cart?.cartId,
+      cart?.items,
+      debouncedPayload,
+    ],
+    queryFn: ({ signal }) =>
+      orderService.getCheckoutSummary(debouncedPayload!, signal),
+    enabled: Boolean(payload && !isDebouncing && cart?.items.length),
+    retry: false,
+    staleTime: 0,
+  });
+  return { ...query, isDebouncing };
+};
 
 export const useCreateOrder = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<Order, OrderAxiosError>({
-    mutationFn: () => orderService.createOrder(),
+  return useMutation<Order, OrderAxiosError, CheckoutPayload>({
+    mutationFn: payload => orderService.createOrder(payload),
     onSuccess: () => {
       clearGuestCart();
       queryClient.invalidateQueries({ queryKey: ['orders'] });
@@ -43,6 +71,15 @@ export const useUpdateOrder = () => {
 
   return useMutation<Order, OrderAxiosError, UpdateOrderPayload>({
     mutationFn: data => orderService.updateOrder(data),
+    meta: {
+      conflictErrorMessage:
+        'This status change is not allowed. Orders cannot return to an earlier stage. Refresh the order and choose an allowed next status.',
+    },
+    onError: error => {
+      if (isAxiosError(error) && error.response?.status === 409) {
+        void queryClient.invalidateQueries({ queryKey: ['orders'] });
+      }
+    },
     onSuccess: (_order, variables) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       toast.success(

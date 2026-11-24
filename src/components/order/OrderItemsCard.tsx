@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@components/ui/card';
 import { Badge } from '@components/ui/badge';
 import { formatOrderPrice } from '@/utils/order.utils';
 import { Package } from 'lucide-react';
+import OrderPriceBreakdown from '@components/order/OrderPriceBreakdown';
 
 type Props = {
   order: Order;
@@ -24,7 +25,7 @@ export const OrderItemsCard: FC<Props> = ({ order }) => {
             </CardTitle>
           </div>
           <span className="text-xs text-muted-foreground font-medium">
-            Standard Currency (USD)
+            Prices in UAH
           </span>
         </div>
       </CardHeader>
@@ -113,25 +114,8 @@ export const OrderItemsCard: FC<Props> = ({ order }) => {
             <p>Need support? Contact support@verdora.com.</p>
           </div>
 
-          <div className="w-full sm:w-72 space-y-2 text-sm">
-            <div className="flex justify-between text-muted-foreground">
-              <span>Items Subtotal:</span>
-              <span className="font-medium text-foreground">
-                {formatOrderPrice(order.totalPrice)}
-              </span>
-            </div>
-            <div className="flex justify-between text-muted-foreground">
-              <span>Delivery & Shipping:</span>
-              <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                Free
-              </span>
-            </div>
-            <div className="flex justify-between text-base font-bold text-foreground border-t border-border pt-2">
-              <span>Total Amount:</span>
-              <span className="text-primary text-lg font-extrabold">
-                {formatOrderPrice(order.totalPrice)}
-              </span>
-            </div>
+          <div className="w-full sm:w-72">
+            <OrderPriceBreakdown order={order} />
           </div>
         </div>
       </CardContent>

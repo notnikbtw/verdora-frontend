@@ -13,6 +13,7 @@ interface AuthState {
   user: UserType | null;
   hydrating: boolean;
   initialized: boolean;
+  currentMeRequestId: string | null;
   loading: {
     login: boolean;
     register: boolean;
@@ -47,6 +48,7 @@ const initialState: AuthState = {
   },
   hydrating: true,
   initialized: false,
+  currentMeRequestId: null,
 };
 
 const authSlice = createSlice({
@@ -57,6 +59,9 @@ const authSlice = createSlice({
     // fails, so we clear the user without firing a pointless /auth/logout.
     clearAuth: state => {
       state.user = null;
+      state.hydrating = false;
+      state.initialized = true;
+      state.currentMeRequestId = null;
     },
     updateUser: (state, action: PayloadAction<UserType>) => {
       state.user = action.payload;
@@ -84,6 +89,7 @@ const authSlice = createSlice({
       .addCase(register.fulfilled, (state, action) => {
         state.loading.register = false;
         state.hydrating = false;
+        state.currentMeRequestId = null;
         state.initialized = true;
         state.user = action.payload.data;
         state.errors.register = null;
@@ -102,6 +108,7 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading.login = false;
         state.hydrating = false;
+        state.currentMeRequestId = null;
         state.initialized = true;
         state.user = action.payload.data;
         state.errors.login = null;
@@ -112,28 +119,39 @@ const authSlice = createSlice({
       })
 
       // logout
+      .addCase(logout.pending, state => {
+        state.loading.logout = true;
+        state.errors.logout = null;
+      })
       .addCase(logout.fulfilled, state => {
+        state.loading.logout = false;
         state.user = null;
+        state.hydrating = false;
+        state.initialized = true;
+        state.currentMeRequestId = null;
         state.errors.logout = null;
       })
       .addCase(logout.rejected, (state, action) => {
-        if (action.payload?.status !== 0) {
-          state.user = null;
-        }
+        state.loading.logout = false;
         state.errors.logout = action.payload?.message ?? 'Logout failed';
       })
 
       // fetchMe runs on app startup to restore user from cookie
-      .addCase(fetchMe.pending, state => {
+      .addCase(fetchMe.pending, (state, action) => {
         state.hydrating = true;
+        state.currentMeRequestId = action.meta.requestId;
       })
       .addCase(fetchMe.fulfilled, (state, action) => {
+        if (state.currentMeRequestId !== action.meta.requestId) return;
         state.hydrating = false;
+        state.currentMeRequestId = null;
         state.user = action.payload.data;
         state.initialized = true;
       })
-      .addCase(fetchMe.rejected, state => {
+      .addCase(fetchMe.rejected, (state, action) => {
+        if (state.currentMeRequestId !== action.meta.requestId) return;
         state.hydrating = false;
+        state.currentMeRequestId = null;
         state.user = null;
         state.initialized = true;
       })

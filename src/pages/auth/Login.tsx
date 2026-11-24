@@ -30,7 +30,7 @@ const Login = () => {
 
   const {
     handleSubmit,
-    formState: { errors: formErrors },
+    formState: { errors: formErrors, isValid },
     watch,
     setValue,
     trigger,
@@ -141,7 +141,7 @@ const Login = () => {
             type="submit"
             disabled={loading.login}
             aria-busy={loading.login}
-            variant={'outline'}
+            variant={isValid ? 'default' : 'outline'}
           >
             {loading.login
               ? isSyncingCart

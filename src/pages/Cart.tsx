@@ -158,7 +158,7 @@ const Cart = () => {
 
   const items = cart?.items || [];
   const totalPrice = cart?.totalPrice ?? 0;
-  const shippingCost = cart?.shippingCost ?? 0;
+  const shippingCost = cart?.shippingCost;
   const itemsCount = items.length;
 
   const {
@@ -370,7 +370,7 @@ const Cart = () => {
           <OrderSummary
             mobileActions
             totalItems={totalItems}
-            totalItemsPrice={totalPrice - shippingCost}
+            totalItemsPrice={totalPrice - (shippingCost ?? 0)}
             shippingCost={shippingCost}
             totalCost={totalPrice}
             agreeToTerms={agreeToTerms}

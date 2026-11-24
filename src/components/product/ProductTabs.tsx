@@ -48,7 +48,7 @@ export const ProductTabs: React.FC<ProductTabsProps> = ({
   }, [specs, categoryName, product.productId]);
 
   return (
-    <div className={className}>
+    <div className={cn('min-w-0', className)}>
       <div className="flex items-center gap-1 sm:gap-2 border-b border-border overflow-x-auto no-scrollbar">
         <button
           type="button"
@@ -97,8 +97,8 @@ export const ProductTabs: React.FC<ProductTabsProps> = ({
       <div className="pt-6 sm:pt-8">
         {currentTab === 'description' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start animate-in fade-in duration-200">
-            <div className="space-y-4 text-[15px] sm:text-base text-[#5c665d] leading-[1.7]">
-              <p>
+            <div className="min-w-0 space-y-4 text-[15px] sm:text-base text-[#5c665d] leading-[1.7]">
+              <p className="whitespace-pre-line wrap-anywhere">
                 {product.description ||
                   'No detailed description available for this product.'}
               </p>

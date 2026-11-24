@@ -1,4 +1,4 @@
-import instance from '@api/axiosInstance';
+import instance, { waitForTokenRefresh } from '@api/axiosInstance';
 import type { UserType } from '@/types/user';
 import type { ApiResponse } from '@/types/api';
 import type {
@@ -15,7 +15,10 @@ export const authService = {
   login: (data: LoginPayload) =>
     instance.post<ApiResponse<UserType>>('/auth/login', data),
 
-  logout: () => instance.post('/auth/logout'),
+  logout: async () => {
+    await waitForTokenRefresh();
+    return instance.post('/auth/logout');
+  },
 
   fetchMe: () => instance.get<ApiResponse<UserType>>('/users/current-user'),
 

@@ -1,10 +1,6 @@
 import { useGetProducts } from '@api/product/product.hooks';
-import {
-  useCategoriesByIds,
-  useGetCategories,
-} from '@api/category/category.hooks';
+import { useCategoriesByIds } from '@api/category/category.hooks';
 import ProductGridSection from '@components/common/section/ProductGridSection';
-import CategoryGridSection from '@components/common/section/CategoryGridSection';
 
 const useHomeProducts = (discount?: boolean) => {
   const query = useGetProducts({
@@ -49,21 +45,6 @@ export const HomeCatalogSection = () => {
       isLoading={isLoading}
       limit={8}
       categoryMap={categoryMap}
-    />
-  );
-};
-
-export const HomeCategoriesSection = () => {
-  const { data, isLoading } = useGetCategories({
-    page: 0,
-    size: 6,
-    sort: 'id,asc',
-  });
-  return (
-    <CategoryGridSection
-      categories={data?.content}
-      isLoading={isLoading}
-      limit={6}
     />
   );
 };

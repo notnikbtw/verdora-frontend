@@ -70,10 +70,10 @@ export const calculateCartItemPrices = (
 export const calculateCartTotals = (
   items: CartItemType[],
   shippingCost = 0
-): { totalPrice: number; shippingCost: number } => {
+): { totalPrice: number } => {
   const totalPrice =
     items.reduce((sum, item) => sum + item.subtotal, 0) + shippingCost;
-  return { totalPrice, shippingCost };
+  return { totalPrice };
 };
 
 export const getStoredGuestCart = (): StoredGuestCartItem[] => {
@@ -176,7 +176,6 @@ export const getGuestCart = async (): Promise<Cart> => {
       cartId: 0,
       items: [],
       totalPrice: 0,
-      shippingCost: 0,
     };
   }
 
@@ -231,13 +230,12 @@ export const getGuestCart = async (): Promise<Cart> => {
   }
 
   // Total amount calculated on the client side as a preliminary figure for the guest
-  const { totalPrice, shippingCost } = calculateCartTotals(cartItems, 0);
+  const { totalPrice } = calculateCartTotals(cartItems, 0);
 
   return {
     cartId: 0,
     items: cartItems,
     totalPrice,
-    shippingCost,
   };
 };
 
@@ -327,7 +325,7 @@ export const guestCartService: CartService = {
   removeItemFromCart: async ({ cartItemId }) => removeGuestCartItem(cartItemId),
   clearCart: async () => {
     clearGuestCart();
-    return { cartId: 0, items: [], totalPrice: 0, shippingCost: 0 };
+    return { cartId: 0, items: [], totalPrice: 0 };
   },
 };
 

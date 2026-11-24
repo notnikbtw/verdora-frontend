@@ -1,4 +1,34 @@
 import type { Order } from '@/types/order';
+import { PICKUP_LOCATIONS } from '@/config/checkout.config';
+
+export const getOrderDeliveryInfo = (order: Order) => {
+  if (order.deliveryMethod === 'STORE_PICKUP') {
+    const location = PICKUP_LOCATIONS.find(
+      item => item.pickupPointId === order.pickupPointId
+    );
+    return {
+      method: 'Store Pickup',
+      address: location
+        ? `${location.name}, ${location.address}`
+        : order.pickupPointId != null
+          ? `Pickup point #${order.pickupPointId}`
+          : 'Pickup location unavailable',
+    };
+  }
+  return {
+    method:
+      order.deliveryMethod === 'COURIER_DELIVERY'
+        ? 'Courier Delivery'
+        : 'Not specified',
+    address: order.deliveryAddress || order.shippingAddress || 'Not specified',
+  };
+};
+
+export const getOrderItemsTotal = (order: Order): number | undefined =>
+  order.itemsTotal ??
+  (order.items?.length
+    ? order.items.reduce((sum, item) => sum + item.subtotal, 0)
+    : undefined);
 
 export const CANCELLABLE_STATUSES: readonly string[] = ['PENDING', 'PAID'];
 
@@ -114,6 +144,19 @@ export const printOrderInvoice = (order: Order): void => {
   }
 
   const tracking = getOrderTrackingInfo(order);
+  const delivery = getOrderDeliveryInfo(order);
+  const escapeHtml = (value: string) =>
+    value.replace(
+      /[&<>"']/g,
+      character =>
+        ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+        })[character]!
+    );
   const formattedDate = formatOrderDate(order.createdAt);
   const itemsHtml = (order.items ?? [])
     .map(
@@ -175,9 +218,9 @@ export const printOrderInvoice = (order: Order): void => {
           <div>
             <h3 style="margin: 0 0 8px; font-size: 14px; text-transform: uppercase; color: #6b7280;">Shipping & Delivery</h3>
             <p style="margin: 0 0 4px; font-weight: 600;">Address:</p>
-            <p style="margin: 0 0 8px; color: #4b5563;">${order.shippingAddress || 'Address specified at checkout'}</p>
+            <p style="margin: 0 0 8px; color: #4b5563;">${escapeHtml(delivery.address)}</p>
             <p style="margin: 0 0 4px; font-weight: 600;">Method & Carrier:</p>
-            <p style="margin: 0; color: #4b5563;">${order.deliveryMethod || 'Standard Delivery'} (${tracking.carrier})</p>
+            <p style="margin: 0; color: #4b5563;">${escapeHtml(delivery.method)}</p>
             ${order.status === 'SHIPPED' ? `<p style="margin: 4px 0 0; color: #4b5563;">Tracking: <strong>${tracking.trackingNumber}</strong></p>` : ''}
           </div>
           <div>
@@ -206,11 +249,11 @@ export const printOrderInvoice = (order: Order): void => {
         <div class="totals">
           <div class="totals-row">
             <span>Subtotal:</span>
-            <span>${formatOrderPrice(order.totalPrice)}</span>
+            <span>${formatCurrency(getOrderItemsTotal(order))}</span>
           </div>
           <div class="totals-row">
             <span>Shipping:</span>
-            <span>$0.00 (Free)</span>
+            <span>${formatCurrency(order.shippingCost, 'Not available')}</span>
           </div>
           <div class="totals-row total-bold">
             <span>Total:</span>
