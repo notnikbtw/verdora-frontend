@@ -43,21 +43,27 @@ const HomeProductOfTheDay = () => {
                     <ImageWithPlaceholder
                       src={productOfTheDay.imageUrl || ProductOfTheDayImage}
                       alt={productOfTheDay.name}
-                      fit="contain"
+                      fit="cover"
                       className="absolute inset-0 rounded-none"
                     />
                   </div>
                 </div>
 
                 <div className="lg:col-span-6 flex min-w-0 flex-col items-start gap-4">
-                  <h3 className="w-full min-w-0 wrap-break-word text-2xl sm:text-4xl font-bold text-link-text">
+                  <h3
+                    title={productOfTheDay.name}
+                    className="w-full min-w-0 line-clamp-3 wrap-anywhere text-2xl sm:text-4xl font-bold text-link-text"
+                  >
                     {productOfTheDay.name}
                   </h3>
                   <HomeProductPrice
                     price={productOfTheDay.price}
                     discountPrice={productOfTheDay.discountPrice}
                   />
-                  <p className="w-full min-w-0 wrap-break-word text-sm sm:text-base text-[#4A5568] leading-relaxed">
+                  <p
+                    title={productOfTheDay.description}
+                    className="w-full min-w-0 line-clamp-4 wrap-anywhere text-sm sm:text-base text-[#4A5568] leading-relaxed"
+                  >
                     {productOfTheDay.description}
                   </p>
                   <Button asChild>

@@ -1,4 +1,4 @@
-// Interior plant hotspots matching plants in integrate-section.png
+// Interior plant hotspots matching plants in integrate-section-1024.webp
 // - Hotspot 19: Rubber Plant (pothos on the left)
 // - Hotspot 20: Rose (snake plant in the middle)
 export const HOTSPOTS = [
@@ -13,4 +13,4 @@ export const HOTSPOTS = [
     label: 'Rose',
   },
 ];
-export const CATEGORY_ROTATION_DELAY_MS = 5000;
+export const CAROUSEL_ROTATION_DELAY_MS = 5000;
