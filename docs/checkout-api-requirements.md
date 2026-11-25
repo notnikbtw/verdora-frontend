@@ -27,6 +27,40 @@ locations remain in `src/config/checkout.config.ts`, with numeric server IDs and
 stable string form IDs so existing checkout drafts still work. The backend
 currently stores the numeric ID without validating it against a directory.
 
+Courier checkout has separate city, street, building and optional apartment
+fields. City is required for courier delivery and restored from checkout drafts.
+The settlement must be chosen from Ukraine-only Photon/OpenStreetMap suggestions;
+typing a name alone is not a selection. Suggestions include villages and region
+labels. Changing the city clears the old street, house and apartment.
+Street suggestions are scoped to the chosen settlement; manual street input is
+also accepted because map data can be incomplete. House numbers allow suffixes
+and separators such as `15Б`, `15/2` and `15-А`.
+
+The selected settlement label (including available region/county), street, house
+and apartment are joined into `deliveryAddress` for both the quote and order;
+the backend contract does not have a separate city property. The full address
+must fit the API's 512-character limit. Pickup does not require a city.
+
+### Address search
+
+Photon requests are debounced, cached, aborted when obsolete and serialized at
+most once per second per browser. They use a separate unauthenticated fetch,
+without API session cookies or account details. Search failures offer retry.
+Provider URLs can be changed through `.env.example` settings. The public Photon
+demo is suitable for moderate demo traffic, has no availability guarantee and
+must be replaced with a supported deployment/provider for larger usage.
+
+City selection metadata and coordinates are validated before restoring drafts.
+Older free-text drafts retain their text but require settlement re-selection.
+Frontend selection is a usability check, not a server security boundary or proof
+that a street/house exists or can receive a delivery. Structured address validation
+and serviceability checks still require backend support.
+
+Provider references:
+
+- Photon usage: https://github.com/komoot/photon#demo-server
+- Photon API: https://github.com/komoot/photon/blob/master/docs/api-v1.md
+
 The summary endpoint does not create an order or clear the cart. Its response is
 an API envelope whose `data` contains `itemsTotal`, `shippingCost` and `totalPrice`.
 Checkout displays these values directly, without calculating tariffs. The current
