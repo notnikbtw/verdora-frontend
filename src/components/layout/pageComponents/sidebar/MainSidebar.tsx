@@ -13,7 +13,7 @@ import {
   useSidebar,
 } from '@components/ui/sidebar';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { MAIN_MENU } from '@fixtures/sidebar.fixture';
+import { ADMIN_MENU, MAIN_MENU } from '@fixtures/sidebar.fixture';
 import { isSalesLocation } from '@/utils/navigation.utils';
 import { Button } from '@components/ui/button';
 import { LogIn, Search } from 'lucide-react';
@@ -26,18 +26,13 @@ import LoginPromptDialog, {
   type AuthPromptAction,
 } from '@components/common/dialog/LoginPromptDialog';
 
-type Props = {
-  username?: string;
-  email?: string;
-  loading?: boolean;
-};
-
 const MENU_BADGE_TEXT =
   'text-white peer-hover/menu-button:text-white peer-data-active/menu-button:text-white';
 
-const MainSidebar = ({ username, email, loading }: Props) => {
-  const menuItems = MAIN_MENU;
+const MainSidebar = () => {
   const location = useLocation();
+  const isAdminPage =
+    location.pathname === '/admin' || location.pathname.startsWith('/admin/');
   const isSalesPage = isSalesLocation(location);
   const navigate = useNavigate();
   const { setOpenMobile, setOpen } = useSidebar();
@@ -45,7 +40,9 @@ const MainSidebar = ({ username, email, loading }: Props) => {
   const [loginPromptAction, setLoginPromptAction] =
     useState<AuthPromptAction | null>(null);
 
-  const { user } = useAppSelector(state => state.auth);
+  const { user, hydrating } = useAppSelector(state => state.auth);
+  const menuItems =
+    user?.role === 'ADMIN' ? [...MAIN_MENU, ...ADMIN_MENU] : MAIN_MENU;
   const { data: favorites } = useGetFavorites(Boolean(user));
   const { data: cart } = useGetCart();
   const favoritesCount =
@@ -61,7 +58,7 @@ const MainSidebar = ({ username, email, loading }: Props) => {
 
   const handleLinkClick = () => {
     setOpenMobile(false);
-    setOpen(false);
+    if (!isAdminPage) setOpen(false);
   };
 
   // Items that need an account open the same login prompt as the header
@@ -114,6 +111,7 @@ const MainSidebar = ({ username, email, loading }: Props) => {
                           ? location.pathname === '/catalog' && !isSalesPage
                           : location.pathname === item.path ||
                             (item.path !== '/' &&
+                              item.path !== '/admin' &&
                               location.pathname.startsWith(`${item.path}/`));
 
                     const badge = badges[item.path];
@@ -148,11 +146,11 @@ const MainSidebar = ({ username, email, loading }: Props) => {
             </SidebarGroup>
           ))}
         </SidebarContent>
-        {username ? (
+        {user || hydrating ? (
           <SidebarFooterComponent
-            username={username}
-            email={email || ''}
-            loading={loading}
+            username={user?.name || ''}
+            email={user?.email || ''}
+            loading={hydrating}
           />
         ) : (
           <div className="p-4 mt-auto">

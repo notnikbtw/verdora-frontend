@@ -35,7 +35,11 @@ import {
   useUpdateOrder,
 } from '@api/order/order.hooks';
 import { ORDER_STATUSES, type Order, type OrderStatus } from '@/types/order';
-import { ORDER_STATUS_DESCRIPTIONS } from '@/config/orders.config';
+import {
+  ORDER_STATUS_DESCRIPTIONS,
+  ORDER_DATE_SORT_OPTIONS,
+  type OrderDateSort,
+} from '@/config/orders.config';
 import {
   Package,
   Clock,
@@ -66,6 +70,7 @@ const OrderManagement = () => {
     setPage(nextPage);
   };
   const [statusFilter, setStatusFilter] = useState<OrderStatus | undefined>();
+  const [dateSort, setDateSort] = useState<OrderDateSort>('createdAt,desc');
   const {
     data: ordersPage,
     isLoading: ordersLoading,
@@ -75,7 +80,7 @@ const OrderManagement = () => {
   } = useAdminOrders({
     page,
     size: PAGE_SIZE,
-    sort: 'createdAt,desc',
+    sort: dateSort,
     status: statusFilter,
   });
   const apiOrders = ordersPage?.content ?? [];
@@ -210,7 +215,7 @@ const OrderManagement = () => {
 
       <Card className="mt-6 border-border shadow-sm">
         <CardHeader className="py-4 px-6 border-b">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div>
               <CardTitle className="text-base">Order Records</CardTitle>
               <CardDescription className="text-xs mt-0.5">
@@ -218,33 +223,58 @@ const OrderManagement = () => {
                 orders
               </CardDescription>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <label
-                htmlFor="order-status-filter"
-                className="text-sm font-medium"
-              >
-                Status
-              </label>
-              <select
-                id="order-status-filter"
-                value={statusFilter ?? ''}
-                onChange={event => {
-                  setStatusFilter(
-                    event.target.value
-                      ? (event.target.value as OrderStatus)
-                      : undefined
-                  );
-                  setPage(0);
-                }}
-                className="min-h-11 rounded-md border border-input bg-background px-3 py-2 text-base sm:text-sm"
-              >
-                <option value="">All statuses</option>
-                {ORDER_STATUSES.map(status => (
-                  <option key={status} value={status}>
-                    {getOrderStatusLabel(status)}
-                  </option>
-                ))}
-              </select>
+            <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+              <div className="min-w-0 space-y-1.5">
+                <label
+                  htmlFor="order-status-filter"
+                  className="text-sm font-medium"
+                >
+                  Status
+                </label>
+                <select
+                  id="order-status-filter"
+                  value={statusFilter ?? ''}
+                  onChange={event => {
+                    setStatusFilter(
+                      event.target.value
+                        ? (event.target.value as OrderStatus)
+                        : undefined
+                    );
+                    setPage(0);
+                  }}
+                  className="min-h-11 w-full min-w-0 rounded-md border border-input bg-background px-3 py-2 text-base sm:text-sm"
+                >
+                  <option value="">All statuses</option>
+                  {ORDER_STATUSES.map(status => (
+                    <option key={status} value={status}>
+                      {getOrderStatusLabel(status)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="min-w-0 space-y-1.5">
+                <label
+                  htmlFor="order-date-sort"
+                  className="text-sm font-medium"
+                >
+                  Creation date
+                </label>
+                <select
+                  id="order-date-sort"
+                  value={dateSort}
+                  onChange={event => {
+                    setDateSort(event.target.value as OrderDateSort);
+                    setPage(0);
+                  }}
+                  className="min-h-11 w-full min-w-0 rounded-md border border-input bg-background px-3 py-2 text-base sm:text-sm"
+                >
+                  {ORDER_DATE_SORT_OPTIONS.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </CardHeader>

@@ -52,11 +52,7 @@ const LayoutPage = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <SidebarProvider defaultOpen={false}>
-      <MainSidebar
-        username={user?.name}
-        email={user?.email}
-        loading={hydrating}
-      />
+      <MainSidebar />
       <SidebarInset className="min-w-0 bg-transparent">
         <div className="relative flex min-h-screen flex-col page-background">
           <NoiseBackground />

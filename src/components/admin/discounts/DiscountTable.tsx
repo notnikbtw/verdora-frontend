@@ -91,7 +91,7 @@ export const DiscountTable: React.FC<DiscountTableProps> = ({
       : 'There are no products in your store catalog yet.';
 
   return (
-    <div className="mt-6 relative">
+    <div className="mt-6 relative min-w-0 max-w-full">
       {isFetching && !isLoading && (
         <div className="absolute top-3 right-4 z-10 flex items-center gap-2 rounded-full bg-background/95 backdrop-blur-xs border border-border px-3 py-1 text-xs font-medium shadow-sm text-primary">
           <Loader2 className="size-3.5 animate-spin" />
@@ -165,7 +165,7 @@ export const DiscountTable: React.FC<DiscountTableProps> = ({
               {totalElements} items)
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-0 overflow-x-auto">
+          <CardContent className="min-w-0 max-w-full p-0 overflow-x-auto">
             <Table>
               <TableHeaders />
               <TableBody>

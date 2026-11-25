@@ -6,7 +6,7 @@ export const FOOTER_SECTIONS: FooterSection[] = [
     type: 'links',
     items: [
       { name: 'All Products', href: '/catalog' },
-      { name: 'Discounts & Sales', href: '/catalog?discount=true' },
+      { name: 'My Orders', href: '/orders' },
     ],
   },
   {
@@ -33,5 +33,5 @@ export const FOOTER_SECTIONS: FooterSection[] = [
 
 export const SHOP_LINKS = [
   { text: 'All Products', to: '/catalog' },
-  { text: 'Discounts & Sales', to: '/catalog?discount=true' },
+  { text: 'My Orders', to: '/orders' },
 ];

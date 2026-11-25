@@ -17,8 +17,8 @@ export const ProfileViewCard = ({ user, onStartEdit }: Props) => {
           <div className="absolute inset-0 bg-[radial-gradient(120%_140%_at_100%_0%,rgba(237,245,233,0.8)_0%,rgba(237,245,233,0)_60%)]" />
         </div>
 
-        <div className="px-4 sm:px-6 pb-4 sm:pb-6 flex min-w-0 flex-col gap-4 -mt-8 sm:-mt-12 relative">
-          <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+        <div className="px-4 sm:px-6 pb-4 sm:pb-6 flex min-w-0 flex-col sm:flex-row sm:items-start gap-4 -mt-8 sm:-mt-12 relative">
+          <div className="flex min-w-0 flex-1 items-start gap-3 sm:gap-4">
             <div className="size-16 sm:size-24 shrink-0 rounded-full bg-[#3E8D35] border-4 border-white shadow-md flex items-center justify-center text-2xl sm:text-3xl font-bold text-white tracking-tight">
               {getInitials(user.name)}
             </div>
@@ -45,7 +45,7 @@ export const ProfileViewCard = ({ user, onStartEdit }: Props) => {
             type="button"
             variant="outline"
             onClick={onStartEdit}
-            className="w-full sm:w-auto sm:self-end min-h-11 px-4 rounded-xl border-[#3E8D35] text-[#2F6B29] hover:bg-[#3E8D35] hover:text-white transition-colors cursor-pointer gap-2"
+            className="w-full sm:w-auto sm:shrink-0 sm:mt-12 min-h-11 px-4 rounded-xl border-[#3E8D35] text-[#2F6B29] hover:bg-[#3E8D35] hover:text-white transition-colors cursor-pointer gap-2"
           >
             <Pencil className="size-4" />
             <span>Edit profile</span>

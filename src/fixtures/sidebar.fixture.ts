@@ -12,9 +12,15 @@ import {
   User,
 } from 'lucide-react';
 
+export const ADMIN_PANEL_NAV_ITEM: SidebarSection['items'][number] = {
+  title: 'Admin Panel',
+  path: '/admin',
+  icon: LayoutDashboard,
+};
+
 export const ADMIN_MENU: SidebarSection[] = [
   {
-    label: 'Dashboard',
+    label: 'Administration',
     items: [
       { title: 'Dashboard', path: '/admin', icon: LayoutDashboard },
       { title: 'Products', path: '/admin/products', icon: Package },
