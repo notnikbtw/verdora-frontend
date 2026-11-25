@@ -1,10 +1,12 @@
 import type { CheckoutFormData } from '@/schemas/checkout.schema';
+import { isSettlement, isSelectedSettlement } from '@/utils/address.utils';
 
 const draftKey = (userId: number) => `verdora:checkout:${userId}`;
 const textFields = [
   'name',
   'email',
   'phone',
+  'city',
   'street',
   'building',
   'apartment',
@@ -23,6 +25,12 @@ export const readCheckoutDraft = (
     const draft: Partial<CheckoutFormData> = {};
     for (const field of textFields) {
       if (typeof data[field] === 'string') draft[field] = data[field];
+    }
+    if (
+      isSettlement(data.settlement) &&
+      isSelectedSettlement(draft.city, data.settlement)
+    ) {
+      draft.settlement = data.settlement;
     }
     if (
       data.deliveryMethod === 'delivery' ||

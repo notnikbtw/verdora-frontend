@@ -50,10 +50,13 @@ const Checkout = () => {
     watch,
     setValue,
     getValues,
+    trigger,
   } = useCheckoutForm();
 
   const deliveryMethod = watch('deliveryMethod');
   const selectedPickup = watch('pickupLocationId') || PICKUP_LOCATIONS[0].id;
+  const city = watch('city');
+  const settlement = watch('settlement') ?? null;
   const street = watch('street');
   const building = watch('building');
   const apartment = watch('apartment');
@@ -63,11 +66,21 @@ const Checkout = () => {
       buildCheckoutPayload({
         deliveryMethod,
         pickupLocationId,
+        city,
+        settlement,
         street,
         building,
         apartment,
       }),
-    [deliveryMethod, pickupLocationId, street, building, apartment]
+    [
+      deliveryMethod,
+      pickupLocationId,
+      city,
+      settlement,
+      street,
+      building,
+      apartment,
+    ]
   );
   const checkoutSummary = useCheckoutSummary(checkoutPayload, cart);
   const quoteReady = Boolean(
@@ -291,17 +304,38 @@ const Checkout = () => {
 
                   {deliveryMethod === 'delivery' && (
                     <DeliveryAddressForm
+                      city={city || ''}
+                      settlement={settlement}
                       street={watch('street') || ''}
                       building={watch('building') || ''}
                       apartment={watch('apartment') || ''}
                       errors={{
+                        city: formErrors.city?.message,
                         street: formErrors.street?.message,
                         building: formErrors.building?.message,
                         apartment: formErrors.apartment?.message,
                       }}
-                      onChangeField={(field, val) =>
-                        setValue(field, val, { shouldValidate: true })
-                      }
+                      onChangeField={(field, val) => {
+                        if (field === 'city') {
+                          setValue('settlement', null);
+                          setValue('street', '');
+                          setValue('building', '');
+                          setValue('apartment', '');
+                        }
+                        setValue(field, val, { shouldValidate: true });
+                      }}
+                      onSelectSettlement={selected => {
+                        setValue('city', selected.name);
+                        setValue('settlement', selected);
+                        setValue('street', '');
+                        setValue('building', '');
+                        setValue('apartment', '');
+                        void trigger();
+                      }}
+                      onSelectStreet={selected => {
+                        setValue('street', selected.street);
+                        void trigger();
+                      }}
                     />
                   )}
 

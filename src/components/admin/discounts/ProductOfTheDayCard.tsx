@@ -31,7 +31,7 @@ const ProductOfTheDayCard = () => {
   const showImage = product?.imageUrl && product.imageUrl !== failedImageUrl;
 
   return (
-    <Card className="mt-6 border-border shadow-sm">
+    <Card className="mt-6 min-w-0 border-border shadow-sm">
       <CardHeader className="py-4 px-6 border-b">
         <CardTitle className="text-base flex items-center gap-2">
           <Sparkles className="size-4 text-primary" aria-hidden="true" />
@@ -43,14 +43,14 @@ const ProductOfTheDayCard = () => {
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="p-6">
+      <CardContent className="min-w-0 p-6">
         {isLoading ? (
           <div className="flex items-center gap-4">
             <Skeleton className="size-20 rounded-md shrink-0" />
-            <div className="space-y-2">
-              <Skeleton className="h-5 w-48" />
-              <Skeleton className="h-4 w-72" />
-              <Skeleton className="h-4 w-40" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <Skeleton className="h-5 w-48 max-w-full" />
+              <Skeleton className="h-4 w-72 max-w-full" />
+              <Skeleton className="h-4 w-40 max-w-full" />
             </div>
           </div>
         ) : isError ? (
@@ -73,7 +73,7 @@ const ProductOfTheDayCard = () => {
             }
           />
         ) : (
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center">
             <div className="size-20 rounded-md border border-border bg-muted/40 overflow-hidden flex items-center justify-center shrink-0">
               {showImage ? (
                 <img
@@ -98,17 +98,23 @@ const ProductOfTheDayCard = () => {
                 {product.name}
               </p>
               {product.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2">
+                <p
+                  className="text-sm text-muted-foreground line-clamp-2 wrap-anywhere"
+                  title={product.description}
+                >
                   {product.description}
                 </p>
               )}
-              <p className="text-xs text-muted-foreground">
+              <p
+                className="truncate text-xs text-muted-foreground"
+                title={categoryName}
+              >
                 ID {product.productId}
                 {categoryName ? ` · ${categoryName}` : ''}
               </p>
             </div>
 
-            <dl className="grid grid-cols-2 gap-6 sm:text-right">
+            <dl className="grid shrink-0 grid-cols-2 gap-6 lg:text-right">
               <div>
                 <dt className="text-xs text-muted-foreground">Price</dt>
                 <dd className="text-lg font-semibold">

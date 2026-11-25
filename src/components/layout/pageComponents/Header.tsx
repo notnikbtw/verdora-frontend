@@ -11,6 +11,7 @@ import { useNetworkStatus } from '@hooks/useNetworkStatus';
 import { useLogout } from '@hooks/useLogout';
 import LinkComponent from '@components/common/Link';
 import { isSalesLocation } from '@/utils/navigation.utils';
+import { ADMIN_PANEL_NAV_ITEM } from '@fixtures/sidebar.fixture';
 import { SidebarTrigger } from '@components/ui/sidebar';
 import TextField from '@components/common/forms/TextField';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -94,6 +95,13 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
             to="/catalog?discount=true"
             isActive={isSalesActive}
           />
+          {user?.role === 'ADMIN' && (
+            <LinkComponent
+              text={ADMIN_PANEL_NAV_ITEM.title}
+              to={ADMIN_PANEL_NAV_ITEM.path}
+              className="whitespace-nowrap"
+            />
+          )}
         </nav>
 
         <div className="hidden xl:flex items-center gap-6">

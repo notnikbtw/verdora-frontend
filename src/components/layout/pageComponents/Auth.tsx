@@ -48,9 +48,9 @@ const AuthForm = ({
     onGoogleAuth?.();
   };
   return (
-    <div className="relative flex min-h-screen w-full page-background dark:bg-zinc-950 overflow-hidden">
+    <div className="relative flex min-h-svh lg:min-h-screen w-full page-background dark:bg-zinc-950 overflow-hidden">
       <NoiseBackground />
-      <div className="relative z-10 flex w-full min-h-screen">
+      <div className="relative z-10 flex w-full min-h-svh lg:min-h-screen">
         <div className="hidden lg:block lg:w-1/2 relative min-h-screen overflow-hidden">
           <picture>
             <source media="(min-width: 1024px)" srcSet={AuthImg} />
@@ -66,13 +66,13 @@ const AuthForm = ({
           </picture>
         </div>
 
-        <div className="flex flex-col flex-1 w-full lg:w-1/2 justify-between items-center p-0 sm:p-8 lg:p-10 min-h-screen">
-          <div className="w-full flex justify-center pt-8 pb-6 sm:pt-2 sm:pb-2">
+        <div className="flex min-w-0 flex-col flex-1 w-full lg:w-1/2 justify-center sm:justify-between items-center gap-6 sm:gap-0 px-4 py-6 sm:p-8 lg:p-10 min-h-svh lg:min-h-screen">
+          <div className="w-full flex justify-center sm:pt-2 sm:pb-2">
             <Logo />
           </div>
 
-          <div className="flex-1 flex items-end sm:items-center justify-center w-full">
-            <Card className="w-full max-w-full sm:max-w-110 bg-white dark:bg-zinc-900 rounded-t-[36px] rounded-b-none sm:rounded-[28px] border-0 shadow-sm p-6 sm:p-8 flex flex-col justify-start gap-4 sm:gap-5 flex-1 sm:flex-initial">
+          <div className="sm:flex-1 flex items-center justify-center w-full">
+            <Card className="w-full min-w-0 max-w-110 bg-white dark:bg-zinc-900 rounded-[28px] border-0 shadow-sm p-6 sm:p-8 flex flex-col justify-start gap-4 sm:gap-5">
               {title && (
                 <CardHeader className="text-center space-y-1 pb-1 px-0">
                   <CardTitle className="font-sans font-medium text-xl leading-[184%] tracking-[-0.05em] text-center text-foreground">

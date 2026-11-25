@@ -1,7 +1,8 @@
 import { Star } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@components/ui/avatar';
 import SectionLayout from '@components/common/section/SectionLayout';
-import ReviewsCarousel from '@components/home/ReviewsCarousel';
+import ContentCarousel from '@components/common/ContentCarousel';
+import { cn } from '@/lib/utils';
 
 const reviews = [
   {
@@ -38,23 +39,35 @@ const reviews = [
 
 const HomeReviewsSection = () => (
   <SectionLayout title="Our reviews">
-    <ReviewsCarousel>
-      {reviews.map(review => (
+    <ContentCarousel
+      items={reviews}
+      getKey={review => review.name}
+      label="Customer reviews"
+      previousLabel="Previous review"
+      nextLabel="Next review"
+      renderItem={(review, active) => (
         <article
-          key={review.name}
-          className="flex min-w-70 sm:min-w-85 snap-start flex-col justify-between rounded-2xl bg-white/80 lg:backdrop-blur-sm border border-white/80 p-6 shadow-xs hover:shadow-md transition-all duration-300"
+          className={cn(
+            'flex h-full min-w-0 flex-col justify-between rounded-3xl border bg-card p-6 shadow-xs motion-safe:transition-shadow hover:shadow-md',
+            active ? 'border-primary/50 shadow-lg' : 'border-border'
+          )}
         >
-          <p className="text-sm sm:text-base leading-relaxed text-[#2C332D] mb-6">
+          <p
+            title={review.text}
+            className="line-clamp-4 wrap-anywhere text-sm sm:text-base leading-relaxed text-[#2C332D] mb-6"
+          >
             "{review.text}"
           </p>
-          <div className="flex items-center justify-between gap-4 text-xs sm:text-sm text-[#1E331B] font-medium">
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm text-[#1E331B] font-medium">
             <div className="flex min-w-0 items-center gap-2.5">
               <Avatar className="size-8 after:hidden">
                 <AvatarFallback className="bg-[#D9E3D5] text-xs font-bold text-[#1E331B]">
                   {review.initials}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-[#1E331B] font-sans">{review.name}</span>
+              <span className="min-w-0 wrap-anywhere text-[#1E331B] font-sans">
+                {review.name}
+              </span>
             </div>
             <span className="flex items-center gap-1 shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold">
               <Star className="size-3.5 fill-[#FFC800] text-[#FFC800]" />
@@ -64,8 +77,8 @@ const HomeReviewsSection = () => (
             </span>
           </div>
         </article>
-      ))}
-    </ReviewsCarousel>
+      )}
+    />
   </SectionLayout>
 );
 

@@ -20,6 +20,8 @@ export const useCheckoutForm = (defaultValues?: Partial<CheckoutFormData>) => {
       phone: '',
       deliveryMethod: 'delivery',
       pickupLocationId: PICKUP_LOCATIONS[0].id,
+      city: '',
+      settlement: null,
       street: '',
       building: '',
       apartment: '',
