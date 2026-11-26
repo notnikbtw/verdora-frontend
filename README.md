@@ -84,3 +84,11 @@ For hosting at another path, set `VITE_BASE_PATH` when building (for example, `/
 - [Responsive audit](docs/responsive-audit-2026-11-09.md): findings recorded on 2026-11-09.
 
 These documents include dated backend observations; verify the current backend contract when implementing integration changes.
+
+Production builds generate page metadata, a social cover and `sitemap.xml`. Set
+`VITE_SITE_URL` to the canonical public URL when deploying outside the default
+GitHub Pages address. Set `SEO_PRODUCT_API_URL` to the public catalog API to
+include product URLs and product previews at build time. The GitHub Pages
+workflow supplies this value from the configured backend URL. If the catalog
+request fails, the build still publishes the storefront previews and sitemap.
+Product previews reflect the catalog at the time of deployment.

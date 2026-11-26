@@ -1,4 +1,6 @@
 import { useMemo, useEffect } from 'react';
+import { ProductSeo } from '@components/common/PageSeo';
+import { parseProductRouteId } from '@/config/seo.config';
 import { useParams, Link } from 'react-router-dom';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import Breadcrumbs, {
@@ -18,8 +20,8 @@ import { ProductDetailsSkeleton } from '@components/product/ProductDetailsSkelet
 
 const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const productId = Number(id);
-  const isValidId = Number.isInteger(productId) && productId > 0;
+  const productId = parseProductRouteId(id) ?? 0;
+  const isValidId = productId > 0;
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -29,6 +31,7 @@ const ProductDetails = () => {
     data: product,
     isLoading,
     isError,
+    error,
     refetch,
   } = useGetProductById(productId, isValidId);
 
@@ -108,6 +111,10 @@ const ProductDetails = () => {
 
   return (
     <LayoutPage>
+      <ProductSeo
+        product={product}
+        invalid={!isValidId || error?.response?.status === 404}
+      />
       <div className="flex flex-col gap-6 py-5 sm:gap-8 sm:py-7">
         <Breadcrumbs items={breadcrumbItems} className="text-sm" />
 
